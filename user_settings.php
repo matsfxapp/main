@@ -41,6 +41,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $message = '';
+    
+    if (isset($_POST['update_profile'])) {
+        $result = updateProfile($user_id, $_POST, $_FILES['profile_picture'] ?? null);
+        $message = $result['success'] ? "Profile updated successfully!" : "Error: " . $result['error'];
+    }
+    
+    if (isset($_POST['update_password'])) {
+        $result = updatePassword($user_id, $_POST['current_password'], $_POST['new_password'], $_POST['confirm_password']);
+        $message = $result['success'] ? "Password updated successfully!" : "Error: " . $result['error'];
+    }
+    
+    if (isset($_POST['update_song'])) {
+        $result = updateSongDetails($user_id, $_POST['song_id'], [
+            'title' => $_POST['title'],
+            'artist' => $_POST['artist'],
+            'album' => $_POST['album'],
+            'genre' => $_POST['genre'],
+        ]);
+        $message = $result['success'] ? "Song details updated successfully!" : "Error: " . $result['error'];
+        if ($result['success']) {
+            $userSongs = getUserSongs($user_id);
+        }
+    }
+    
+    if (isset($_POST['delete_song'])) {
+        $result = deleteSong($user_id, $_POST['song_id']);
+        $message = $result['success'] ? "Song deleted successfully!" : "Error: " . $result['error'];
+        if ($result['success']) {
+            $userSongs = getUserSongs($user_id);
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -118,26 +152,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         </div>
 
+
         <div class="settings-section">
             <h2>My Uploaded Songs</h2>
             <ul class="songs-list">
                 <?php foreach ($userSongs as $song): ?>
                     <li class="song-item">
-                        <div>
-                            <strong><?php echo htmlspecialchars($song['title']); ?></strong> - 
-                            <?php echo htmlspecialchars($song['artist']); ?>
-                        </div>
-                        <form method="POST" style="display: inline;">
-                            <input type="hidden" name="song_id" value="<?php echo $song['song_id']; ?>">
-                            <button type="submit" name="delete_song" class="button button-delete"
-                                    onclick="return confirm('Are you sure you want to delete this song?')">
-                                Delete
+                        <div class="song-details">
+                            <div class="song-info">
+                                <strong><?php echo htmlspecialchars($song['title']); ?></strong> - 
+                                <?php echo htmlspecialchars($song['artist']); ?>
+                            </div>
+                            <button class="button" 
+                                    onclick="toggleEditForm('<?php echo $song['song_id']; ?>')"
+                                    style="margin-right: 1rem;">
+                                Edit
                             </button>
-                        </form>
+                            <form method="POST" style="display: inline;">
+                                <input type="hidden" name="song_id" value="<?php echo $song['song_id']; ?>">
+                                <button type="submit" name="delete_song" class="button button-delete"
+                                        onclick="return confirm('Are you sure you want to delete this song?')">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div id="edit-form-<?php echo $song['song_id']; ?>" class="edit-form" style="display: none;">
+                            <form method="POST" class="song-edit-form">
+                                <input type="hidden" name="song_id" value="<?php echo $song['song_id']; ?>">
+                                
+                                <div class="form-group">
+                                    <label for="title-<?php echo $song['song_id']; ?>">Title</label>
+                                    <input type="text" id="title-<?php echo $song['song_id']; ?>" 
+                                           name="title" value="<?php echo htmlspecialchars($song['title']); ?>" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="artist-<?php echo $song['song_id']; ?>">Artist</label>
+                                    <input type="text" id="artist-<?php echo $song['song_id']; ?>" 
+                                           name="artist" value="<?php echo htmlspecialchars($song['artist']); ?>" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="album-<?php echo $song['song_id']; ?>">Album</label>
+                                    <input type="text" id="album-<?php echo $song['song_id']; ?>" 
+                                           name="album" value="<?php echo htmlspecialchars($song['album']); ?>">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="genre-<?php echo $song['song_id']; ?>">Genre</label>
+                                    <input type="text" id="genre-<?php echo $song['song_id']; ?>" 
+                                           name="genre" value="<?php echo htmlspecialchars($song['genre']); ?>">
+                                </div>
+                                
+                                <button type="submit" name="update_song" class="button">Save Changes</button>
+                            </form>
+                        </div>
                     </li>
                 <?php endforeach; ?>
             </ul>
         </div>
     </div>
+
+    <script>
+    function toggleEditForm(songId) {
+        const form = document.getElementById(`edit-form-${songId}`);
+        if (form.style.display === 'none') {
+            // Hide all other forms first
+            document.querySelectorAll('.edit-form').forEach(f => f.style.display = 'none');
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    }
+    </script>
 </body>
 </html>
