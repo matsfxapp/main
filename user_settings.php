@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="settings-section">
             <h2>Profile Settings</h2>
-            <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'default-profile.jpg'); ?>" 
+            <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
                  alt="Profile Picture" class="profile-picture">
             
             <form method="POST" enctype="multipart/form-data">
@@ -127,6 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <button type="submit" name="update_profile" class="button">Update Profile</button>
+                <p>Try double clicking the button if its says their was an error updating your account</p>
             </form>
         </div>
 

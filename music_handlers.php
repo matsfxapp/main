@@ -64,3 +64,70 @@ function getAllSongs() {
         return [];
     }
 }
+
+function searchArtists($search) {
+    global $conn;
+    try {
+        $search = '%' . $search . '%';
+        $stmt = $conn->prepare("SELECT DISTINCT artist FROM songs WHERE artist LIKE :search");
+        $stmt->bindValue(':search', $search, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        return [];
+    }
+}
+
+function getArtistSongs($artist) {
+    global $conn;
+    try {
+        $stmt = $conn->prepare("SELECT * FROM songs WHERE artist = :artist");
+        $stmt->bindValue(':artist', $artist, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        return [];
+    }
+}
+
+function getArtistProfilePicture($artist) {
+    global $conn;
+    
+    $artistProfileDir = 'uploads/artist_profiles/';
+    if (!file_exists($artistProfileDir)) {
+        mkdir($artistProfileDir, 0777, true);
+    }
+    
+    $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    foreach ($validExtensions as $ext) {
+        $artistProfilePath = $artistProfileDir . sanitizeFilename($artist) . '.' . $ext;
+        if (file_exists($artistProfilePath)) {
+            return $artistProfilePath;
+        }
+    }
+    
+    try {
+        $stmt = $conn->prepare("SELECT profile_picture FROM users WHERE username = :username");
+        $stmt->execute(['username' => $artist]);
+        
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $profile_picture = $row['profile_picture'];
+            if ($profile_picture && file_exists('uploads/profiles/' . $profile_picture)) {
+                return 'uploads/profiles/' . $profile_picture;
+            }
+        }
+        
+        return 'defaults/default-profile.jpg';
+        
+    } catch (PDOException $e) {
+        error_log("Error fetching profile picture: " . $e->getMessage());
+        return 'defaults/default-profile.jpg';
+    }
+}
+
+function sanitizeFilename($filename) {
+    $filename = preg_replace('/[^a-zA-Z0-9-_]/', '', $filename);
+    return strtolower($filename);
+}
