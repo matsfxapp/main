@@ -157,4 +157,48 @@ function deleteSong($user_id, $song_id) {
         return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
     }
 }
+
+function updateSongDetails($user_id, $song_id, $data) {
+    global $conn;
+    
+    try {
+        // Verify song ownership
+        $check_query = "SELECT song_id FROM songs WHERE song_id = :song_id AND uploaded_by = :user_id";
+        $check_stmt = $conn->prepare($check_query);
+        $check_stmt->execute([
+            ':song_id' => $song_id,
+            ':user_id' => $user_id
+        ]);
+        
+        if ($check_stmt->rowCount() === 0) {
+            return ['success' => false, 'error' => 'Song not found or unauthorized'];
+        }
+        
+        // Update song details
+        $update_query = "UPDATE songs SET 
+            title = :title,
+            artist = :artist,
+            album = :album,
+            genre = :genre
+            WHERE song_id = :song_id AND uploaded_by = :user_id";
+            
+        $update_stmt = $conn->prepare($update_query);
+        $result = $update_stmt->execute([
+            ':title' => $data['title'],
+            ':artist' => $data['artist'],
+            ':album' => $data['album'],
+            ':genre' => $data['genre'],
+            ':song_id' => $song_id,
+            ':user_id' => $user_id
+        ]);
+        
+        if ($result) {
+            return ['success' => true];
+        } else {
+            return ['success' => false, 'error' => 'Failed to update song details'];
+        }
+    } catch (PDOException $e) {
+        return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
+    }
+}
 ?>
