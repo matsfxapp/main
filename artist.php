@@ -1,5 +1,4 @@
 <?php
-    // artist.php
     require_once 'config.php';
     require_once 'music_handlers.php';
 
@@ -8,7 +7,6 @@
         exit();
     }
 
-    // Get artist name from URL
     $artist = isset($_GET['name']) ? urldecode($_GET['name']) : null;
 
     if (!$artist) {
