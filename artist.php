@@ -14,22 +14,64 @@
         exit();
     }
 
-    $songs = getArtistSongs($artist);
-    $profilePicture = getArtistProfilePicture($artist);
-
-    function getUserProfilePicture($userId) {
+    function checkArtistExists($artistName) {
         global $conn;
-        $query = "SELECT profile_picture FROM users WHERE user_id = :userId"; 
+        $query = "SELECT * FROM users WHERE username = :username";
         $stmt = $conn->prepare($query);
-        $stmt->bindParam(":userId", $userId, PDO::PARAM_INT);
+        $stmt->bindParam(":username", $artistName, PDO::PARAM_STR);
         $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? $row['profile_picture'] : 'uploads/profiles/default.jpg';
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    $userId = 1;
-    $profilePicture = getUserProfilePicture($userId);
+    function getArtistProfilePicture($artistName) {
+        global $conn;
+        $query = "SELECT profile_picture FROM users WHERE username = :username";
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(":username", $artistName, PDO::PARAM_STR);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result && $result['profile_picture']) {
+            return $result['profile_picture'];
+        }
+        return 'defaults/default-artist.jpg';
+    }
 
+    $artistData = checkArtistExists($artist);
+    if (!$artistData) {
+        ?>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>User Not Found - matSFX</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="styles.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="logo">matSFX - Alpha 0.1</div>
+                <div class="nav-links">
+                    <a href="index.php">Home</a>
+                    <a href="upload.php">Upload</a>
+                    <a href="user_settings.php">Settings</a>
+                    <a href="logout.php">Logout</a>
+                </div>
+            </nav>
+            <div class="error-container">
+                <h1>User Not Found</h1>
+                <p>The requested user does not exist.</p>
+                <a href="index.php" class="back-button">Back to Home</a>
+            </div>
+        </body>
+        </html>
+        <?php
+        exit();
+    }
+
+    $songs = getArtistSongs($artist);
+    $profilePicture = getArtistProfilePicture($artist);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,11 +93,10 @@
         </div>
     </nav>
 
-
     <div class="artist-profile">
         <div class="profile-header">
             <div class="profile-content">
-                <img src="<?php echo htmlspecialchars($profilePicture); ?>"alt="Artist" class="profile-image">
+                <img src="<?php echo htmlspecialchars($profilePicture); ?>" alt="Artist" class="profile-image">
                 <div class="profile-info">
                     <h1 class="profile-name"><?php echo htmlspecialchars($artist); ?></h1>
                     <div class="profile-stats">
