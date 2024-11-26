@@ -1,4 +1,4 @@
-# Welcome to MatsFX
+# Welcome to matSFX
 
 <img width="30" alt="image" src="https://github.com/user-attachments/assets/3a6da5f7-513f-45f0-bfb4-90b813d6260f">A modern, web-based music streaming platform.
 
