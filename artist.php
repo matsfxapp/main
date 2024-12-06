@@ -4,14 +4,14 @@ ini_set('display_errors', 1);
 require_once 'config.php';
 
 if (!isLoggedIn()) {
-    header("Location: login.php");
+    header("Location: login");
     exit();
 }
 
 $artist = isset($_GET['name']) ? trim(urldecode($_GET['name'])) : null;
 
 if (!$artist) {
-    header("Location: index.php");
+    header("Location: index");
     exit();
 }
 
@@ -51,7 +51,7 @@ function getArtistSongs($artistName) {
 function checkArtistExists($artistName) {
     global $conn;
     try {
-        $stmt = $conn->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt = $conn->prepare("SELECT *, is_verified FROM users WHERE username = :username");
         $stmt->bindValue(':username', $artistName, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -78,29 +78,72 @@ if (!$artistData) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User Not Found - matSFX</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app-images/matsfx-logo.png">
         <link rel="stylesheet" href="style.css">
+        <style>
+            .error-user-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 91vh;
+                background-color: var(--dark-bg);
+                text-align: center;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+            .error-user-heading {
+                font-size: 48px;
+                font-weight: bold;
+                color: var(--primary-color);
+                margin-bottom: 16px;
+            }
+
+            .error-user-text {
+                font-size: 20px;
+                color: var(--gray-text);
+                margin-bottom: 32px;
+            }
+
+            .error-user-button {
+                display: inline-block;
+                text-decoration: none;
+                padding: 12px 24px;
+                font-size: 18px;
+                font-weight: 600;
+                color: var(--light-text);
+                background-color: var(--primary-color);
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow-sm);
+                transition: var(--transition);
+            }
+
+            .error-user-button:hover {
+                background-color: var(--primary-hover);
+                box-shadow: var(--shadow-md);
+            }
+        </style>
     </head>
     <body>
         <nav class="navbar">
             <div class="logo">matSFX - Alpha 0.1</div>
             <div class="nav-links">
-                <a href="index.php">Home</a>
-                <a href="upload.php">Upload</a>
-                <a href="user_settings.php">Settings</a>
-                <a href="logout.php">Logout</a>
+                <a href="../">Home</a>
+                <a href="upload">Upload</a>
+                <a href="settings">Settings</a>
+                <a href="logout">Logout</a>
             </div>
         </nav>
-        <div class="error-container">
-            <h1>User Not Found</h1>
-            <p>The requested user does not exist.</p>
-            <a href="index.php" class="back-button">Back to Home</a>
+        <div class="error-user-container">
+            <h1 class="error-user-heading">User Not Found</h1>
+            <p class="error-user-text">The requested user does not exist.</p>
+            <a href="../" class="error-user-button">Back to Home</a>
         </div>
     </body>
     </html>
     <?php
     exit();
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -110,15 +153,23 @@ if (!$artistData) {
     <title><?php echo htmlspecialchars($artist); ?> - matSFX</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .verified-badge {
+            width: 20px;
+            height: 20px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">matSFX - Alpha 0.1</div>
         <div class="nav-links">
-            <a href="index.php">Home</a>
-            <a href="upload.php">Upload</a>
-            <a href="user_settings.php">Settings</a>
-            <a href="logout.php">Logout</a>
+            <a href="../">Home</a>
+            <a href="upload">Upload</a>
+            <a href="settings">Settings</a>
+            <a href="logout">Logout</a>
         </div>
     </nav>
 
@@ -127,7 +178,14 @@ if (!$artistData) {
             <div class="profile-content">
                 <img src="<?php echo htmlspecialchars($profilePicture); ?>" alt="Artist" class="profile-image">
                 <div class="profile-info">
-                    <h1 class="profile-name"><?php echo htmlspecialchars($artist); ?></h1>
+                    <h1 class="profile-name">
+                        <?php 
+                        echo htmlspecialchars($artist); 
+                        if ($artistData['is_verified'] == 1): 
+                        ?>
+                        <img src="app-images/verified-badge.png" alt="Verified" class="verified-badge" title="Verified Artist">
+                        <?php endif; ?>
+                    </h1>
                     <div class="profile-stats">
                         <span><?php echo count($songs); ?> Songs</span>
                     </div>
@@ -145,7 +203,7 @@ if (!$artistData) {
                 <?php else: ?>
                     <?php foreach ($songs as $song): ?>
                         <div class="song-card">
-                            <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                            <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'default/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                             <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                             <div class="song-artist"><?php echo htmlspecialchars($song['artist']); ?></div>
                             <div class="song-controls">
