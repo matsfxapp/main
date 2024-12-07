@@ -1,0 +1,14 @@
+# Turn on the rewrite engine
+RewriteEngine on
+
+# Exclude image files from being rewritten (exclude .jpg, .jpeg, .png, .gif, etc.)
+RewriteCond %{REQUEST_URI} !\.(jpg|jpeg|png|gif|bmp|webp|css|js|mp3|wav)$ [NC]
+
+# If the request doesn't end in .php (Case insensitive), continue processing rules
+RewriteCond %{REQUEST_URI} !\.php$ [NC]
+
+# If the request doesn't end in a slash, continue processing the rules
+RewriteCond %{REQUEST_URI} [^/]$
+
+# Rewrite the request with a .php extension. L means this is the 'Last' rule
+RewriteRule ^(.*)$ $1.php [L]

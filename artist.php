@@ -3,11 +3,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 require_once 'config.php';
 
-if (!isLoggedIn()) {
-    header("Location: login");
-    exit();
-}
-
 $artist = isset($_GET['name']) ? trim(urldecode($_GET['name'])) : null;
 
 if (!$artist) {
@@ -51,7 +46,7 @@ function getArtistSongs($artistName) {
 function checkArtistExists($artistName) {
     global $conn;
     try {
-        $stmt = $conn->prepare("SELECT *, is_verified FROM users WHERE username = :username");
+        $stmt = $conn->prepare("SELECT *, is_verified, bio, is_developer FROM users WHERE username = :username");
         $stmt->bindValue(':username', $artistName, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -160,6 +155,12 @@ if (!$artistData) {
             margin-left: 8px;
             vertical-align: middle;
         }
+	    .developer-badge {
+            width: 20px;
+            height: 20px;
+            
+            vertical-align: middle;
+        }	    
     </style>
 </head>
 <body>
@@ -173,19 +174,31 @@ if (!$artistData) {
         </div>
     </nav>
 
-    <div class="artist-profile">
-        <div class="profile-header">
-            <div class="profile-content">
-                <img src="<?php echo htmlspecialchars($profilePicture); ?>" alt="Artist" class="profile-image">
-                <div class="profile-info">
-                    <h1 class="profile-name">
-                        <?php 
-                        echo htmlspecialchars($artist); 
-                        if ($artistData['is_verified'] == 1): 
-                        ?>
-                        <img src="app-images/verified-badge.png" alt="Verified" class="verified-badge" title="Verified Artist">
-                        <?php endif; ?>
-                    </h1>
+		<div class="artist-profile">
+			<div class="profile-header">
+				<div class="profile-content">
+					<img src="<?php echo htmlspecialchars($profilePicture); ?>" alt="Artist" class="profile-image">
+					<div class="profile-info">
+						<h1 class="profile-name">
+							<?php 
+							echo htmlspecialchars($artist); 
+							if ($artistData['is_admin'] == 1): 
+							?>
+							<img src="app-images/admin-badge.png" alt="Admin" class="verified-badge" title="Admin">
+							<?php 
+							elseif ($artistData['is_verified'] == 1): 
+							?>
+							<img src="app-images/verified-badge.png" alt="Verified" class="verified-badge" title="Verified Artist">
+							<?php 
+							endif; 
+							if ($artistData['is_developer'] == 1): 
+							?>
+							<img src="app-images/developer-badge.png" alt="Developer" class="developer-badge" title="Developer">
+							<?php endif; ?>
+						</h1>
+						 <?php if (!empty($artistData['bio'])): ?>
+                            <p><?php echo nl2br(htmlspecialchars($artistData['bio'])); ?></p>
+                           <?php endif; ?>
                     <div class="profile-stats">
                         <span><?php echo count($songs); ?> Songs</span>
                     </div>
@@ -203,7 +216,7 @@ if (!$artistData) {
                 <?php else: ?>
                     <?php foreach ($songs as $song): ?>
                         <div class="song-card">
-                            <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'default/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                            <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                             <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                             <div class="song-artist"><?php echo htmlspecialchars($song['artist']); ?></div>
                             <div class="song-controls">

@@ -1,17 +1,21 @@
 <?php
-define('DB_HOST', '127.0.0.1');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'test');
+define('DB_HOST', 'localhost:3306');
+define('DB_USER', 'mathis_1234554321');
+define('DB_PASS', 'h^k3Du464');
+define('DB_NAME', 'tziipreq_');
 
 try {
     $conn = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    $pdo = $conn;
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());
 }
 
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 function isLoggedIn() {
     return isset($_SESSION['user_id']);
