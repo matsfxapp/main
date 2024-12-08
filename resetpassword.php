@@ -10,11 +10,10 @@ function sendEmail($to, $subject, $body) {
 
     try {
         // Server settings
-        $mail->isSMTP();
-        $mail->Host       = "your host";
+        $mail->Host       = "enter-your-host";
         $mail->SMTPAuth   = true;
-        $mail->Username   = "your username";
-        $mail->Password   = "ur password";
+        $mail->Username   = "enter-your-username";
+        $mail->Password   = "enter-your-password";
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = "587";
 
