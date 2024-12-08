@@ -33,12 +33,14 @@ function sendVerificationEmail($email, $code) {
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host = 'mx.freenet.de';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'mat@fn.de';
-        $mail->Password = 'eE3BO72eYg';
+        $mail->Host       = "enter-your-host";
+        $mail->SMTPAuth   = true;
+        $mail->Username   = "enter-your-username";
+        $mail->Password   = "enter-your-password";
+        $mail->Username   = "mat@fn.de";
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
+        $mail->Port       = "587";
+	    
         $mail->setFrom('mat@fn.de', 'matSFX Verification');
         $mail->addAddress($email);
         $verifyLink = "https://alpha.matsfx.com/verify?code=$code";
