@@ -91,3 +91,4 @@ class MatsFXPlayer {
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 }
+}

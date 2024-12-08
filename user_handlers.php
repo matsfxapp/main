@@ -58,10 +58,11 @@ function updateProfile($user_id, $data, $profile_picture = null) {
         }
         
         // Update user data
-        $query = "UPDATE users SET username = :username, email = :email";
+        $query = "UPDATE users SET username = :username, email = :email, bio = :bio";
         $params = [
             ':username' => $data['username'],
             ':email' => $data['email'],
+            ':bio' => $data['bio'],  // Added bio
             ':user_id' => $user_id
         ];
         
@@ -177,7 +178,6 @@ function updateSongDetails($user_id, $song_id, $data) {
         // Update song details
         $update_query = "UPDATE songs SET 
             title = :title,
-            artist = :artist,
             album = :album,
             genre = :genre
             WHERE song_id = :song_id AND uploaded_by = :user_id";
@@ -185,7 +185,6 @@ function updateSongDetails($user_id, $song_id, $data) {
         $update_stmt = $conn->prepare($update_query);
         $result = $update_stmt->execute([
             ':title' => $data['title'],
-            ':artist' => $data['artist'],
             ':album' => $data['album'],
             ':genre' => $data['genre'],
             ':song_id' => $song_id,

@@ -75,21 +75,16 @@ $songs = getAllSongs();
         </div>
     </div> -->
 
-    <div class="container">
+    <div class="container" style="padding-bottom: 10%;">
         <div class="music-grid">
             <?php foreach ($songs as $song): ?>
-                <div class="song-card">
+                <div class="song-card" onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)">
                     <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                     <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                     <div class="song-artist">
                         <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
                             <?php echo htmlspecialchars($song['artist']); ?>
                         </a>
-                    </div>
-                    <div class="song-controls">
-                        <button onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)" class="play-btn">
-                            Play
-                        </button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -129,33 +124,34 @@ $songs = getAllSongs();
 	</div>
 
     <script>
-      const audioPlayer = document.getElementById('audio-player');
-		let currentButton = null;
+		const audioPlayer = document.getElementById('audio-player');
 
 		function playSong(songPath, button) {
-			if (currentButton && currentButton !== button) {
-				currentButton.textContent = 'Play';
-			}
-
 			if (audioPlayer.src.endsWith(songPath) && !audioPlayer.paused) {
 				audioPlayer.pause();  
-				button.textContent = 'Play'; 
 			} else {
 				audioPlayer.src = songPath;  
-				audioPlayer.play().then(() => {
-					button.textContent = 'Pause';  
-					currentButton = button;  
-				}).catch(error => {
+				audioPlayer.play().catch(error => {
 					console.error('Error playing song:', error);
 					alert('Error playing song. Please try again.');
 				});
 			}
 		}
-
+		
 		audioPlayer.addEventListener('ended', () => {
 			if (currentButton) {
 				currentButton.textContent = 'Play';
 			}
+		});
+		
+		const player = document.querySelector('.player');
+
+		audioPlayer.addEventListener('play', () => {
+			player.classList.add('active');
+		});
+
+		audioPlayer.addEventListener('pause', () => {
+			player.classList.remove('active');
 		});
 		
 		function openChangelog() {

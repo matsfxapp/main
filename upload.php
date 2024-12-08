@@ -12,21 +12,27 @@ $currentUser = $_SESSION['username'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = sanitizeInput($_POST['title']);
-    $artist = sanitizeInput($_POST['artist']);
+    $artist = sanitizeInput($currentUser);
     $album = sanitizeInput($_POST['album']);
     $genre = sanitizeInput($_POST['genre']);
     
     if (empty($artist)) {
         $artist = $currentUser;
     }
+    if (isset($_FILES['cover_art']) && $_FILES['cover_art']['error'] === UPLOAD_ERR_NO_FILE) {
+        $coverPath = 'defaults/default-cover.jpg';
+    } else {
+        $coverPath = $_FILES['cover_art'];
+    }
     
-    if (uploadSong($title, $artist, $album, $genre, $_FILES['song_file'], $_FILES['cover_art'])) {
+    if (uploadSong($title, $artist, $album, $genre, $_FILES['song_file'], $coverPath)) {
         $success = "Song uploaded successfully!";
     } else {
         $error = "Error uploading song. Please try again.";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -35,15 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Music - matSFX</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">matSFX - Alpha 0.1</div>
         <div class="nav-links">
-            <a href="index.php">Home</a>
-            <a href="upload.php">Upload</a>
-            <a href="user_settings.php">Settings</a>
+            <a href="/">Home</a>
+            <a href="/upload">Upload</a>
+            <a href="/settings">Settings</a>
             <a href="logout.php">Logout</a>
         </div>
     </nav>
@@ -67,10 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="form-group">
-                    <label for="artist">Artist *</label>
-                    <input type="text" id="artist" name="artist" value="<?php echo htmlspecialchars($currentUser); ?>" required>
-                    <small class="form-text">This defaults to your username. You can change it if you're uploading for someone else.</small>
-                </div>
+					 <input type="hidden" id="artist" name="artist" value="<?php echo htmlspecialchars($currentUser); ?>">
+				</div>
 
                 <div class="form-group">
                     <label for="album">Album</label>

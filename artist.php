@@ -206,7 +206,7 @@ if (!$artistData) {
             </div>
         </div>
         
-        <div class="artist-songs">
+        <div class="artist-songs" style="padding-bottom: 10%;">
             <div class="songs-header">
                 <h2 class="songs-title">Songs</h2>
             </div>
@@ -215,14 +215,11 @@ if (!$artistData) {
                     <p>No songs uploaded yet.</p>
                 <?php else: ?>
                     <?php foreach ($songs as $song): ?>
-                        <div class="song-card">
+                        <div class="song-card" onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)">
                             <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                             <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                             <div class="song-artist"><?php echo htmlspecialchars($song['artist']); ?></div>
                             <div class="song-controls">
-                                <button onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)" class="play-btn">
-                                    Play
-                                </button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -238,34 +235,35 @@ if (!$artistData) {
     </div>
 
     <script>
-        const audioPlayer = document.getElementById('audio-player');
-        let currentButton = null;
+		const audioPlayer = document.getElementById('audio-player');
 
-        function playSong(songPath, button) {
-            if (currentButton) {
-                currentButton.textContent = 'Play';
-            }
+		function playSong(songPath, button) {
+			if (audioPlayer.src.endsWith(songPath) && !audioPlayer.paused) {
+				audioPlayer.pause();  
+			} else {
+				audioPlayer.src = songPath;  
+				audioPlayer.play().catch(error => {
+					console.error('Error playing song:', error);
+					alert('Error playing song. Please try again.');
+				});
+			}
+		}
+		
+		audioPlayer.addEventListener('ended', () => {
+			if (currentButton) {
+				currentButton.textContent = 'Play';
+			}
+		});
+		
+		const player = document.querySelector('.player');
 
-            if (audioPlayer.src.endsWith(songPath) && !audioPlayer.paused) {
-                audioPlayer.pause();
-                button.textContent = 'Play';
-            } else {
-                audioPlayer.src = songPath;
-                audioPlayer.play().then(() => {
-                    button.textContent = 'Pause';
-                    currentButton = button;
-                }).catch(error => {
-                    console.error('Error playing song:', error);
-                    alert('Error playing song. Please try again.');
-                });
-            }
-        }
+		audioPlayer.addEventListener('play', () => {
+			player.classList.add('active');
+		});
 
-        audioPlayer.addEventListener('ended', () => {
-            if (currentButton) {
-                currentButton.textContent = 'Play';
-            }
-        });
+		audioPlayer.addEventListener('pause', () => {
+			player.classList.remove('active');
+		});
     </script>
 </body>
 </html>
