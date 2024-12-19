@@ -39,6 +39,8 @@ $shareable_link = "https://alpha.matsfx.com/song?song_id={$song_id}";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $song_title; ?> - matSFX</title>
     <link rel="stylesheet" href="css/song-link-style.css">
+	
+	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
     <div class="song-container">

@@ -1,7 +1,10 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
 require_once 'config.php';
+require_once 'themes/theme-handler.php';
+
 $currentUserId = $_SESSION['user_id'] ?? null;
 $profileUserId = $artistData['user_id'] ?? null;
 
@@ -238,6 +241,8 @@ if (!$artistData) {
 				background-color: #a71d2a;
 			}
         </style>
+		
+		<?php outputChristmasThemeCSS(); ?>
     </head>
     <body>
         <nav class="navbar">
@@ -415,6 +420,8 @@ if (!$artistData) {
             z-index: 1;
         }
     </style>
+	
+	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
     <nav class="navbar">

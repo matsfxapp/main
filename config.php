@@ -1,4 +1,6 @@
 <?php
+require_once 'themes/theme-handler.php';
+
 define('DB_HOST', 'localhost:3306');
 define('DB_USER', 'mathis_1234554321');
 define('DB_PASS', 'h^k3Du464');

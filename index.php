@@ -90,6 +90,8 @@ foreach ($songs as $song) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 	<link rel="stylesheet" href="css/player-style.css">
 	<link rel="stylesheet" href="css/index-artistsection.css">
+	
+	<?php outputChristmasThemeCSS(); ?>
 </head>
 	    <style>
 		.sticky-banner {

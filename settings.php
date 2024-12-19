@@ -66,6 +66,108 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
     <link rel="stylesheet" href="style.css">
+	<style>
+		:root {
+			--primary-color: #2D7FF9;
+			--primary-hover: #1E6AD4;
+			--primary-light: rgba(45, 127, 249, 0.1);
+			--accent-color: #18BFFF;
+			--dark-bg: #0A1220;
+			--darker-bg: #060912;
+			--card-bg: #111827;
+			--card-hover: #1F2937;
+			--nav-bg: rgba(17, 24, 39, 0.95);
+			--light-text: #FFFFFF;
+			--gray-text: #94A3B8;
+			--border-color: #1F2937;
+			--border-radius: 12px;
+			--border-radius-lg: 16px;
+			--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			--shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+			--shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+			--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+		}
+		
+		.form-group textarea {
+			width: 98%;
+			padding: 0.875rem 1.25rem;
+			border: 2px solid var(--border-color);
+			background-color: rgba(255, 255, 255, 0.05);
+			color: var(--light-text);
+			border-radius: var(--border-radius);
+			font-size: 1rem;
+			transition: var(--transition);
+			min-height: 150px;
+			height: 150px;
+			resize: vertical;
+			font-family: inherit;
+		}
+
+		.form-group textarea:focus {
+			outline: none;
+			border-color: var(--primary-color);
+			background-color: rgba(255, 255, 255, 0.08);
+			box-shadow: 0 0 0 4px var(--primary-light);
+		}
+		
+		.christmas-toggle-btn {
+			position: relative;
+			padding: 12px 24px;
+			font-size: 16px;
+			font-weight: 600;
+			color: #fff;
+			background: linear-gradient(45deg, #D42426, #2E7D32);
+			border: none;
+			border-radius: 30px;
+			cursor: pointer;
+			overflow: hidden;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+		}
+
+		.christmas-toggle-btn::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+			transition: 0.5s;
+		}
+
+		.christmas-toggle-btn:hover::before {
+			left: 100%;
+		}
+
+		.christmas-toggle-btn:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+		}
+
+		/* Toggle Button Container */
+		.theme-toggle {
+			position: relative;
+			display: inline-block;
+		}
+
+		.theme-toggle::after {
+			content: '🎄';
+			position: absolute;
+			right: -30px;
+			top: 50%;
+			transform: translateY(-50%);
+			font-size: 24px;
+			animation: bounce 2s infinite;
+		}
+
+		@keyframes bounce {
+			0%, 100% { transform: translateY(-50%); }
+			50% { transform: translateY(-70%); }
+		}
+	</style>
+	
+	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
     <nav class="navbar">
@@ -108,16 +210,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
                 </div>
 
-                <div class="form-group">
-                    <label for="bio">Bio</label>
-                    <textarea id="bio" name="bio" maxlength="300" rows="4"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
-                </div>
-                
+				<div class="form-group">
+					<label for="bio">Bio</label>
+					<textarea id="bio" name="bio" maxlength="300" rows="4"><?php 
+						echo htmlspecialchars(isset($user['bio']) ? $user['bio'] : '');
+					?></textarea>
+				</div>
+
                 <button type="submit" name="update_profile" class="button">Update Profile</button>
                 <p>Try double clicking the button if its says their was an error updating your account</p>
             </form>
         </div>
-
+		
+		<div class="settings-section">
+			<h2>Change Theme</h2>
+				<form method="POST" class="theme-toggle">
+					<button type="submit" name="toggle_christmas_theme" class="christmas-toggle-btn">
+						<?php echo isChristmasThemeEnabled() ? '🎄 Disable Christmas Theme' : '🎄 Enable Christmas Theme'; ?>
+					</button>
+				</form>
+		</div>
+		
         <div class="settings-section">
             <h2>Change Password</h2>
             <form method="POST">
