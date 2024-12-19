@@ -1,0 +1,208 @@
+:root {
+	--primary-color: #2D7FF9;
+	--primary-hover: #1E6AD4;
+	--primary-light: rgba(45, 127, 249, 0.1);
+	--accent-color: #18BFFF;
+	--dark-bg: #0A1220;
+	--darker-bg: #060912;
+	--card-bg: #111827;
+	--card-hover: #1F2937;
+	--nav-bg: rgba(17, 24, 39, 0.95);
+	--light-text: #FFFFFF;
+	--gray-text: #94A3B8;
+	--border-color: #1F2937;
+	--border-radius: 12px;
+	--border-radius-lg: 16px;
+	--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	--shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+	--shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+	--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.artist-section {
+	margin-bottom: 2rem;
+	position: relative;
+}
+
+.artist-section-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+.navigation-buttons {
+	display: flex;
+	gap: 10px;
+}
+
+.navigation-button {
+	background-color: var(--card-bg);
+	border: 1px solid var(--border-color);
+	padding: 5px 10px;
+	cursor: pointer;
+	border-radius: var(--border-radius);
+	transition: var(--transition);
+}
+
+.navigation-button:hover {
+	background-color: var(--card-hover);
+	border-color: var(--primary-color);
+}
+
+.artist-songs-container {
+	display: flex;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scroll-behavior: smooth;
+	-webkit-overflow-scrolling: touch;
+	gap: 1rem;
+	padding: 0.5rem 0;
+}
+
+.music-grid-artist {
+	display: flex;
+	scroll-snap-align: start;
+	min-width: 100%;
+	flex-shrink: 0;
+	gap: 2rem;
+}
+
+.section-title {
+	font-size: 1.5rem;
+	margin-bottom: 1rem;
+	color: var(--light-text);
+}
+
+.song-card {
+	background-color: var(--card-bg);
+	border-radius: var(--border-radius-lg);
+	padding: 1.5rem;
+	transition: var(--transition);
+	position: relative;
+	overflow: hidden;
+	border: 1px solid var(--border-color);
+}
+
+.song-card:hover {
+	background-color: var(--card-hover);
+	transform: translateY(-4px);
+	box-shadow: var(--shadow-lg);
+	border-color: var(--primary-color);
+}
+
+.cover-art {
+	max-width: 200px;
+	max-height: 200px;
+	width: 100%;
+	aspect-ratio: 1;
+	object-fit: cover;
+	border-radius: var(--border-radius);
+	margin-bottom: 1.25rem;
+	box-shadow: var(--shadow-md);
+	transition: var(--transition);
+}
+
+.song-card:hover .cover-art {
+	transform: scale(1.02);
+	box-shadow: var(--shadow-lg);
+}
+
+.song-title {
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	color: var(--light-text);
+	font-size: 1.125rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.song-artist {
+	color: var(--gray-text);
+	font-size: 0.925rem;
+	margin-bottom: 1.25rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#artistSongs {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 2rem;
+	padding: 1rem;
+	animation: slideUp 0.6s ease-out;
+}
+
+#artistSongs .song-card {
+	background-color: var(--card-bg);
+	border-radius: var(--border-radius-lg);
+	padding: 1.5rem;
+	transition: var(--transition);
+	position: relative;
+	overflow: hidden;
+	border: 1px solid var(--border-color);
+}
+
+#artistSongs .song-card:hover {
+	background-color: var(--card-hover);
+	transform: translateY(-4px);
+	box-shadow: var(--shadow-lg);
+	border-color: var(--primary-color);
+}
+
+#artistSongs .cover-art {
+	width: 20%;
+	aspect-ratio: 1;
+	object-fit: cover;
+	border-radius: var(--border-radius);
+	margin-bottom: 1.25rem;
+	box-shadow: var(--shadow-md);
+	transition: var(--transition);
+}
+
+#artistSongs .song-card:hover .cover-art {
+	transform: scale(1.02);
+	box-shadow: var(--shadow-lg);
+}
+
+#artistSongs {
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	color: var(--light-text);
+	font-size: 1.125rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#artistSongs {
+	color: var(--gray-text);
+	font-size: 0.925rem;
+	margin-bottom: 1.25rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.cover-art {
+	max-width: 200px;
+	max-height: 200px;
+	width: 100%;
+	aspect-ratio: 1;
+	object-fit: cover;
+	border-radius: var(--border-radius);
+	margin-bottom: 1.25rem;
+	box-shadow: var(--shadow-md);
+	transition: var(--transition);
+}
+.song-card.active-song {
+	background-color: var(--primary-color);
+	color: white;
+}
+
+.song-card.active-song .song-title,
+.song-card.active-song .song-artist {
+	color: white;
+}

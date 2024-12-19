@@ -57,8 +57,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Settings - matSFX</title>
+	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
+	<meta property="og:title" content="matSFX - Listen with Joy!" />
+	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
+	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://matsfx.com/" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app-images/matsfx-logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -201,5 +207,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     </script>
+	
+<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+	<script>
+	function adjustKoFiWidgetMobile() {
+		if (window.innerWidth <= 768) {
+			const style = document.createElement('style');
+			style.innerHTML = `
+				.kofi-widget-overlay {
+					z-index: -1 !important; /* Place behind other elements */
+					position: fixed !important;
+					bottom: 20px !important;
+					right: 20px !important;
+				}
+			`;
+			document.head.appendChild(style);
+		}
+	}
+
+	adjustKoFiWidgetMobile();
+
+	window.addEventListener('resize', adjustKoFiWidgetMobile);
+
+	kofiWidgetOverlay.draw('matsfx', {
+		'type': 'floating-chat',
+		'floating-chat.donateButton.text': 'Support Us',
+		'floating-chat.donateButton.background-color': '#ffffff',
+		'floating-chat.donateButton.text-color': '#323842'
+	});
+	</script>
 </body>
 </html>

@@ -122,22 +122,18 @@ $publicPlaylists = getPublicPlaylists();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>matSFX</title>
+	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
+	<meta property="og:title" content="matSFX - Listen with Joy!" />
+	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
+	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://matsfx.com/" />
+    <title>matSFX - Playlists (UNDER CONSTRUCTION V1)</title>
+	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
     <link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="playlists.css">
 </head>
 <body>
-    <header class="header">
-        <h1>matSFX</h1>
-        <input type="text" placeholder="Search Artist, Playlists and Songs" id="searchBar">
-    </header>
-    <nav class="navbar">
-        <ul>
-            <li>Home</li>
-            <li>Upload</li>
-            <li>Playlists</li>
-        </ul>
-    </nav>
     <main class="main-content">
         <section class="playlists">
             <h2>Your Playlists</h2>

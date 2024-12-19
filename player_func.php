@@ -1,5 +1,5 @@
 <?php
-class MatsFXPlayer {
+class matSFXPlayer {
     private $db;
     private $userId;
 

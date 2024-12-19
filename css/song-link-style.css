@@ -1,0 +1,103 @@
+:root {
+    --primary-color: #2D7FF9;
+    --primary-hover: #1E6AD4;
+    --primary-light: rgba(45, 127, 249, 0.1);
+    --accent-color: #18BFFF;
+    --dark-bg: #0A1220;
+    --darker-bg: #060912;
+    --card-bg: #111827;
+    --card-hover: #1F2937;
+    --nav-bg: rgba(17, 24, 39, 0.95);
+    --light-text: #FFFFFF;
+    --gray-text: #94A3B8;
+    --border-color: #1F2937;
+    --border-radius: 12px;
+    --border-radius-lg: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.song-container {
+    display: flex;
+    align-items: center;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.song-cover {
+    max-width: 200px;
+    border-radius: var(--border-radius);
+    margin-right: 20px;
+}
+
+.song-details h1 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.song-details p {
+    color: var(--gray-text);
+    margin: 5px 0;
+}
+
+.link-section {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.share-link {
+    flex-grow: 1;
+    padding: 8px;
+    background-color: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    color: var(--light-text);
+    border-radius: var(--border-radius);
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-copy {
+    background-color: var(--accent-color);
+}
+
+.btn-copy:hover {
+    background-color: var(--primary-color);
+}
+
+.btn-download {
+    background-color: var(--card-hover);
+}
+
+.btn-download:hover {
+    background-color: var(--border-color);
+}

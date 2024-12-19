@@ -159,45 +159,72 @@ function deleteSong($user_id, $song_id) {
     }
 }
 
-function updateSongDetails($user_id, $song_id, $data) {
+function updateSongDetails($user_id, $song_id, $details) {
     global $conn;
     
-    try {
-        // Verify song ownership
-        $check_query = "SELECT song_id FROM songs WHERE song_id = :song_id AND uploaded_by = :user_id";
-        $check_stmt = $conn->prepare($check_query);
-        $check_stmt->execute([
-            ':song_id' => $song_id,
-            ':user_id' => $user_id
-        ]);
+    // Prepare the update query with new fields
+    $updateFields = [];
+    $paramTypes = '';
+    $params = [];
+    
+    // Existing fields
+    if (isset($details['title'])) {
+        $updateFields[] = 'title = ?';
+        $paramTypes .= 's';
+        $params[] = $details['title'];
+    }
+    if (isset($details['album'])) {
+        $updateFields[] = 'album = ?';
+        $paramTypes .= 's';
+        $params[] = $details['album'];
+    }
+    if (isset($details['genre'])) {
+        $updateFields[] = 'genre = ?';
+        $paramTypes .= 's';
+        $params[] = $details['genre'];
+    }
+    
+    // New fields
+    if (isset($details['visibility'])) {
+        $updateFields[] = 'visibility = ?';
+        $paramTypes .= 's';
+        $params[] = $details['visibility'];
+    }
+    
+    // Handle song cover upload
+    if (isset($_FILES['song_cover']) && $_FILES['song_cover']['error'] == 0) {
+        $uploadDir = 'uploads/song_covers/';
+        $uploadFile = $uploadDir . uniqid() . '_' . basename($_FILES['song_cover']['name']);
         
-        if ($check_stmt->rowCount() === 0) {
-            return ['success' => false, 'error' => 'Song not found or unauthorized'];
+        if (move_uploaded_file($_FILES['song_cover']['tmp_name'], $uploadFile)) {
+            $updateFields[] = 'cover_image = ?';
+            $paramTypes .= 's';
+            $params[] = $uploadFile;
         }
-        
-        // Update song details
-        $update_query = "UPDATE songs SET 
-            title = :title,
-            album = :album,
-            genre = :genre
-            WHERE song_id = :song_id AND uploaded_by = :user_id";
-            
-        $update_stmt = $conn->prepare($update_query);
-        $result = $update_stmt->execute([
-            ':title' => $data['title'],
-            ':album' => $data['album'],
-            ':genre' => $data['genre'],
-            ':song_id' => $song_id,
-            ':user_id' => $user_id
-        ]);
-        
-        if ($result) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'error' => 'Failed to update song details'];
-        }
-    } catch (PDOException $e) {
-        return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
+    }
+    
+    // If no updates, return
+    if (empty($updateFields)) {
+        return ['success' => false, 'error' => 'No updates provided'];
+    }
+    
+    // Add song_id and user_id to params
+    $paramTypes .= 'is';
+    $params[] = $song_id;
+    $params[] = $user_id;
+    
+    // Construct the query
+    $query = "UPDATE songs SET " . implode(', ', $updateFields) . 
+             " WHERE song_id = ? AND user_id = ?";
+    
+    // Prepare and execute the statement
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param($paramTypes, ...$params);
+    
+    if ($stmt->execute()) {
+        return ['success' => true];
+    } else {
+        return ['success' => false, 'error' => $stmt->error];
     }
 }
 ?>

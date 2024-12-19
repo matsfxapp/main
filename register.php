@@ -1,7 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'auth.php';
-require 'vendor/autoload.php'; // PHPMailer laden
+require 'vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -33,15 +33,13 @@ function sendVerificationEmail($email, $code) {
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host       = "enter-your-host";
-        $mail->SMTPAuth   = true;
-        $mail->Username   = "enter-your-username";
-        $mail->Password   = "enter-your-password";
-        $mail->Username   = "mat@fn.de";
+        $mail->Host = 'your_php_mailer_host';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'your_php_mailer_username';
+        $mail->Password = 'your_php_mailer_password';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = "587";
-	    
-        $mail->setFrom('mat@fn.de', 'matSFX Verification');
+        $mail->Port = 587;
+        $mail->setFrom('set_to_your_email', 'Your Site Verification');
         $mail->addAddress($email);
         $verifyLink = "https://alpha.matsfx.com/verify?code=$code";
 
@@ -128,9 +126,15 @@ function sendVerificationEmail($email, $code) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
+	<meta property="og:title" content="matSFX - Listen with Joy!" />
+	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
+	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://matsfx.com/" />
     <title>Register - matSFX</title>
+	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app-images/matsfx-logo.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -168,5 +172,14 @@ function sendVerificationEmail($email, $code) {
             <p>Already have an account? <a class="register-footer-link" href="login">Log in</a></p>
         </div>
     </div>
+	<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+	<script>
+	  kofiWidgetOverlay.draw('matsfx', {
+		'type': 'floating-chat',
+		'floating-chat.donateButton.text': 'Support Us',
+		'floating-chat.donateButton.background-color': '#ffffff',
+		'floating-chat.donateButton.text-color': '#323842'
+	  });
+	</script>
 </body>
 </html>

@@ -904,7 +904,7 @@ body {
 /* Responsive Styles */
 @media (max-width: 1024px) {
 	.container, .artist-songs {
-		padding-bottom: 5%;
+		padding-bottom: 10%;
 	} 
 	
     .search-container {
@@ -928,6 +928,11 @@ body {
 }
 
 @media (max-width: 768px) {
+	.container, .artist-songs {
+		padding-bottom: 10%;
+	} 
+	
+	
     .artist-profile {
         padding: 1rem;
     }
@@ -1028,6 +1033,10 @@ body {
 }
 
 @media (max-width: 768px) {
+	.container, .artist-songs {
+		padding-bottom: 10%;
+	} 
+	
     .music-grid {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 1rem;
