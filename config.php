@@ -1,13 +1,13 @@
 <?php
 require_once 'themes/theme-handler.php';
 
-define('DB_HOST', 'localhost:3306');
-define('DB_USER', 'mathis_1234554321');
-define('DB_PASS', 'h^k3Du464');
-define('DB_NAME', 'tziipreq_');
+$host = getenv('DB_HOST');
+$user = getenv('DB_USER');
+$pass = getenv('DB_PASS');
+$dbname = getenv('DB_NAME');
 
 try {
-    $conn = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     $pdo = $conn;
