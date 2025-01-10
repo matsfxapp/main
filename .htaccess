@@ -5,3 +5,12 @@ RewriteCond %{REQUEST_URI} !\.(jpg|jpeg|png|gif|bmp|webp|css|js|mp3|wav)$ [NC]
 RewriteCond %{REQUEST_URI} !\.php$ [NC]
 RewriteCond %{REQUEST_URI} [^/]$
 RewriteRule ^(.*)$ $1.php [L]
+
+ErrorDocument 404 /error_docs/not_found.html
+ErrorDocument 403 /error_docs/forbidden.html
+ErrorDocument 503 /error_docs/maintenance.html
+
+<Files "error_docs/*">
+    Order allow,deny
+    Allow from all
+</Files>
