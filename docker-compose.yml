@@ -31,6 +31,7 @@ services:
       - "${PORT}:80"
     depends_on:
       - mariadb
+    pull_policy: build
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
