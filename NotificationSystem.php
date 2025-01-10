@@ -1,4 +1,4 @@
-<?php
+/* <?php
 class NotificationSystem {
     private $db;
     
@@ -84,4 +84,4 @@ class NotificationSystem {
         $stmt = $this->db->prepare($query);
         return $stmt->execute();
     }
-}
+} */
