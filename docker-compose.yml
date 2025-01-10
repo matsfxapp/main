@@ -1,7 +1,7 @@
 services:
   mariadb:
     image: mariadb:latest
-    container_name: mariadb
+    container_name: matsfx-mariadb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -18,7 +18,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: matsfx
+    container_name: matsfx-app
     restart: always
     environment:
       DB_NAME: ${MYSQL_DATABASE}
@@ -31,6 +31,22 @@ services:
       - "${PORT}:80"
     depends_on:
       - mariadb
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: matsfx-phpmyadmin
+    ports:
+      - "${PHPMYADMIN_PORT}:80"
+    environment:
+      PHPMYADMIN_PORT: ${PHPMYADMIN_PORT}
+      PMA_HOST: ${PMA_HOST}
+      PMA_PORT: ${PMA_PORT}
+      PMA_FORCE_SSL: false
+      PMA_ABSOLUTE_URI: ${PMA_ABSOLUTE_URI}
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+
 
 volumes:
   mariadb_data:
