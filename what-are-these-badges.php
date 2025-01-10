@@ -38,7 +38,7 @@
 
         .container {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 5rem auto;
             padding: 40px 20px;
         }
 
@@ -198,6 +198,14 @@
     </style>
 </head>
 <body>
+	
+<?php
+
+    require_once 'includes/header.php';
+
+    ?>
+
+	
     <div class="container">
         <h1 class="section-title">matSFX Badges</h1>
         <p class="section-description">
@@ -235,8 +243,6 @@
                 <h3>Verified Badge</h3>
                 <p>Earned by uploading two original songs, verified within two weeks of submission.</p>
             </div>
-        </div>
-    </div>
 	
 	<!-- <div class="socials">
         <div class="social-item">

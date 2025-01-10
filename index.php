@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'auth.php';
 require_once 'music_handlers.php';
+require_once 'search_handler.php';
 
 /*
 // only activate for maintenance
@@ -21,28 +22,6 @@ function isAdmin($userId) {
     return $user && $user['is_admin'] == 1;
 }
 
-*/
-
-/*
-$auth = new Authentication($pdo);
-
-if (!$auth->isFeatureAllowed('like_song')) {
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Hey there, to like a Song you are required to create or login to an existing Account.',
-        'prompt_signup' => true
-    ]);
-    exit();
-}
-
-if (!$auth->isFeatureAllowed('follow_user')) {
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Hey there, and account is required to follow artists or users.',
-        'prompt_signup' => true
-    ]);
-    exit();
-}
 */
 
 // Group songs by artist and count
@@ -79,21 +58,23 @@ foreach ($songs as $song) {
 	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
 	<meta property="og:title" content="matSFX - Listen with Joy!" />
 	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
+	<meta property="og:image" content="app_logos/matsfx_logo.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://matsfx.com/" />
+	<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <title>matSFX - Music for everyone</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
-    <link rel="stylesheet" href="style.css">
-	<link rel="stylesheet" href="changelog.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/player-style.css">
 	<link rel="stylesheet" href="css/index-artistsection.css">
+	<link rel="stylesheet" href="css/share-button.css">
+	<link rel="stylesheet" href="css/navbar.css">
+	<script src="js/share-button.js"></script>
 	
 	<?php outputChristmasThemeCSS(); ?>
 </head>
-	    <style>
+	<style>
 		.sticky-banner {
 			position: fixed;
 			top: 0;
@@ -101,7 +82,7 @@ foreach ($songs as $song) {
 			width: 100%;
 			z-index: 1000; 
 		}
-			
+
 		:root {
 			--error-background: rgba(255, 71, 87, 0.6);
 			--error-backdrop-filter: blur(15px);
@@ -151,34 +132,34 @@ foreach ($songs as $song) {
 			margin: 0 auto 2rem;
 			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 		}
-			
+
 		.close-banner {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: var(--error-text-primary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            background: none;
-            border: none;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-        }
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			color: var(--error-text-primary);
+			font-size: 1.5rem;
+			cursor: pointer;
+			background: none;
+			border: none;
+			opacity: 0.7;
+			transition: opacity 0.3s ease;
+		}
 
-        .close-banner:hover {
-            opacity: 1;
-        }
+		.close-banner:hover {
+			opacity: 1;
+		}
 
-        .banner-hidden {
-            display: none !important;
-        }
+		.banner-hidden {
+			display: none !important;
+		}
 
 		@media (max-width: 768px) {
 			.container, .artist-songs {
 				padding-bottom: 50%;
 				min-height: 200px;
 			}
-			
+
 			.matsfx-error-notice {
 				position: absolute;
 				left: 0%;
@@ -196,22 +177,11 @@ foreach ($songs as $song) {
 				font-size: 0.90rem;
 			}
 		}
-    </style>
+	</style>
 <body>
-    <nav class="navbar">
-	<!--<div class="search-container">
-		<span class="search-icon">🔍</span>
-		<input type="text" class="search-input" placeholder="Search for artists..." id="artistSearch">
-		<div class="search-results" id="searchResults" style="display: none;">
-		</div> -->
-    <div class="logo">matSFX - Alpha 0.1</div>
-        <div class="nav-links">
-            <a href="../">Home</a>
-            <a href="upload">Upload</a>
-            <a href="settings">Settings</a>
-            <a href="logout">Logout</a>
-        </div>
-    </nav>
+	<?php
+    require_once 'includes/header.php';
+    ?>
 	
 	<!-- 
     <div class="sticky-banner" id="stickyBanner">
@@ -228,7 +198,7 @@ foreach ($songs as $song) {
     <div class="container" style="padding-bottom: 10%;">
         <!-- Top Artists Sections -->
 		<?php foreach ($topArtists as $artist): ?>
-		<div class="artist-section">
+		<div class="artist-section" style="margin-top: 4rem;">
 			<div class="artist-section-header">
 				<h2 class="section-title">Songs from <?php echo htmlspecialchars($artist); ?></h2>
 				<div class="navigation-buttons">
@@ -240,7 +210,10 @@ foreach ($songs as $song) {
 			<div class="artist-songs-container">
 				<div class="music-grid-artist">
 					<?php foreach ($songsByArtist[$artist] as $song): ?>
-						<div class="song-card" onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)">
+						<div class="song-card" 
+							 onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
+							 data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
+							 data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>">
 							<img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
 							<div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
 							<div class="song-artist">
@@ -248,6 +221,16 @@ foreach ($songs as $song) {
 									<?php echo htmlspecialchars($song['artist']); ?>
 								</a>
 							</div>
+							<!-- <div class="song-controls">
+								<button class="btn-share">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+										<polyline points="16 6 12 2 8 6"/>
+										<line x1="12" x2="12" y1="2" y2="15"/>
+									</svg>
+									Share
+								</button>
+							</div> -->
 						</div>
 					<?php endforeach; ?>
 				</div>
@@ -311,6 +294,7 @@ foreach ($songs as $song) {
     </div>
 
     <script src="js/index.js"></script>
+	<script src="js/search.js"></script>
 	<script>
 		window.addEventListener('scroll', function() {
 		  const banner = document.querySelector('.sticky-banner');
@@ -326,5 +310,54 @@ foreach ($songs as $song) {
             banner.classList.add('banner-hidden');
         }
 	</script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const profilePic = document.getElementById('profilePic');
+			const profileMenu = document.getElementById('profileMenu');
+			const profileContainer = document.getElementById('profileContainer');
+
+			// Toggle menu when clicking profile picture
+			if (profilePic) {
+				profilePic.addEventListener('click', function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					profileMenu.classList.toggle('active');
+				});
+			}
+
+			// Close menu when clicking outside
+			document.addEventListener('click', function(e) {
+				if (profileMenu && profileMenu.classList.contains('active') && !profileContainer.contains(e.target)) {
+					profileMenu.classList.remove('active');
+				}
+			});
+
+			// Close menu on ESC key
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape' && profileMenu && profileMenu.classList.contains('active')) {
+					profileMenu.classList.remove('active');
+				}
+			});
+
+			// Initialize Ko-fi widget if it exists
+			if (typeof kofiWidgetOverlay !== 'undefined') {
+				kofiWidgetOverlay.draw('matsfx', {
+					'type': 'floating-chat',
+					'floating-chat.donateButton.text': 'Support Us',
+					'floating-chat.donateButton.background-color': '#ffffff',
+					'floating-chat.donateButton.text-color': '#323842'
+				});
+
+				// Move Ko-fi button into menu
+				const kofiFrame = document.querySelector('#kofi-iframe-wrapper');
+				const kofiContainer = document.querySelector('.kofi-container');
+				if (kofiFrame && kofiContainer) {
+					kofiContainer.appendChild(kofiFrame);
+				}
+			}
+		});
+	</script>
+	<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6530871411657748"
+     crossorigin="anonymous"></script>
 </body>
 </html>

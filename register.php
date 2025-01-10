@@ -1,7 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'auth.php';
-require 'vendor/autoload.php';
+require 'vendor/autoload.php'; // PHPMailer laden
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -33,13 +33,13 @@ function sendVerificationEmail($email, $code) {
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host = 'your_php_mailer_host';
+        $mail->Host = 'your_host_here';
         $mail->SMTPAuth = true;
-        $mail->Username = 'your_php_mailer_username';
-        $mail->Password = 'your_php_mailer_password';
+        $mail->Username = 'your_username_:here';
+        $mail->Password = 'your_password_here';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-        $mail->setFrom('set_to_your_email', 'Your Site Verification');
+        $mail->Port = 'your_port_here';
+        $mail->setFrom('mat@fn.de', 'matSFX Verification');
         $mail->addAddress($email);
         $verifyLink = "https://alpha.matsfx.com/verify?code=$code";
 
@@ -129,14 +129,14 @@ function sendVerificationEmail($email, $code) {
 	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
 	<meta property="og:title" content="matSFX - Listen with Joy!" />
 	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
+	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://matsfx.com/" />
+	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx_logo.png">
     <title>Register - matSFX</title>
-	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-
+    <link rel="stylesheet" href="css/style.css">
+	
 	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>

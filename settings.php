@@ -56,16 +56,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Settings - matSFX</title>
 	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
 	<meta property="og:title" content="matSFX - Listen with Joy!" />
 	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
+	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://matsfx.com/" />
+	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx_logo.png">
+    <title>User Settings - matSFX</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 	<style>
 		:root {
 			--primary-color: #2D7FF9;
@@ -170,15 +170,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">matSFX - Alpha 0.1</div>
-        <div class="nav-links">
-            <a href="../">Home</a>
-            <a href="upload">Upload</a>
-            <a href="settings">Settings</a>
-            <a href="logout">Logout</a>
-        </div>
-    </nav>
+
+	<?php
+    require_once 'includes/header.php';
+    ?>
 
     <div class="settings-container">
         <?php if (isset($message)): ?>
@@ -190,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="settings-section">
             <h2>Profile Settings</h2>
             <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
-                 alt="Profile Picture" class="profile-picture">
+                 alt="Profile Picture" class="settings-profile-picture">
             
             <form method="POST" enctype="multipart/form-data">
                 <div class="form-group">
@@ -224,11 +219,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		
 		<div class="settings-section">
 			<h2>Change Theme</h2>
-				<form method="POST" class="theme-toggle">
-					<button type="submit" name="toggle_christmas_theme" class="christmas-toggle-btn">
-						<?php echo isChristmasThemeEnabled() ? '🎄 Disable Christmas Theme' : '🎄 Enable Christmas Theme'; ?>
-					</button>
-				</form>
+			<?php outputChristmasThemeCSS(); ?>
+			<form method="POST" class="theme-toggle">
+				<button type="submit" name="toggle_christmas_theme" class="christmas-toggle-btn">
+					<?php echo isChristmasThemeEnabled() ? '🎄 Disable Christmas Theme' : '🎄 Enable Christmas Theme'; ?>
+				</button>
+			</form>
 		</div>
 		
         <div class="settings-section">

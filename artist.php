@@ -15,6 +15,22 @@ if (!$artist) {
     exit();
 }
 
+function getArtistBio($artistName) {
+    global $conn;
+    try {
+        $query = "SELECT bio FROM users WHERE username = :username";
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(":username", $artistName, PDO::PARAM_STR);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result && $result['bio'] ? $result['bio'] : 'Listen to ' . $artistName . ' on matSFX - The new way to listen with Joy!';
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        return 'matSFX - The new way to listen with Joy!';
+    }
+}
+
 function getArtistProfilePicture($artistName) {
     global $conn;
     try {
@@ -23,17 +39,21 @@ function getArtistProfilePicture($artistName) {
         $stmt->bindParam(":username", $artistName, PDO::PARAM_STR);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($result && $result['profile_picture']) {
-            $filename = basename($result['profile_picture']);
-            return 'uploads/profiles/' . $filename;
-        }
-        return 'defaults/default-profile.jpg';
+
+        return $result && $result['profile_picture'] ? $result['profile_picture'] : 'defaults/default-profile.jpg';
     } catch (PDOException $e) {
         error_log("Database error: " . $e->getMessage());
         return 'defaults/default-profile.jpg';
     }
 }
+
+$profilePicture = getArtistProfilePicture($artist);
+$artistBio = getArtistBio($artist);
+
+$ogImage = $profilePicture !== 'defaults/default-profile.jpg' 
+    ? $profilePicture 
+    : 'app_logos/matsfx_logo.png';
+
 
 function checkIfFollowing($currentUserId, $profileUserId) {
     global $conn;
@@ -105,6 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['follow_action'], $cur
     $result = followOrUnfollow($currentUserId, $profileUserId, $action);
     
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        header('Content-Type: application/json; charset=utf-8');
         if ($result) {
             echo json_encode(['status' => 'success']);
         } else {
@@ -113,10 +134,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['follow_action'], $cur
         }
         exit();
     }
-    
+
     header("Location: ?name=" . urlencode($artist));
     exit();
 }
+
 
 function getArtistSongs($artistName) {
     global $conn;
@@ -149,6 +171,7 @@ function sanitizeFilename($filename) {
 }
 
 $artistData = checkArtistExists($artist);
+$profileUserId = $artistData['user_id'] ?? null;
 $songs = $artistData ? getArtistSongs($artist) : [];
 $profilePicture = getArtistProfilePicture($artist);
 
@@ -160,17 +183,16 @@ if (!$artistData) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User Not Found - matSFX</title>
-		<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
-		<meta property="og:title" content="matSFX - Listen with Joy!" />
-		<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-		<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content="https://matsfx.com/" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-        <link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="css/style.css">
 		<link rel="stylesheet" href="css/share-button.js">
-		<script src="share-button.js" defer></script>
+		<script src="js/share-button.js" defer></script>
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/player-style.css">
+		<link rel="stylesheet" href="css/index-artistsection.css">
+		<link rel="stylesheet" href="css/share-button.css">
+		<link rel="stylesheet" href="css/navbar.css">
+		<script src="js/share-button.js"></script>
         <style>
             .error-user-container {
                 display: flex;
@@ -245,15 +267,11 @@ if (!$artistData) {
 		<?php outputChristmasThemeCSS(); ?>
     </head>
     <body>
-        <nav class="navbar">
-            <div class="logo">matSFX - Alpha 0.1</div>
-            <div class="nav-links">
-                <a href="../">Home</a>
-                <a href="upload">Upload</a>
-                <a href="settings">Settings</a>
-                <a href="logout">Logout</a>
-            </div>
-        </nav>
+
+		<?php
+		require_once 'includes/header.php';
+		?>
+		
         <div class="error-user-container">
             <h1 class="error-user-heading">User Not Found</h1>
             <p class="error-user-text">The requested user does not exist.</p>
@@ -270,16 +288,23 @@ if (!$artistData) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?">
+    <meta name="og:title" content="<?php echo htmlspecialchars($artist); ?> on matSFX">
+	<meta property="og:description" content="<?php echo htmlspecialchars($artistBio); ?>">
+    <meta property="og:image" content="https://alpha.matsfx.com/<?php echo htmlspecialchars($profilePicture ?: '/defaults/default-profile.jpg', ENT_QUOTES, 'UTF-8'); ?>">
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="https://alpha.matsfx.com/song?song_id=3">
+	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx_logo.png">
     <title><?php echo htmlspecialchars($artist); ?> - matSFX</title>
-	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app-images/matsfx-logo.png">
-	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
-	<meta property="og:title" content="matSFX - Listen with Joy!" />
-	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://matsfx.com/" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/player-style.css">
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/player-style.css">
+	<link rel="stylesheet" href="css/index-artistsection.css">
+	<link rel="stylesheet" href="css/share-button.css">
+	<link rel="stylesheet" href="css/navbar.css">
+	<script src="js/share-button.js"></script>
     <style>
         .verified-badge {
             width: 20px;
@@ -288,13 +313,13 @@ if (!$artistData) {
             vertical-align: middle;
         }
 		
-	    .developer-badge, .helper-badge, .donator-badge {
+	    .developer-badge, .helper-badge, .donator-badge, .designer-badge {
             width: 20px;
             height: 20px;
             
             vertical-align: middle;
-        }	
-		
+        }			
+			
 		.player {
 			position: fixed;
 			bottom: -100%;
@@ -424,15 +449,9 @@ if (!$artistData) {
 	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">matSFX - Alpha 0.1</div>
-        <div class="nav-links">
-            <a href="../">Home</a>
-            <a href="upload">Upload</a>
-            <a href="settings">Settings</a>
-            <a href="logout">Logout</a>
-        </div>
-    </nav>
+	<?php
+    require_once 'includes/header.php';
+    ?>
 
 		<div class="artist-profile">
 			<div class="profile-header">
@@ -454,6 +473,12 @@ if (!$artistData) {
 							if ($artistData['is_developer'] == 1): 
 							?>
 							<img src="app-images/developer-badge.png" alt="Developer" class="developer-badge" title="Developer">
+							
+							<?php endif;
+							if ($artistData['is_designer'] == 1):
+							?>
+							<img src="app-images/designer-badge.png" alt="Designer" class="designer-badge" title="Designer">
+							
 							<?php endif;
 							if ($artistData['is_helper'] == 1): 
 							?>
@@ -462,7 +487,12 @@ if (!$artistData) {
 							if ($artistData['is_donator'] == 1): 
 							?>
 							<img src="app-images/donator-badge.png" alt="Donator" class="donator-badge" title="Donator">
+							<?php endif;
+							if ($artistData['is_uky'] == 1): 
+							?>
+							<img src="app-images/uky_studios_badge.png" alt="UkY Studios" class="donator-badge" title="UkY Studios">
 							<?php endif;?>
+							
 						</h1>
 						 <?php if (!empty($artistData['bio'])): ?>
                             <p><?php echo nl2br(htmlspecialchars($artistData['bio'])); ?></p>
@@ -509,96 +539,90 @@ if (!$artistData) {
 			</div>
 		</div>
 	</div>
-
+	
+	<div id="errorContainer"></div>
     <div class="player">
-        <audio id="audio-player" controls>
-            Your browser does not support the audio element.
-        </audio>
+        <div class="player-container">
+            <div class="song-info">
+                <img id="player-album-art" src="" alt="Album Art" class="album-art" onerror="this.src='defaults/default-cover.jpg'">
+                <div class="track-info">
+                    <h3 id="songTitle" class="track-name"></h3>
+                    <div id="artistName" class="artist-name"></div>
+                </div>
+            </div>
+			<div class="player-controls">
+				<div class="control-buttons">
+					<button onclick="previousTrack()" aria-label="Previous Track"><i class="fas fa-step-backward"></i></button>
+					<button onclick="playPause()" id="playPauseBtn" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
+					<button onclick="nextTrack()" aria-label="Next Track"><i class="fas fa-step-forward"></i></button>
+					<button onclick="toggleLoop()" id="loopBtn" aria-label="Loop Track">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M3 12c0-3.866 3.134-7 7-7h6.5"/>
+						<polyline points="14 2 17 5 14 8"/>
+						
+						<path d="M21 12c0 3.866-3.134 7-7 7H7.5"/>
+						<polyline points="10 22 7 19 10 16"/>
+					  </svg>
+					</button>
+				</div>
+                <div class="progress-container">
+                    <span id="currentTime">0:00</span>
+                    <input type="range" id="progress" value="0" max="100" class="slider" aria-label="Song Progress">
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+            <div class="volume-control">
+                <i class="fas fa-volume-up volume-icon" id="volumeIcon"></i>
+                <input type="range" id="volume" min="0" max="1" step="0.01" value="1" class="volume-slider" aria-label="Volume Control">
+            </div>
+        </div>
     </div>
 
+    <script src="js/index.js"></script>
     <script>
-		const audioPlayer = document.getElementById('audio-player');
-
-		function playSong(songPath, button) {
-			if (audioPlayer.src.endsWith(songPath) && !audioPlayer.paused) {
-				audioPlayer.pause();  
-			} else {
-				audioPlayer.src = songPath;  
-				audioPlayer.play().catch(error => {
-					console.error('Error playing song:', error);
-					alert('Error playing song. Please try again.');
-				});
-			}
-		}
-		
-		audioPlayer.addEventListener('ended', () => {
-			if (currentButton) {
-				currentButton.textContent = 'Play';
-			}
-		});
-		
-		const player = document.querySelector('.player');
-
-		audioPlayer.addEventListener('play', () => {
-			player.classList.add('active');
-		});
-
-		audioPlayer.addEventListener('pause', () => {
-			player.classList.remove('active');
-		});
-		
-        document.addEventListener('DOMContentLoaded', function() {
+		document.addEventListener('DOMContentLoaded', function() {
             const followBtn = document.getElementById('follow-btn');
 
             if (followBtn) {
                 followBtn.addEventListener('click', function() {
                     const action = followBtn.textContent.toLowerCase() === 'follow' ? 'follow' : 'unfollow';
 
-                    fetch('', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: `follow_action=${action}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            if (action === 'follow') {
-                                followBtn.innerHTML = `
-                                    <span class="follow-icon">➕</span>
-                                    <span class="follow-text">Following</span>
-                                `;
-                                followBtn.classList.add('following');
-                                followBtn.classList.remove('unfollow-button');
-                            } else {
-                                followBtn.innerHTML = `
-                                    <span class="follow-text">Follow</span>
-                                `;
-                                followBtn.classList.remove('following');
-                                followBtn.classList.add('unfollow-button');
-                            }
-                        } else {
-                            throw new Error(data.message || 'Failed to update follow status');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Failed to update follow status');
-                    });
+					fetch('', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded',
+							'X-Requested-With': 'XMLHttpRequest' // ajax aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+						},
+						body: `follow_action=${action}`
+					})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error(`HTTP error! status: ${response.status}`);
+						}
+						return response.json();
+					})
+					.then(data => {
+						if (data.status === 'success') {
+							if (action === 'follow') {
+								followBtn.innerHTML = `<span class="follow-icon">➕</span><span class="follow-text">Following</span>`;
+								followBtn.classList.add('following');
+								followBtn.classList.remove('unfollow-button');
+							} else {
+								followBtn.innerHTML = `<span class="follow-text">Follow</span>`;
+								followBtn.classList.remove('following');
+								followBtn.classList.add('unfollow-button');
+							}
+						} else {
+							throw new Error(data.message || 'Failed to update follow status');
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+						alert('Failed to update follow status');
+					});
                 });
             }
         });
     </script>
-	<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
-	<script>
-	  kofiWidgetOverlay.draw('matsfx', {
-		'type': 'floating-chat',
-		'floating-chat.donateButton.text': 'Support Us',
-		'floating-chat.donateButton.background-color': '#ffffff',
-		'floating-chat.donateButton.text-color': '#323842'
-	  });
-	</script>
 </body>
 </html>

@@ -7,7 +7,6 @@ if (!isLoggedIn()) {
     exit();
 }
 
-// Get current username
 $currentUser = $_SESSION['username'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -42,26 +41,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
 	<meta property="og:title" content="matSFX - Listen with Joy!" />
 	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
+	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://matsfx.com/" />
+	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx_logo.png">
     <title>Upload Music - matSFX</title>
-	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 	
 	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">matSFX - Alpha 0.1</div>
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/upload">Upload</a>
-            <a href="/settings">Settings</a>
-            <a href="logout.php">Logout</a>
-        </div>
-    </nav>
+	<?php
+    require_once 'includes/header.php';
+    ?>
 
     <div class="container">
         <div class="upload-form">

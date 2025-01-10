@@ -155,12 +155,12 @@
 </head>
 <body>
     <div class="maintenance-container">
-        <div class="logo">matSFX - Alpha 0.4.1</div>
+        <div class="logo">matSFX - Alpha 0.4.22</div>
         
         <div class="maintenance-card">
             <div class="maintenance-icon">🛠️</div>
-            <h1>We're Making Things Better!</h1>
-            <p>We're currently performing some maintenance and upgrades to improve your experience. We'll be back soon.</p>
+            <h1>We're changing some things up!</h1>
+            <p>This Page is currently under Maintenance, to add new Features or fix bugs. Who knows..</p>
             <p>Expected completion: <br>Unknown</p>
             <div class="status-update">🔴Full maintenance</div>
         </div>

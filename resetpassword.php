@@ -9,19 +9,19 @@ function sendEmail($to, $subject, $body) {
     $mail = new PHPMailer(true);
 
     try {
-        // Server settings / add your php_mailer credintials here
+        // Server settings
         $mail->isSMTP();
-        $mail->Host       = "your_host";
+        $mail->Host       = "your_host_here";
         $mail->SMTPAuth   = true;
-        $mail->Username   = "your_username";
-        $mail->Password   = "your_password";
+        $mail->Username   = "your_username_here";
+        $mail->Password   = "your_password_here";
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = "587";
+        $mail->Port       = "your_port_here";
 
         // Recipients
-        $mail->setFrom('your_email', 'matSFX Accounts');
+        $mail->setFrom('mat@fn.de', 'matSFX Accounts');
         $mail->addAddress($to);
-        $mail->addReplyTo('your_email', 'matSFX Accounts');
+        $mail->addReplyTo('mat@fn.de', 'matSFX Accounts');
 
         // Content
         $mail->isHTML(true);
@@ -119,10 +119,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
 	<meta property="og:title" content="matSFX - Listen with Joy!" />
 	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
+	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://matsfx.com/" />
-	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx_logo.png">
     <title>matSFX - Password Reset</title>
     <link rel="stylesheet" href="css/reset-password.css">
 </head>

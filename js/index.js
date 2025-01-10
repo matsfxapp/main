@@ -206,7 +206,7 @@ function initializeArtistSearch() {
             }
 
             searchTimeout = setTimeout(() => {
-                fetch(`search_artist.php?search=${encodeURIComponent(this.value)}`)
+                fetch(`../func/search_artist.php?search=${encodeURIComponent(this.value)}`)
                     .then(response => response.json())
                     .then(data => {
                         searchResults.innerHTML = '';
@@ -283,8 +283,8 @@ function showArtistProfile(artistName) {
     const searchResults = document.getElementById('searchResults');
 
     Promise.all([
-        fetch(`get_artist_songs.php?artist=${encodeURIComponent(artistName)}`).then(res => res.json()),
-        fetch(`get_artist_profile.php?artist=${encodeURIComponent(artistName)}`).then(res => res.json())
+        fetch(`../func/get_artist_songs.php?artist=${encodeURIComponent(artistName)}`).then(res => res.json()),
+        fetch(`../func/get_artist_profile.php?artist=${encodeURIComponent(artistName)}`).then(res => res.json())
     ])
         .then(([songData, profileData]) => {
             document.getElementById('artistName').textContent = artistName;
