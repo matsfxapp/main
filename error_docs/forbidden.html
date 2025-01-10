@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>403 Forbidden</title>
+    <style>
+        :root {
+            --primary-color: #2D7FF9;
+            --primary-hover: #1E6AD4;
+            --primary-light: rgba(45, 127, 249, 0.1);
+            --accent-color: #18BFFF;
+            --dark-bg: #0A1220;
+            --darker-bg: #060912;
+            --card-bg: #111827;
+            --card-hover: #1F2937;
+            --nav-bg: rgba(17, 24, 39, 0.95);
+            --light-text: #FFFFFF;
+            --gray-text: #94A3B8;
+            --border-color: #1F2937;
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--darker-bg);
+            color: var(--light-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 48px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .error-code {
+            font-size: 96px;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+            margin: 24px 0;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            color: var(--gray-text);
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .primary {
+            background: var(--primary-color);
+            color: var(--light-text);
+        }
+
+        .primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .secondary {
+            background: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .secondary:hover {
+            background: rgba(45, 127, 249, 0.2);
+        }
+
+        .icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto;
+            fill: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.67-3.13 8.96-7 10.27-3.87-1.31-7-5.6-7-10.27V6.3l7-3.12zm-1 12.64v2.18h2v-2.18h-2zm0-7.82v6.73h2V8H11z"/>
+        </svg>
+        <div class="error-code">403</div>
+        <h1>Access Forbidden</h1>
+        <p class="message">Sorry, you don't have permission to access this resource. Please verify your credentials or contact the administrator for assistance.</p>
+        <div class="actions">
+            <a href="/" class="button primary">Back to Home</a>
+            <a href="javascript:history.back()" class="button secondary">Previous Page</a>
+        </div>
+    </div>
+</body>
+</html>

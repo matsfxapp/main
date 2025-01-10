@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>404 Not Found</title>
+    <style>
+        :root {
+            --primary-color: #2D7FF9;
+            --primary-hover: #1E6AD4;
+            --primary-light: rgba(45, 127, 249, 0.1);
+            --accent-color: #18BFFF;
+            --dark-bg: #0A1220;
+            --darker-bg: #060912;
+            --card-bg: #111827;
+            --card-hover: #1F2937;
+            --nav-bg: rgba(17, 24, 39, 0.95);
+            --light-text: #FFFFFF;
+            --gray-text: #94A3B8;
+            --border-color: #1F2937;
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--darker-bg);
+            color: var(--light-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 48px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .error-code {
+            font-size: 96px;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+            margin: 24px 0;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            color: var(--gray-text);
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .primary {
+            background: var(--primary-color);
+            color: var(--light-text);
+        }
+
+        .primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .secondary {
+            background: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .secondary:hover {
+            background: rgba(45, 127, 249, 0.2);
+        }
+
+        .icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto;
+            fill: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-4.42 3.58-8 8-8 4.42 0 8 3.58 8 8 0 4.42-3.58 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+        </svg>
+        <div class="error-code">404</div>
+        <h1>Page Not Found</h1>
+        <p class="message">The page you're looking for doesn't exist or has been moved.</p>
+        <div class="actions">
+            <a href="/" class="button primary">Back to Home</a>
+            <a href="javascript:history.back()" class="button secondary">Previous Page</a>
+            <a href="javascript:location.reload()" class="button secondary">Reload Page</a>
+        </div>
+    </div>
+</body>
+</html>

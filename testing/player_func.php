@@ -8,7 +8,7 @@ class matSFXPlayer {
         $this->userId = $userId;
     }
 
-    // Get current playing track
+    // get current playback song
     public function getCurrentTrack() {
         $query = "SELECT 
             song.song_id, 
@@ -31,7 +31,7 @@ class matSFXPlayer {
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // Save current playback state
+    // save current playback state
     public function savePlaybackState($trackId, $currentTime) {
         $query = "INSERT INTO user_playback 
             (user_id, track_id, last_played, current_time) 
@@ -45,7 +45,7 @@ class matSFXPlayer {
         return $stmt->execute();
     }
 
-    // Get next track in playlist or queue
+    // get next track in queue
     public function getNextTrack() {
         $query = "SELECT 
             song.song_id, 
@@ -69,7 +69,7 @@ class matSFXPlayer {
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // Get user's recently played tracks
+    // get recent played tracks
     public function getRecentTracks($limit = 10) {
         $query = "SELECT 
             song_id, 
@@ -90,5 +90,4 @@ class matSFXPlayer {
         
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
-}
 }

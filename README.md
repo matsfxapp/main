@@ -14,4 +14,4 @@ Our TikTok [@matsfxmusic](https://tiktok.com/@matsfxmusic)
 
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" width="40" height="40"/><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="40" height="40"/><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="40" height="40"/><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="40" height="40"/>
 
-<img width="25" alt="image" src="https://github.com/user-attachments/assets/a975ca92-128f-4288-a86c-80c2b1534473"> Database & Webserver hosted by [dnodes.net](https://dnodes.net)
+<img width="25" alt="image" src="https://github.com/user-attachments/assets/a975ca92-128f-4288-a86c-80c2b1534473"> Database & Webserver hosted by [dnodes.net](https://dnodes.net) & @AIO ❤️

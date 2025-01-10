@@ -773,9 +773,9 @@
                         <div class="footer-links">
                             <div class="links">
 								<a href="/what-are-these-badges">What are these Badges?</a>
-                                <a href="/terms">Terms of Service</a>
-                                <a href="/privacy">Privacy Policies</a>
-                                <a href="/contact">Contact</a>
+                                <a href="/legal/terms">Terms of Service</a>
+                                <a href="/legal/privacy">Privacy Policies</a>
+                                <a href="/legal/contact">Contact</a>
                             </div>
                         </div>
                     </div>
