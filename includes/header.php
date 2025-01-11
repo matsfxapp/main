@@ -775,6 +775,8 @@
 								<a href="/what-are-these-badges">What are these Badges?</a>
                                 <a href="/legal/terms">Terms of Service</a>
                                 <a href="/legal/privacy">Privacy Policies</a>
+                                <a href="/legal/license">Open Source License Agreements</a>
+
                                 <a href="/legal/contact">Contact</a>
                             </div>
                         </div>
