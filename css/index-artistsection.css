@@ -21,7 +21,7 @@
 
 .artist-section {
 	margin-bottom: 2rem;
-	position: relative;
+	
 }
 
 .artist-section-header {
@@ -70,14 +70,16 @@
 
 .songs-header {
     position: relative;
-    padding: 1.5rem 0 1rem 1rem;
+    margin: 2rem 0;
+    padding-left: 1rem;
 }
 
-.section-title {
-    font-size: 1.5rem;
+.songs-title {
+    font-size: 2rem;
     color: var(--light-text);
-    padding: 1.5rem 0 1rem 1rem;
     font-weight: 600;
+    margin: 0;
+    padding: 0;
 }
 
 .song-card {
