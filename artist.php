@@ -185,92 +185,90 @@ if (!$artistData) {
         <title>User Not Found - matSFX</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="css/style.css">
-		<link rel="stylesheet" href="css/share-button.js">
-		<script src="js/share-button.js" defer></script>
-		<link rel="stylesheet" href="css/style.css">
-		<link rel="stylesheet" href="css/player-style.css">
-		<link rel="stylesheet" href="css/index-artistsection.css">
-		<link rel="stylesheet" href="css/share-button.css">
-		<link rel="stylesheet" href="css/navbar.css">
-		<script src="js/share-button.js"></script>
+	<link rel="stylesheet" href="css/share-button.js">
+	<script src="js/share-button.js" defer></script>
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/player-style.css">
+	<link rel="stylesheet" href="css/index-artistsection.css">
+	<link rel="stylesheet" href="css/share-button.css">
+	<link rel="stylesheet" href="css/navbar.css">
+	<script src="js/share-button.js"></script>
         <style>
-            .error-user-container {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 91vh;
-                background-color: var(--dark-bg);
-                text-align: center;
-                padding: 20px;
-                box-sizing: border-box;
-            }
-            .error-user-heading {
-                font-size: 48px;
-                font-weight: bold;
-                color: var(--primary-color);
-                margin-bottom: 16px;
-            }
-
-            .error-user-text {
-                font-size: 20px;
-                color: var(--gray-text);
-                margin-bottom: 32px;
-            }
-
-            .error-user-button {
-                display: inline-block;
-                text-decoration: none;
-                padding: 12px 24px;
-                font-size: 18px;
-                font-weight: 600;
-                color: var(--light-text);
-                background-color: var(--primary-color);
-                border-radius: var(--border-radius);
-                box-shadow: var(--shadow-sm);
-                transition: var(--transition);
-            }
-
-            .error-user-button:hover {
-                background-color: var(--primary-hover);
-                box-shadow: var(--shadow-md);
-			}
-            
-			.follow-button {
-				position: absolute;
-				top: 22%;
-				right: 400px;
-				padding: 10px 20px;
-				font-size: 16px;
-				font-weight: bold;
-				color: #fff;
-				background-color: #007bff;
-				border: none;
-				border-radius: 5px;
-				cursor: pointer;
-				transition: background-color 0.3s;
-			}
-
-			.follow-button:hover {
-				background-color: #0056b3;
-			}
-
-			.unfollow-button {
-				background-color: #dc3545;
-			}
-
-			.unfollow-button:hover {
-				background-color: #a71d2a;
-			}
+		.error-user-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 91vh;
+			background-color: var(--dark-bg);
+			text-align: center;
+			padding: 20px;
+			box-sizing: border-box;
+		}
+		.error-user-heading {
+			font-size: 48px;
+			font-weight: bold;
+			color: var(--primary-color);
+			margin-bottom: 16px;
+		}
+		
+		.error-user-text {
+			font-size: 20px;
+			color: var(--gray-text);
+			margin-bottom: 32px;
+		}
+		
+		.error-user-button {
+			display: inline-block;
+			text-decoration: none;
+			padding: 12px 24px;
+			font-size: 18px;
+			font-weight: 600;
+			color: var(--light-text);
+			background-color: var(--primary-color);
+			border-radius: var(--border-radius);
+			box-shadow: var(--shadow-sm);
+			transition: var(--transition);
+		}
+		
+		.error-user-button:hover {
+			background-color: var(--primary-hover);
+			box-shadow: var(--shadow-md);
+		}
+		
+		.follow-button {
+			position: absolute;
+			top: 22%;
+			right: 400px;
+			padding: 10px 20px;
+			font-size: 16px;
+			font-weight: bold;
+			color: #fff;
+			background-color: #007bff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s;
+		}
+		
+		.follow-button:hover {
+			background-color: #0056b3;
+		}
+		
+		.unfollow-button {
+			background-color: #dc3545;
+		}
+		
+		.unfollow-button:hover {
+			background-color: #a71d2a;
+		}
         </style>
 		
 		<?php outputChristmasThemeCSS(); ?>
     </head>
     <body>
 
-		<?php
-		require_once 'includes/header.php';
-		?>
+	<?php require_once 'includes/header.php'; ?>
 		
         <div class="error-user-container">
             <h1 class="error-user-heading">User Not Found</h1>
