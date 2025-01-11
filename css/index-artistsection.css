@@ -68,6 +68,11 @@
 	gap: 2rem;
 }
 
+.songs-header {
+    position: relative;
+    padding: 1.5rem 0 1rem 1rem;
+}
+
 .section-title {
     font-size: 1.5rem;
     color: var(--light-text);
