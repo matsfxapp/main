@@ -320,200 +320,221 @@ if (!$artistData) {
             vertical-align: middle;
         }			
 			
-		.player {
-			position: fixed;
-			bottom: -100%;
-			left: 0;
-			width: 100%;
-			background-color: rgba(17, 24, 39, 0.98);
-			backdrop-filter: blur(12px);
-			-webkit-backdrop-filter: blur(12px);
-			padding: 1.25rem 2rem;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
-			border-top: 1px solid rgba(255, 255, 255, 0.05);
-			z-index: 1000;
-			transition: bottom 0.5s ease-in-out;
-		}
+	.player {
+		position: fixed;
+		bottom: -100%;
+		left: 0;
+		width: 100%;
+		background-color: rgba(17, 24, 39, 0.98);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		padding: 1.25rem 2rem;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+		border-top: 1px solid rgba(255, 255, 255, 0.05);
+		z-index: 1000;
+		transition: bottom 0.5s ease-in-out;
+	}
 
-		.player.active {
-			bottom: 0;
-		}
+	.player.active {
+		bottom: 0;
+	}
 
-		.controls {
-			display: flex;
-			align-items: center;
-			gap: 1rem;
-			width: 100%;
-			max-width: 600px;
-		}
+	.controls {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		width: 100%;
+		max-width: 600px;
+	}
 
-		.play-btn {
-			background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-			border: none;
-			border-radius: 50%;
-			width: 48px;
-			height: 48px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			transition: var(--transition);
-			box-shadow: 0 2px 8px rgba(45, 127, 249, 0.3);
-		}
+	.play-btn {
+		background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+		border: none;
+		border-radius: 50%;
+		width: 48px;
+		height: 48px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: var(--transition);
+		box-shadow: 0 2px 8px rgba(45, 127, 249, 0.3);
+	}
 
-		.play-btn:hover {
-			transform: scale(1.05);
-			box-shadow: 0 4px 12px rgba(45, 127, 249, 0.4);
-		}
+	.play-btn:hover {
+		transform: scale(1.05);
+		box-shadow: 0 4px 12px rgba(45, 127, 249, 0.4);
+	}
 
-		.progress-bar {
-			position: relative;
-			width: 100%;
-			height: 6px;
-			background-color: rgba(255, 255, 255, 0.2);
-			border-radius: 3px;
-			cursor: pointer;
-		}
+	.progress-bar {
+		position: relative;
+		width: 100%;
+		height: 6px;
+		background-color: rgba(255, 255, 255, 0.2);
+		border-radius: 3px;
+		cursor: pointer;
+	}
 
-		.progress {
-			position: absolute;
-			height: 100%;
-			background-color: #3498db;
-			border-radius: 3px;
-			width: 0%;
-		}
+	.progress {
+		position: absolute;
+		height: 100%;
+		background-color: #3498db;
+		border-radius: 3px;
+		width: 0%;
+	}
 
-		.time {
-			color: white;
-			font-size: 14px;
-		}
-		        .follow-button {
-            position: relative;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transform-style: preserve-3d;
-        }
+	.time {
+		color: white;
+		font-size: 14px;
+	}
+    
+	.follow-button {
+	    position: relative;
+	    padding: 10px 20px;
+	    font-size: 16px;
+	    font-weight: bold;
+	    color: #fff;
+	    background-color: #007bff;
+	    border: none;
+	    border-radius: 8px;
+	    cursor: pointer;
+	    overflow: hidden;
+	    transition: all 0.3s ease;
+	    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+	    transform-style: preserve-3d;
+	}
 
-        .follow-button:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: all 0.6s ease;
-        }
+	.follow-button:before {
+	    content: '';
+	    position: absolute;
+	    top: 0;
+	    left: -100%;
+	    width: 100%;
+	    height: 100%;
+	    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+	    transition: all 0.6s ease;
+	}
 
-        .follow-button:hover:before {
-            left: 100%;
-        }
+	.follow-button:hover:before {
+	    left: 100%;
+	}
 
-        .follow-button:hover {
-            transform: scale(1.05) perspective(1px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
+	.follow-button:hover {
+	    transform: scale(1.05) perspective(1px);
+	    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+	}
 
-        .follow-button.unfollow-button {
-            background-color: #dc3545;
-        }
+	.follow-button.unfollow-button {
+	    background-color: #dc3545;
+	}
 
-        .follow-button.following {
-            background-color: #28a745;
-        }
+	.follow-button.following {
+	    background-color: #28a745;
+	}
 
-        .follow-button .follow-text {
-            position: relative;
-            z-index: 1;
-        }
+	.follow-button .follow-text {
+	    position: relative;
+	    z-index: 1;
+	}
 
-        .follow-button .follow-icon {
-            margin-right: 8px;
-            position: relative;
-            z-index: 1;
-        }
+	.follow-button .follow-icon {
+	    margin-right: 8px;
+	    position: relative;
+	    z-index: 1;
+	}
     </style>
 	
 	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
-	<?php
-    require_once 'includes/header.php';
-    ?>
-
-		<div class="artist-profile">
-			<div class="profile-header">
-				<div class="profile-content">
-					<img src="<?php echo htmlspecialchars($profilePicture); ?>" alt="Artist" class="profile-image">
-					<div class="profile-info">
-						<h1 class="profile-name">
-							<?php 
-							echo htmlspecialchars($artist); 
-							if ($artistData['is_admin'] == 1): 
-							?>
-							<img src="app-images/admin-badge.png" alt="Admin" class="verified-badge" title="Admin">
-							<?php 
-							elseif ($artistData['is_verified'] == 1): 
-							?>
-							<img src="app-images/verified-badge.png" alt="Verified" class="verified-badge" title="Verified Artist">
-							<?php 
-							endif; 
-							if ($artistData['is_developer'] == 1): 
-							?>
-							<img src="app-images/developer-badge.png" alt="Developer" class="developer-badge" title="Developer">
-							
-							<?php endif;
-							if ($artistData['is_designer'] == 1):
-							?>
-							<img src="app-images/designer-badge.png" alt="Designer" class="designer-badge" title="Designer">
-							
-							<?php endif;
-							if ($artistData['is_helper'] == 1): 
-							?>
-							<img src="app-images/helper-badge.png" alt="Helper" class="helper-badge" title="Helper">
-							<?php endif;
-							if ($artistData['is_donator'] == 1): 
-							?>
-							<img src="app-images/donator-badge.png" alt="Donator" class="donator-badge" title="Donator">
-							<?php endif;
-							if ($artistData['is_uky'] == 1): 
-							?>
-							<img src="app-images/uky_studios_badge.png" alt="UkY Studios" class="donator-badge" title="UkY Studios">
-							<?php endif;?>
-							
-						</h1>
-						 <?php if (!empty($artistData['bio'])): ?>
-                            <p><?php echo nl2br(htmlspecialchars($artistData['bio'])); ?></p>
-                           <?php endif; ?>
-                    <div class="profile-stats">
-                        <span><?php echo count($songs); ?> Songs</span>
-                    </div>
-            <?php if ($currentUserId): ?>
-						
-						<form id="follow-form" method="POST">
-						<button type="button" id="follow-btn" 
-								class="follow-button <?php echo $isFollowing ? 'unfollow-button' : ''; ?>">
-							<?php echo $isFollowing ? 'Unfollow' : 'Follow'; ?>
-						</button>
-					</form>
-				<?php else: ?>
-					<p>Log in to follow this artist.</p>
-				<?php endif; ?>
-            </div>
-				</div>
-                </div>
+	
+	<?php require_once 'includes/header.php'; ?>
+	
+	<div class="artist-profile">
+	    <div class="profile-header">
+	        <div class="profile-content">
+	            <img src="<?php echo htmlspecialchars($profilePicture); ?>" 
+	                 alt="Artist" 
+	                 class="profile-image">
+	            
+	            <div class="profile-info">
+	                <h1 class="profile-name">
+	                    <?php echo htmlspecialchars($artist); ?>
+	                    
+	                    <?php if ($artistData['is_admin'] == 1): ?>
+	                        <img src="app-images/admin-badge.png" 
+	                             alt="Admin" 
+	                             class="verified-badge" 
+	                             title="Admin">
+	                    <?php elseif ($artistData['is_verified'] == 1): ?>
+	                        <img src="app-images/verified-badge.png" 
+	                             alt="Verified" 
+	                             class="verified-badge" 
+	                             title="Verified Artist">
+	                    <?php endif; ?>
+	                    
+	                    <?php if ($artistData['is_developer'] == 1): ?>
+	                        <img src="app-images/developer-badge.png" 
+	                             alt="Developer" 
+	                             class="developer-badge" 
+	                             title="Developer">
+	                    <?php endif; ?>
+	                    
+	                    <?php if ($artistData['is_designer'] == 1): ?>
+	                        <img src="app-images/designer-badge.png" 
+	                             alt="Designer" 
+	                             class="designer-badge" 
+	                             title="Designer">
+	                    <?php endif; ?>
+	                    
+	                    <?php if ($artistData['is_helper'] == 1): ?>
+	                        <img src="app-images/helper-badge.png" 
+	                             alt="Helper" 
+	                             class="helper-badge" 
+	                             title="Helper">
+	                    <?php endif; ?>
+	                    
+	                    <?php if ($artistData['is_donator'] == 1): ?>
+	                        <img src="app-images/donator-badge.png" 
+	                             alt="Donator" 
+	                             class="donator-badge" 
+	                             title="Donator">
+	                    <?php endif; ?>
+	                    
+	                    <?php if ($artistData['is_ukystudiosmember'] == 1): ?>
+	                        <img src="app-images/uky_studios_badge.png" 
+	                             alt="UkY Studios" 
+	                             class="donator-badge" 
+	                             title="UkY Studios">
+	                    <?php endif; ?>
+	                </h1>
+	
+	                <?php if (!empty($artistData['bio'])): ?>
+	                    <p><?php echo nl2br(htmlspecialchars($artistData['bio'])); ?></p>
+	                <?php endif; ?>
+	
+	                <div class="profile-stats">
+	                    <span><?php echo count($songs); ?> Songs</span>
+	                </div>
+	
+	                <?php if ($currentUserId): ?>
+	                    <form id="follow-form" method="POST">
+	                        <button type="button" 
+	                                id="follow-btn" 
+	                                class="follow-button <?php echo $isFollowing ? 'unfollow-button' : ''; ?>">
+	                            <?php echo $isFollowing ? 'Unfollow' : 'Follow'; ?>
+	                        </button>
+	                    </form>
+	                <?php else: ?>
+	                    <p>Log in to follow this artist.</p>
+	                <?php endif; ?>
+	            </div>
+	        </div>
+	    </div>
+	</div>
         
 	<div class="artist-songs" style="padding-bottom: 10%;">
 		<div class="songs-header">
