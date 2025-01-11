@@ -471,9 +471,9 @@ if (!$artistData) {
 	</div>
         
 	<div class="artist-songs" style="padding-bottom: 10%;">
-	    <div class="songs-header">
-	        <h2 class="section-title">Songs</h2>
-	    </div>
+	    <!-- <div class="songs-header">
+	        <h2 class="section-title"></h2>
+	    </div> -->
 	    <div class="music-grid">
 	        <?php if (empty($songs)): ?>
 	            <p>No songs uploaded yet.</p>
