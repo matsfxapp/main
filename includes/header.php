@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="includes/css/header.css">
+    <link rel="stylesheet" href="/includes/css/header.css">
 		<style>
 		* {
 			font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -709,7 +709,7 @@
             <!-- Logo -->
             <a href="/" class="brand">
                 <div class="logo-wrapper">
-                    <img src="app_logos/matsfx_logo.png" alt="Logo" class="logo-image">
+                    <img src="/app_logos/matsfx_logo.png" alt="Logo" class="logo-image">
                     <span class="brand-text">alpha_0.4.22</span>
                 </div>
             </a>
@@ -738,7 +738,7 @@
 
             <!-- User Profile with Dropdown -->
             <div class="nav-user-profile">
-				<img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
+				<img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" 
                  alt="User Profile" class="nav-profile-picture" onclick="toggleDropdown()">
                 
                 <!-- Dropdown Menu -->
@@ -758,16 +758,16 @@
                     <div class="dropdown-footer">
                         <div class="social-links">
                             <a href="https://discord.gg/YjvgAGU2ys" target="_blank" title="Discord">
-                                <img src="includes/images/discord.png" alt="Discord">
+                                <img src="/includes/images/discord.png" alt="Discord">
                             </a>
 							 <a href="https://youtube.com/@matsfxmusic" target="_blank" title="YouTube">
-                                <img src="includes/images/youtube.png" alt="YouTube">
+                                <img src="/includes/images/youtube.png" alt="YouTube">
                             </a>
                             <a href="https://twitter.com/@matsfxmusic" target="_blank" title="Twitter">
-                                <img src="includes/images/twitter.png" alt="Twitter">
+                                <img src="/includes/images/twitter.png" alt="Twitter">
                             </a>
                             <a href="https://tiktok.com/@matsfxmusic" target="_blank" title="TikTok">
-                                <img src="includes/images/tiktok.png" target="_blank" alt="TikTok">
+                                <img src="/includes/images/tiktok.png" target="_blank" alt="TikTok">
                             </a>
                         </div>
                         <div class="footer-links">
@@ -786,7 +786,7 @@
         </div>
     </header>
 
-	<script src="js/search.js"></script>
+	<script src="/js/search.js"></script>
     <script>
         function toggleDropdown() {
             const dropdown = document.getElementById('profileDropdown');
