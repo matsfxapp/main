@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>matSFX License</title>
+    <style>
+        :root {
+            --primary-color: #2D7FF9;
+            --primary-hover: #1E6AD4;
+            --primary-light: rgba(45, 127, 249, 0.1);
+            --accent-color: #18BFFF;
+            --dark-bg: #0A1220;
+            --darker-bg: #060912;
+            --light-text: #FFFFFF;
+            --gray-text: #94A3B8;
+            --border-color: #1F2937;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 8rem 1.25rem 4rem; /* Adjusted padding for mobile */
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 8rem 2rem 4rem;
+            }
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            line-height: 1.2;
+        }
+
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        .copyright-notice {
+            color: var(--gray-text);
+            margin-bottom: 2rem;
+            font-size: 0.9375rem;
+        }
+
+        strong {
+            color: var(--accent-color);
+            display: block;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.125rem;
+        }
+
+        ol {
+            list-style: none;
+            counter-reset: license-counter;
+            padding: 0;
+            margin: 2rem 0;
+        }
+
+        ol > li {
+            counter-increment: license-counter;
+            margin-bottom: 1.5rem;
+        }
+
+        ol > li::before {
+            content: counter(license-counter) ". ";
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        ul {
+            padding-left: 1.25rem;
+            margin: 0.75rem 0;
+        }
+
+        ul li {
+            margin: 0.5rem 0;
+        }
+
+        ul ul {
+            margin: 0.5rem 0;
+        }
+
+        .warranty {
+            background-color: var(--darker-bg);
+            padding: 1.25rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            font-size: 0.9375rem;
+        }
+
+        .footer {
+            color: var(--gray-text);
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9375rem;
+        }
+
+        p {
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+
+    <?php require_once 'includes/header.php';?>
+
+    <div class="container">
+        <h1>matSFX License - as of 11th January 2024</h1>
+        
+        <div class="copyright-notice">Copyright (c) 2024-2025 matSFX</div>
+
+        <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use, modify, and distribute the Software, subject to the following conditions:</p>
+
+        <ol>
+            <li>
+                <strong>Name and Branding Requirements</strong>
+                <ul>
+                    <li>The name "matSFX" is copyrighted and must not be used in any derivative work or redistribution of this Software. The user is required to rename the project to a unique and distinct name.</li>
+                    <li>The logo, app icon, and any branding (including but not limited to default icons and badges) used in the original project are also copyrighted and must be replaced in any derivative work.</li>
+                </ul>
+            </li>
+
+            <li>
+                <strong>Design and Styling Modifications</strong>
+                <ul>
+                    <li>The user is required to change at least one visual aspect of the project to ensure the derivative work is distinguishable from the original. For example:
+                        <ul>
+                            <li>Changing the background color.</li>
+                            <li>Customizing the styling, layout, or theme.</li>
+                        </ul>
+                    </li>
+                    <li>All default icons and badges provided in the original Software must be replaced with user-created designs or legally obtained alternatives.</li>
+                </ul>
+            </li>
+
+            <li>
+                <strong>Terms and Contact Information</strong>
+                <ul>
+                    <li>Any derivative work must replace the terms of service, privacy policy, and contact information provided in the original project with those of the user's own creation.</li>
+                </ul>
+            </li>
+
+            <li>
+                <strong>Attribution</strong>
+                <ul>
+                    <li>While the name and branding must be replaced, appropriate attribution to the original matSFX project must be provided in the documentation or credits of the derivative work. This attribution should include:
+                        <ul>
+                            <li>A reference to the original repository or source.</li>
+                            <li>A note that the derivative work was based on matSFX, without implying endorsement by the original creators.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <strong>Prohibited Uses</strong>
+                <ul>
+                    <li>The Software and its derivatives must not be used for any unlawful or unethical purposes.</li>
+                </ul>
+            </li>
+
+            <li>
+                <strong>Warranty Disclaimer</strong>
+                <div class="warranty">
+                    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+                </div>
+            </li>
+        </ol>
+
+        <div class="footer">
+            By using, modifying, or redistributing this Software, you agree to the terms of this license.
+        </div>
+    </div>
+</body>
+</html>
