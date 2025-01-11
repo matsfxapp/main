@@ -21,7 +21,7 @@
 
 .artist-section {
 	margin-bottom: 2rem;
-	
+	position: relative;
 }
 
 .artist-section-header {
@@ -70,16 +70,34 @@
 
 .songs-header {
     position: relative;
-    margin: 2rem 0;
-    padding-left: 1rem;
+    margin: 0;
+    padding-left: 39rem;
 }
 
-.songs-title {
-    font-size: 2rem;
+.section-title {
+    font-size: clamp(1.5rem, 4vw, 2rem);
     color: var(--light-text);
     font-weight: 600;
     margin: 0;
     padding: 0;
+}
+
+@media screen and (max-width: 768px) {
+    .section-title {
+        padding-right: 8rem;
+    }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .section-title {
+        padding-left: 30%;
+    }
+}
+
+@media screen and (min-width: 1025px) {
+    .section-title {
+        padding-left: 16rem;
+    }
 }
 
 .song-card {
