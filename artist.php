@@ -311,7 +311,7 @@ if (!$artistData) {
 	            vertical-align: middle;
 	        }
 			
-		    .developer-badge, .helper-badge, .donator-badge {
+		.developer-badge, .helper-badge, .donator-badge {
 	            width: 20px;
 	            height: 20px;
 	            
@@ -487,7 +487,7 @@ if (!$artistData) {
 	                         alt="Cover Art" 
 	                         class="cover-art">
 	                    <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
-
+	                    <div class="song-artist"><?php echo htmlspecialchars($song['artist']); ?></div>
 	                    <div class="song-controls"></div>
 	                </div>
 	            <?php endforeach; ?>
@@ -507,6 +507,7 @@ if (!$artistData) {
 	                 onerror="this.src='defaults/default-cover.jpg'">
 	            <div class="track-info">
 	                <h3 id="songTitle" class="track-name"></h3>
+	                <div id="artistName" class="artist-name"></div>
 	            </div>
 	        </div>
 	        
