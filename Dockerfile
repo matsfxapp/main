@@ -6,6 +6,7 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 RUN a2enmod rewrite
 RUN mkdir -p /var/www/html/uploads/profiles
-
 WORKDIR /var/www/html
+COPY . .
+
 

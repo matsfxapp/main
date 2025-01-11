@@ -1,5 +1,5 @@
 
-DOCKER_COMPOSE_FILE := docker-compose.yml
+DOCKER_COMPOSE_FILE := docker-compose.dev.yml
 ifneq ("$(wildcard .env)","")
 	include .env
 endif
@@ -13,7 +13,7 @@ banner:
 	@echo "    /_/ /_/ /_/\__,_/\__//____/_/    /_/|_|    "
 	@echo ""
 up: banner
-	@docker-compose -f $(DOCKER_COMPOSE_FILE) up -d
+	@docker-compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 	@echo ""
 	@echo "     Frontend:       http://localhost:$(PORT)"
 	@echo "     PHPMyAdmin:     http://localhost:$(PHPMYADMIN_PORT)"
