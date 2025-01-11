@@ -536,7 +536,7 @@ if (!$artistData) {
         
 	<div class="artist-songs" style="padding-bottom: 10%;">
 	    <div class="songs-header">
-	        <h2 class="songs-title">Songs</h2>
+	        <h2 class="section-title">Songs</h2>
 	    </div>
 	    <div class="music-grid">
 	        <?php if (empty($songs)): ?>
