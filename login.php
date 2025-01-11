@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'config.php';
 require_once 'auth.php';
 
@@ -17,9 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user && password_verify($password, $user['password'])) {
         if ($user['email_verified'] == 1) {
-            session_start();
             $_SESSION['user_id'] = $user['user_id'];
-			$_SESSION['username'] = $user['username'];
+            $_SESSION['username'] = $user['username'];
             header("Location: /");
             exit();
         } else {
@@ -30,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
