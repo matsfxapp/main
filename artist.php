@@ -303,147 +303,83 @@ if (!$artistData) {
 	<link rel="stylesheet" href="css/share-button.css">
 	<link rel="stylesheet" href="css/navbar.css">
 	<script src="js/share-button.js"></script>
-    <style>
-        .verified-badge {
-            width: 20px;
-            height: 20px;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-		
-	    .developer-badge, .helper-badge, .donator-badge, .designer-badge {
-            width: 20px;
-            height: 20px;
-            
-            vertical-align: middle;
-        }			
+	<style>
+	        .verified-badge {
+	            width: 20px;
+	            height: 20px;
+	            margin-left: 8px;
+	            vertical-align: middle;
+	        }
 			
-	.player {
-		position: fixed;
-		bottom: -100%;
-		left: 0;
-		width: 100%;
-		background-color: rgba(17, 24, 39, 0.98);
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-		padding: 1.25rem 2rem;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
-		border-top: 1px solid rgba(255, 255, 255, 0.05);
-		z-index: 1000;
-		transition: bottom 0.5s ease-in-out;
-	}
-
-	.player.active {
-		bottom: 0;
-	}
-
-	.controls {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		width: 100%;
-		max-width: 600px;
-	}
-
-	.play-btn {
-		background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-		border: none;
-		border-radius: 50%;
-		width: 48px;
-		height: 48px;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: var(--transition);
-		box-shadow: 0 2px 8px rgba(45, 127, 249, 0.3);
-	}
-
-	.play-btn:hover {
-		transform: scale(1.05);
-		box-shadow: 0 4px 12px rgba(45, 127, 249, 0.4);
-	}
-
-	.progress-bar {
-		position: relative;
-		width: 100%;
-		height: 6px;
-		background-color: rgba(255, 255, 255, 0.2);
-		border-radius: 3px;
-		cursor: pointer;
-	}
-
-	.progress {
-		position: absolute;
-		height: 100%;
-		background-color: #3498db;
-		border-radius: 3px;
-		width: 0%;
-	}
-
-	.time {
-		color: white;
-		font-size: 14px;
-	}
-    
-	.follow-button {
-	    position: relative;
-	    padding: 10px 20px;
-	    font-size: 16px;
-	    font-weight: bold;
-	    color: #fff;
-	    background-color: #007bff;
-	    border: none;
-	    border-radius: 8px;
-	    cursor: pointer;
-	    overflow: hidden;
-	    transition: all 0.3s ease;
-	    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-	    transform-style: preserve-3d;
-	}
-
-	.follow-button:before {
-	    content: '';
-	    position: absolute;
-	    top: 0;
-	    left: -100%;
-	    width: 100%;
-	    height: 100%;
-	    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
-	    transition: all 0.6s ease;
-	}
-
-	.follow-button:hover:before {
-	    left: 100%;
-	}
-
-	.follow-button:hover {
-	    transform: scale(1.05) perspective(1px);
-	    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-	}
-
-	.follow-button.unfollow-button {
-	    background-color: #dc3545;
-	}
-
-	.follow-button.following {
-	    background-color: #28a745;
-	}
-
-	.follow-button .follow-text {
-	    position: relative;
-	    z-index: 1;
-	}
-
-	.follow-button .follow-icon {
-	    margin-right: 8px;
-	    position: relative;
-	    z-index: 1;
-	}
-    </style>
+		    .developer-badge, .helper-badge, .donator-badge {
+	            width: 20px;
+	            height: 20px;
+	            
+	            vertical-align: middle;
+	        }		
+	
+	        .designer-badge {
+	            width: 27px;
+	            height: 27px;
+	                
+	            vertical-align: middle;
+	        }
+	    			
+	    	.follow-button {
+	    	    position: relative;
+	    	    padding: 10px 20px;
+	    	    font-size: 16px;
+	    	    font-weight: bold;
+	    	    color: #fff;
+	    	    background-color: #007bff;
+	    	    border: none;
+	    	    border-radius: 8px;
+	    	    cursor: pointer;
+	    	    overflow: hidden;
+	    	    transition: all 0.3s ease;
+	    	    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+	    	    transform-style: preserve-3d;
+	    	}
+	    
+	    	.follow-button:before {
+	    	    content: '';
+	    	    position: absolute;
+	    	    top: 0;
+	    	    left: -100%;
+	    	    width: 100%;
+	    	    height: 100%;
+	    	    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+	    	    transition: all 0.6s ease;
+	    	}
+	    
+	    	.follow-button:hover:before {
+	    	    left: 100%;
+	    	}
+	    
+	    	.follow-button:hover {
+	    	    transform: scale(1.05) perspective(1px);
+	    	    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+	    	}
+	    
+	    	.follow-button.unfollow-button {
+	    	    background-color: #dc3545;
+	    	}
+	    
+	    	.follow-button.following {
+	    	    background-color: #28a745;
+	    	}
+	    
+	    	.follow-button .follow-text {
+	    	    position: relative;
+	    	    z-index: 1;
+	    	}
+	    
+	    	.follow-button .follow-icon {
+	    	    margin-right: 8px;
+	    	    position: relative;
+	    	    z-index: 1;
+	    	}
+        </style>
 	
 	<?php outputChristmasThemeCSS(); ?>
 </head>
@@ -527,7 +463,7 @@ if (!$artistData) {
 	                        </button>
 	                    </form>
 	                <?php else: ?>
-	                    <p>Log in to follow this artist.</p>
+	                    <p>Login or Signup to follow this artist!</p>
 	                <?php endif; ?>
 	            </div>
 	        </div>
