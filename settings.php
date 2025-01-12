@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once 'config/config.php';
 require_once 'music_handlers.php';
 require_once 'user_handlers.php';
 
@@ -208,9 +208,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 				<div class="form-group">
 					<label for="bio">Bio</label>
-					<textarea id="bio" name="bio" maxlength="300" rows="4"><?php 
-						echo htmlspecialchars(isset($user['bio']) ? $user['bio'] : '');
-					?></textarea>
+                    <textarea id="bio" name="bio" maxlength="300" rows="4"><?php 
+                        echo htmlspecialchars($user['bio'] ?? '');
+                    ?></textarea>
 				</div>
 
                 <button type="submit" name="update_profile" class="button">Update Profile</button>

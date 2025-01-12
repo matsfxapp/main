@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function copyShareableLink(title, artist) {
-        const shareableLink = `https://alpha.matsfx.com/song?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
+    function copyShareableLink(_title, _artist) {
+        const shareableLink = `https://alpha.matsfx.com/song?song_id={$song_id}`;
         
         navigator.clipboard.writeText(shareableLink)
             .then(() => {

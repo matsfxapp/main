@@ -1,28 +1,8 @@
 <?php
-require_once 'config.php';
-require_once 'auth.php';
+require_once 'config/config.php';
+require_once 'config/auth.php';
 require_once 'music_handlers.php';
-require_once 'search_handler.php';
-
-/*
-// only activate for maintenance
-session_start();
-
-// Check if user is admin
-if (!isset($_SESSION['user_id']) || !isAdmin($_SESSION['user_id'])) {
-    header('Location: maintenance');
-    exit();
-}
-
-function isAdmin($userId) {
-    global $conn;
-    $stmt = $conn->prepare("SELECT is_admin FROM users WHERE user_id = :user_id");
-    $stmt->execute(['user_id' => $userId]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $user && $user['is_admin'] == 1;
-}
-
-*/
+require_once 'handlers/search_handler.php';
 
 // Group songs by artist and count
 $songsByArtist = [];
@@ -41,6 +21,19 @@ arsort($artistSongCounts);
 
 // get top 2 artists
 $topArtists = array_slice(array_keys($artistSongCounts), 0, 2);
+
+// get new users by creation date 
+// only add users who have uploaded songs
+// they will be ordered by creation date
+$newUsersQuery = "
+    SELECT DISTINCT u.username, u.created_at, u.profile_picture, COUNT(s.song_id) as song_count 
+    FROM users u 
+    INNER JOIN songs s ON u.username = s.artist OR u.username = s.uploaded_by 
+    GROUP BY u.username, u.created_at, u.profile_picture 
+    ORDER BY u.created_at DESC 
+    LIMIT 5";
+$newUsersResult = $conn->query($newUsersQuery);
+$newUsers = $newUsersResult->fetchAll(PDO::FETCH_ASSOC);
 
 // remaining songs
 $remainingSongs = [];
@@ -66,17 +59,14 @@ foreach ($songs as $song) {
     <title>matSFX - Music for everyone</title>
 
 	<!-- links -->
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-	<link rel="stylesheet" href="css/player-style.css">
 	<link rel="stylesheet" href="css/index-artistsection.css">
 	<link rel="stylesheet" href="css/share-button.css">
 	<link rel="stylesheet" href="css/navbar.css">
 	<script src="js/share-button.js"></script>
-	
-	<?php outputChristmasThemeCSS(); ?>
-</head>
+
 	<style>
 		.sticky-banner {
 			position: fixed;
@@ -181,6 +171,9 @@ foreach ($songs as $song) {
 			}
 		}
 	</style>
+	
+	<?php outputChristmasThemeCSS(); ?>
+</head>
 <body>
 	<?php
     require_once 'includes/header.php';
@@ -198,10 +191,10 @@ foreach ($songs as $song) {
     </div> -->
 
 
-    <div class="container" style="padding-bottom: 10%;">
+    <div class="container">
         <!-- Top Artists Sections -->
 		<?php foreach ($topArtists as $artist): ?>
-		<div class="artist-section" style="margin-top: 4rem;">
+		<div class="artist-section" style="margin-top: 6rem;">
 			<div class="artist-section-header">
 				<h2 class="section-title">Songs from <?php echo htmlspecialchars($artist); ?></h2>
 				<div class="navigation-buttons">
@@ -241,9 +234,71 @@ foreach ($songs as $song) {
 		</div>
 	<?php endforeach; ?>
 
+	<!-- New Users Section -->
+	<div class="new-users-section" style="margin: 4rem 0;">
+		<h2 class="section-title">New Artists</h2>
+		<div class="new-users-grid">
+			<?php foreach ($newUsers as $user): ?>
+				<a href="artist?name=<?php echo urlencode($user['username']); ?>" class="user-card">
+					<img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
+						alt="Profile Picture" 
+						class="user-profile-pic">
+					<div class="user-info">
+						<div class="username"><?php echo htmlspecialchars($user['username']); ?></div>
+						<div class="join-date">Joined <?php echo date('M Y', strtotime($user['created_at'])); ?></div>
+					</div>
+				</a>
+			<?php endforeach; ?>
+		</div>
+	</div>
+
+	<style>
+		.new-users-grid {
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 2rem;
+			margin-top: 2rem;
+		}
+
+		.user-card {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			text-decoration: none;
+			color: inherit;
+			transition: transform 0.2s;
+		}
+
+		.user-card:hover {
+			transform: translateY(-5px);
+		}
+
+		.user-profile-pic {
+			width: 120px;
+			height: 120px;
+			border-radius: 50%;
+			object-fit: cover;
+			margin-bottom: 1rem;
+		}
+
+		.user-info {
+			text-align: center;
+		}
+
+		.username {
+			font-weight: 600;
+			margin-bottom: 0.5rem;
+		}
+
+		.join-date {
+			font-size: 0.9rem;
+			color: #666;
+		}
+	</style>
+
 	<!-- Remaining Songs in Grid -->
 	<h2 class="section-title">More Songs</h2>
-	<div class="music-grid" style="padding-bottom: 10%;" >
+	<div class="music-grid">
 		<?php foreach ($remainingSongs as $song): ?>
 			<div class="song-card" onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)">
                     <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
@@ -258,43 +313,9 @@ foreach ($songs as $song) {
         </div>
 	</div>
 	
-	<div id="errorContainer"></div>
-    <div class="player">
-        <div class="player-container">
-            <div class="song-info">
-                <img id="player-album-art" src="" alt="Album Art" class="album-art" onerror="this.src='defaults/default-cover.jpg'">
-                <div class="track-info">
-                    <h3 id="songTitle" class="track-name"></h3>
-                    <div id="artistName" class="artist-name"></div>
-                </div>
-            </div>
-			<div class="player-controls">
-				<div class="control-buttons">
-					<button onclick="previousTrack()" aria-label="Previous Track"><i class="fas fa-step-backward"></i></button>
-					<button onclick="playPause()" id="playPauseBtn" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
-					<button onclick="nextTrack()" aria-label="Next Track"><i class="fas fa-step-forward"></i></button>
-					<button onclick="toggleLoop()" id="loopBtn" aria-label="Loop Track">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M3 12c0-3.866 3.134-7 7-7h6.5"/>
-						<polyline points="14 2 17 5 14 8"/>
-						
-						<path d="M21 12c0 3.866-3.134 7-7 7H7.5"/>
-						<polyline points="10 22 7 19 10 16"/>
-					  </svg>
-					</button>
-				</div>
-                <div class="progress-container">
-                    <span id="currentTime">0:00</span>
-                    <input type="range" id="progress" value="0" max="100" class="slider" aria-label="Song Progress">
-                    <span id="duration">0:00</span>
-                </div>
-            </div>
-            <div class="volume-control">
-                <i class="fas fa-volume-up volume-icon" id="volumeIcon"></i>
-                <input type="range" id="volume" min="0" max="1" step="0.01" value="1" class="volume-slider" aria-label="Volume Control">
-            </div>
-        </div>
-    </div>
+	<?php
+	require_once 'includes/player.php'
+	?>
 
     <script src="js/index.js"></script>
 	<script src="js/search.js"></script>

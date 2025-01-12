@@ -1,4 +1,3 @@
-// Global audio player instance
 let audioPlayer;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -13,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeArtistSections();
 });
 
-// Main playSong function - moved outside DOMContentLoaded to be globally accessible
 function playSong(filePath, songCardElement) {
     console.log('Playing song:', filePath);
 
@@ -186,123 +184,4 @@ function initializeArtistSections() {
             });
         }
     });
-}
-
-function initializeArtistSearch() {
-    const artistSearch = document.getElementById('artistSearch');
-    const searchResults = document.getElementById('searchResults');
-    const artistProfile = document.getElementById('artistProfile');
-    const mainMusicGrid = document.querySelector('.music-grid:not(#artistSongs)');
-    let searchTimeout;
-    let searchedArtists = [];
-
-    if (artistSearch && searchResults) {
-        artistSearch.addEventListener('keyup', function() {
-            clearTimeout(searchTimeout);
-
-            if (this.value.length < 2) {
-                searchResults.style.display = 'none';
-                return;
-            }
-
-            searchTimeout = setTimeout(() => {
-                fetch(`../func/search_artist.php?search=${encodeURIComponent(this.value)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        searchResults.innerHTML = '';
-                        searchedArtists = [];
-
-                        if (data.length === 0) {
-                            searchResults.innerHTML = '<div class="search-result-item no-results">No results found</div>';
-                        } else {
-                            data.forEach(result => {
-                                if (!searchedArtists.includes(result.name)) {
-                                    const resultItem = createSearchResultItem(result);
-                                    resultItem.addEventListener('click', () => showArtistProfile(result.name));
-                                    searchResults.appendChild(resultItem);
-                                    searchedArtists.push(result.name);
-                                }
-                            });
-                        }
-
-                        searchResults.style.display = 'block';
-                    })
-                    .catch(error => console.error('Search error:', error));
-            }, 300);
-        });
-    }
-
-    // Close search results on outside click
-    document.addEventListener('click', function(event) {
-        if (searchResults && !searchResults.contains(event.target) && event.target !== artistSearch) {
-            searchResults.style.display = 'none';
-        }
-    });
-
-    // Logo click handler
-    const logo = document.querySelector('.logo');
-    if (logo) {
-        logo.addEventListener('click', function(e) {
-            e.preventDefault();
-            artistProfile.style.display = 'none';
-            mainMusicGrid.style.display = 'grid';
-            if (artistSearch) artistSearch.value = '';
-        });
-    }
-}
-
-// Utility functions
-function formatTime(seconds) {
-    if (isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-}
-
-function extractFilePath(onclickAttribute) {
-    const match = onclickAttribute.match(/'([^']*)'/);
-    return match ? match[1] : null;
-}
-
-function createSearchResultItem(result) {
-    const resultItem = document.createElement('div');
-    resultItem.className = 'search-result-item';
-    resultItem.innerHTML = `
-        <img src="implement-artist-profile-php-thingy-here" alt="${result.name}" class="result-image">
-        <div class="result-info">
-            <div class="result-name">${result.name}</div>
-            <div class="result-type">${result.type}</div>
-        </div>
-    `;
-    return resultItem;
-}
-
-function showArtistProfile(artistName) {
-    const artistProfile = document.getElementById('artistProfile');
-    const mainMusicGrid = document.querySelector('.music-grid:not(#artistSongs)');
-    const searchResults = document.getElementById('searchResults');
-
-    Promise.all([
-        fetch(`../func/get_artist_songs.php?artist=${encodeURIComponent(artistName)}`).then(res => res.json()),
-        fetch(`../func/get_artist_profile.php?artist=${encodeURIComponent(artistName)}`).then(res => res.json())
-    ])
-        .then(([songData, profileData]) => {
-            document.getElementById('artistName').textContent = artistName;
-            document.getElementById('songCount').textContent = `${songData.length} Songs`;
-            document.getElementById('artistImage').src = profileData.profile_picture || '/api/placeholder/180/180';
-
-            const artistSongs = document.getElementById('artistSongs');
-            artistSongs.innerHTML = songData.map(song => `
-                <div class="song-card" onclick="playSong('${song.file_path}', this)">
-                    <img src="${song.cover_art}" alt="Cover Art" class="cover-art">
-                    <div class="song-title">${song.title}</div>
-                    <div class="song-artist">${song.artist}</div>
-                </div>
-            `).join('');
-
-            searchResults.style.display = 'none';
-            artistProfile.style.display = 'block';
-            mainMusicGrid.style.display = 'none';
-        })
-        .catch(error => console.error('Error loading artist profile:', error));
 }

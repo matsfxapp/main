@@ -1,3 +1,16 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+	session_start();
+}
+
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../user_handlers.php';
+
+$user = [];
+if (isset($_SESSION['user_id'])) {
+	$user = getUserData($_SESSION['user_id']);
+}
+?>
 <link rel="stylesheet" href="/includes/css/header.css"> 
 <style>
 	* {
@@ -750,7 +763,7 @@
 
             <!-- User Profile with Dropdown -->
             <div class="nav-user-profile">
-				<img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" 
+				<img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
                  alt="User Profile" class="nav-profile-picture" onclick="toggleDropdown()">
                 
                 <!-- Dropdown Menu -->

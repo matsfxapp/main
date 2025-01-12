@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-require_once 'config.php';
+require_once 'config/config.php';
 
 // Check if user is admin
 if (!isset($_SESSION['user_id']) || !isAdmin($_SESSION['user_id'])) {
@@ -36,7 +36,7 @@ if (isset($_GET['action'])) {
     if ($_GET['action'] == 'deleteUser' && isset($_GET['user_id'])) {
         $stmt = $conn->prepare("DELETE FROM users WHERE user_id = :user_id");
         $stmt->execute(['user_id' => $_GET['user_id']]);
-        header('Location: admin_dashboard.php');
+        header('Location: admin.php');
         exit();
     }
 
@@ -363,19 +363,19 @@ if (isset($_GET['action'])) {
 								echo '<td>' . htmlspecialchars($user['email']) . '</td>';
 								echo '<td>';
 								if ($user['is_verified']) {
-									echo '<img src="app-images/verified-badge.png" alt="Verified" class="badge-icon">';
+									echo '<img src="app_images/verified-badge.png" alt="Verified" class="badge-icon">';
 								}
 								if ($user['is_helper']) {
-									echo '<img src="app-images/helper-badge.png" alt="Helper" class="badge-icon">';
+									echo '<img src="app_images/helper-badge.png" alt="Helper" class="badge-icon">';
 								}
 								if ($user['is_donator']) {
-									echo '<img src="app-images/donator-badge.png" alt="Donator" class="badge-icon">';
+									echo '<img src="app_images/donator-badge.png" alt="Donator" class="badge-icon">';
 								}
 								if ($user['is_developer']) {
-									echo '<img src="app-images/developer-badge.png" alt="Developer" class="badge-icon">';
+									echo '<img src="app_images/developer-badge.png" alt="Developer" class="badge-icon">';
 								}
 								if ($user['is_admin']) {
-									echo '<img src="app-images/admin-badge.png" alt="Admin" class="badge-icon">';
+									echo '<img src="app_images/admin-badge.png" alt="Admin" class="badge-icon">';
 								}
 								echo '</td>';
 								echo '<td><button onclick="editUser(' . $user['user_id'] . ')" class="button button-primary">Edit</button></td>';
@@ -456,7 +456,7 @@ if (isset($_GET['action'])) {
     </script>
 	<script>
 		function editUser(userId) {
-			fetch(`admin_handlers.php?action=getUserDetails&id=${userId}`)
+			fetch(`handlers/admin_handlers.php?action=getUserDetails&id=${userId}`)
 				.then(response => {
 					if (!response.ok) {
 						throw new Error('Network response was not ok');
@@ -554,7 +554,7 @@ if (isset($_GET['action'])) {
 		}
 
 		function updateUser(formData) {
-			fetch('admin_handlers.php', {
+			fetch('handlers/admin_handlers.php', {
 				method: 'POST',
 				body: formData
 			})

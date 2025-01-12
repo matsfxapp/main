@@ -1,10 +1,10 @@
 <?php
-require_once 'config.php';
+require_once 'config/config.php';
 
 function getUserData($user_id) {
     global $conn;
     
-    $query = "SELECT user_id, username, email, profile_picture FROM users WHERE user_id = :user_id";
+    $query = "SELECT user_id, username, email, profile_picture, bio FROM users WHERE user_id = :user_id";
     $stmt = $conn->prepare($query);
     $stmt->execute([':user_id' => $user_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -50,7 +50,7 @@ function updateProfile($user_id, $data, $profile_picture = null) {
             }
             
             $filename = uniqid() . "_" . basename($profile_picture["name"]);
-            $profile_picture_path = $upload_dir . $filename;
+            $profile_picture_path = "{$upload_dir}{$filename}";
             
             if (!move_uploaded_file($profile_picture["tmp_name"], $profile_picture_path)) {
                 return ['success' => false, 'error' => 'Failed to upload profile picture'];
@@ -62,7 +62,7 @@ function updateProfile($user_id, $data, $profile_picture = null) {
         $params = [
             ':username' => $data['username'],
             ':email' => $data['email'],
-            ':bio' => $data['bio'],  // Added bio
+            ':bio' => $data['bio'],
             ':user_id' => $user_id
         ];
         
@@ -120,6 +120,22 @@ function updatePassword($user_id, $current_password, $new_password, $confirm_pas
     }
 }
 
+function updateBio($user_id, $bio) {
+    global $conn;
+    
+    try {
+        $stmt = $conn->prepare("UPDATE users SET bio = :bio WHERE user_id = :user_id");
+        $stmt->execute([
+            ':bio' => $bio,
+            ':user_id' => $user_id
+        ]);
+        
+        return ['success' => true];
+    } catch (PDOException $e) {
+        return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
+    }
+}
+
 function deleteSong($user_id, $song_id) {
     global $conn;
     
@@ -167,7 +183,6 @@ function updateSongDetails($user_id, $song_id, $details) {
     $paramTypes = '';
     $params = [];
     
-    // Existing fields
     if (isset($details['title'])) {
         $updateFields[] = 'title = ?';
         $paramTypes .= 's';
@@ -183,8 +198,6 @@ function updateSongDetails($user_id, $song_id, $details) {
         $paramTypes .= 's';
         $params[] = $details['genre'];
     }
-    
-    // New fields
     if (isset($details['visibility'])) {
         $updateFields[] = 'visibility = ?';
         $paramTypes .= 's';
@@ -217,14 +230,12 @@ function updateSongDetails($user_id, $song_id, $details) {
     $query = "UPDATE songs SET " . implode(', ', $updateFields) . 
              " WHERE song_id = ? AND user_id = ?";
     
-    // Prepare and execute the statement
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param($paramTypes, ...$params);
-    
-    if ($stmt->execute()) {
+    try {
+        // Prepare and execute the statement
+        $stmt = $conn->prepare($query);
+        $stmt->execute($params);
         return ['success' => true];
-    } else {
-        return ['success' => false, 'error' => $stmt->error];
+    } catch (PDOException $e) {
+        return ['success' => false, 'error' => $e->getMessage()];
     }
 }
-?>

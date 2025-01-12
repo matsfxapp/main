@@ -1,6 +1,6 @@
 <?php
-require_once 'config.php';
-require_once 'music_handlers.php';
+require_once 'config/config.php';
+require_once 'handlers/music_handlers.php';
 
 function toggleLike($song_id) {
     global $conn;

@@ -5,28 +5,134 @@ use PHPMailer\PHPMailer\Exception;
 require 'vendor/autoload.php';
 require_once 'config.php';
 
-function sendEmail($to, $subject, $body) {
+function sendEmail($to, $subject, $body, $reset_link = '') {
     $mail = new PHPMailer(true);
 
     try {
         // Server settings
         $mail->isSMTP();
-        $mail->Host       = "your_host_here";
+        $mail->Host       = $_ENV['SMTP_HOST'];
         $mail->SMTPAuth   = true;
-        $mail->Username   = "your_username_here";
-        $mail->Password   = "your_password_here";
+        $mail->Username   = $_ENV['SMTP_USERNAME'];
+        $mail->Password   = $_ENV['SMTP_PASSWORD'];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = "your_port_here";
+        $mail->Port       = $_ENV['SMTP_PORT'];
 
         // Recipients
-        $mail->setFrom('mat@fn.de', 'matSFX Accounts');
+        $mail->setFrom($_ENV['SMTP_FROM_EMAIL'], $_ENV['SMTP_FROM_NAME2']);
         $mail->addAddress($to);
-        $mail->addReplyTo('mat@fn.de', 'matSFX Accounts');
+        $mail->addReplyTo($_ENV['SMTP_FROM_EMAIL'], $_ENV['SMTP_FROM_NAME2']);
 
         // Content
         $mail->isHTML(true);
         $mail->Subject = $subject;
-        $mail->Body    = $body;
+        $mail->Body = $body ?: '
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    line-height: 1.6;
+                    background-color: #f4f4f4;
+                    color: #333333;
+                }
+                .email-wrapper {
+                    background-color: #ffffff;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 0;
+                }
+                .header {
+                    background-color: #2D7FF9;
+                    padding: 30px 20px;
+                    text-align: center;
+                }
+                .header img {
+                    max-width: 150px;
+                    height: auto;
+                }
+                .content {
+                    padding: 40px 20px;
+                    background-color: #ffffff;
+                }
+                h1 {
+                    color: #2D7FF9;
+                    font-size: 24px;
+                    margin: 0 0 20px 0;
+                    text-align: center;
+                }
+                p {
+                    margin: 0 0 20px 0;
+                    font-size: 16px;
+                    color: #555555;
+                }
+                .button {
+                    display: block;
+                    width: 200px;
+                    margin: 30px auto;
+                    padding: 15px 25px;
+                    background-color: #2D7FF9;
+                    color: #ffffff !important;
+                    text-align: center;
+                    text-decoration: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    font-size: 16px;
+                }
+                .footer {
+                    background-color: #f8f9fa;
+                    padding: 20px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #666666;
+                }
+                .security-notice {
+                    background-color: #fff3cd;
+                    border: 1px solid #ffeeba;
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    color: #856404;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-wrapper">
+                <div class="header">
+                    <img src="'.$_ENV['APP_URL'].'/assets/images/logo.png" alt="matSFX Logo">
+                </div>
+                <div class="content">
+                    <h1>Password Reset Request</h1>
+                    <p>We received a request to reset your password for your matSFX account.</p>
+                    <a href="'.$reset_link.'" class="button">Reset Password</a>
+                    <p>If you didn\'t request this, you can safely ignore this email. Your password will not be changed.</p>
+                    <div class="security-notice">
+                        <p>For security: This link will expire in 1 hour and can only be used once.</p>
+                    </div>
+                </div>
+                <div class="footer">
+                    <p>&copy; '.date("Y").' matSFX. All rights reserved.</p>
+                    <p>This email was sent to '.$to.'</p>
+                </div>
+            </div>
+        </body>
+        </html>';
+
+        // Plain text alternative
+        $mail->AltBody = "Password Reset Request\n\n" .
+                        "We received a request to reset your password for your matSFX account.\n\n" .
+                        "To reset your password, click or copy this link:\n" .
+                        $reset_link . "\n\n" .
+                        "If you didn't request this, you can safely ignore this email.\n" .
+                        "For security: This link will expire in 1 hour and can only be used once.\n\n" .
+                        "© " . date("Y") . " matSFX. All rights reserved.\n" .
+                        "This email was sent to " . $to;
 
         $mail->send();
         return true;
@@ -55,25 +161,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $reset_token = bin2hex(random_bytes(32));
     $reset_token_expiration = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-    $stmt = $conn->prepare("UPDATE users SET reset_token = :token WHERE email = :email");
+    $stmt = $conn->prepare("UPDATE users SET reset_token = :token, reset_token_expiration = :expiration WHERE email = :email");
     $stmt->execute([
         ':token' => $reset_token,
+        ':expiration' => $reset_token_expiration,
         ':email' => $email
     ]);
 
     $reset_link = "https://alpha.matsfx.com/resetpassword?token=$reset_token";
-    $email_body = "
-        <html>
-        <body>
-            <p>Hello,</p>
-            <p>Click the link below to reset your password:</p>
-            <p><a href=\"$reset_link\">$reset_link</a></p>
-            <p>If you did not request this, please ignore this email.</p>
-        </body>
-        </html>
-    ";
+    $email_body = '';
 
-    if (sendEmail($email, "Password Reset Request", $email_body)) {
+    if (sendEmail($email, "Password Reset Request", $email_body, $reset_link)) {
         echo "A password reset link has been sent to your email.";
     } else {
         echo "Failed to send the email. Please try again later.";

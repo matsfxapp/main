@@ -1,5 +1,17 @@
-<link rel="stylesheet" href="/includes/css/header.css">    
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+	session_start();
+}
 
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../user_handlers.php';
+
+$user = [];
+if (isset($_SESSION['user_id'])) {
+	$user = getUserData($_SESSION['user_id']);
+}
+?>
+<link rel="stylesheet" href="/includes/css/header.css">    
 <header class="global-header">
         <div class="header-container">
             <!-- Logo -->

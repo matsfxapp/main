@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add debounce to prevent too many requests
         searchTimeout = setTimeout(() => {
-            fetch(`search_handler.php?query=${encodeURIComponent(query)}`)
+            fetch(`/../handlers/search_handler.php?query=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     displayResults(data, query);

@@ -1,6 +1,5 @@
 <?php
-require_once 'config.php';
-require_once 'auth.php';
+require_once 'config/config.php';
+require_once 'config/auth.php';
 
 logoutUser();
-?>

@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once 'config/config.php';
 
 function uploadSong($title, $artist, $album, $genre, $file, $cover_art) {
     global $conn;
@@ -108,7 +108,7 @@ function getArtistProfilePicture($artist) {
         if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $profile_picture = $row['profile_picture'];
             if ($profile_picture && file_exists('uploads/profiles/' . $profile_picture)) {
-                return 'uploads/profiles/' . $profile_picture;
+                return "uploads/profiles/$profile_picture";
             }
         }
         

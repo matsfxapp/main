@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once 'config.php';
+require_once 'config/config.php';
 require_once 'themes/theme-handler.php';
 
 $currentUserId = $_SESSION['user_id'] ?? null;
@@ -24,7 +24,7 @@ function getArtistBio($artistName) {
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $result && $result['bio'] ? $result['bio'] : 'Listen to ' . $artistName . ' on matSFX - The new way to listen with Joy!';
+        return $result && $result['bio'] ? $result['bio'] : "Listen to $artistName on matSFX - The new way to listen with Joy!";
     } catch (PDOException $e) {
         error_log("Database error: " . $e->getMessage());
         return 'matSFX - The new way to listen with Joy!';
@@ -199,74 +199,74 @@ if (!$artistData) {
 		<link rel="stylesheet" href="css/navbar.css">
 		<script src="js/share-button.js"></script>
         <style>
-		.error-user-container {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			height: 91vh;
-			background-color: var(--dark-bg);
-			text-align: center;
-			padding: 20px;
-			box-sizing: border-box;
-		}
-		.error-user-heading {
-			font-size: 48px;
-			font-weight: bold;
-			color: var(--primary-color);
-			margin-bottom: 16px;
-		}
-		
-		.error-user-text {
-			font-size: 20px;
-			color: var(--gray-text);
-			margin-bottom: 32px;
-		}
-		
-		.error-user-button {
-			display: inline-block;
-			text-decoration: none;
-			padding: 12px 24px;
-			font-size: 18px;
-			font-weight: 600;
-			color: var(--light-text);
-			background-color: var(--primary-color);
-			border-radius: var(--border-radius);
-			box-shadow: var(--shadow-sm);
-			transition: var(--transition);
-		}
-		
-		.error-user-button:hover {
-			background-color: var(--primary-hover);
-			box-shadow: var(--shadow-md);
-		}
-		
-		.follow-button {
-			position: absolute;
-			top: 22%;
-			right: 400px;
-			padding: 10px 20px;
-			font-size: 16px;
-			font-weight: bold;
-			color: #fff;
-			background-color: #007bff;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			transition: background-color 0.3s;
-		}
-		
-		.follow-button:hover {
-			background-color: #0056b3;
-		}
-		
-		.unfollow-button {
-			background-color: #dc3545;
-		}
-		
-		.unfollow-button:hover {
-			background-color: #a71d2a;
-		}
+			.error-user-container {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				height: 91vh;
+				background-color: var(--dark-bg);
+				text-align: center;
+				padding: 20px;
+				box-sizing: border-box;
+			}
+			.error-user-heading {
+				font-size: 48px;
+				font-weight: bold;
+				color: var(--primary-color);
+				margin-bottom: 16px;
+			}
+			
+			.error-user-text {
+				font-size: 20px;
+				color: var(--gray-text);
+				margin-bottom: 32px;
+			}
+			
+			.error-user-button {
+				display: inline-block;
+				text-decoration: none;
+				padding: 12px 24px;
+				font-size: 18px;
+				font-weight: 600;
+				color: var(--light-text);
+				background-color: var(--primary-color);
+				border-radius: var(--border-radius);
+				box-shadow: var(--shadow-sm);
+				transition: var(--transition);
+			}
+			
+			.error-user-button:hover {
+				background-color: var(--primary-hover);
+				box-shadow: var(--shadow-md);
+			}
+			
+			.follow-button {
+				position: absolute;
+				top: 22%;
+				right: 400px;
+				padding: 10px 20px;
+				font-size: 16px;
+				font-weight: bold;
+				color: #fff;
+				background-color: #007bff;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+			}
+			
+			.follow-button:hover {
+				background-color: #0056b3;
+			}
+			
+			.unfollow-button {
+				background-color: #dc3545;
+			}
+			
+			.unfollow-button:hover {
+				background-color: #a71d2a;
+			}
         </style>
 		
 		<?php outputChristmasThemeCSS(); ?>
@@ -408,40 +408,40 @@ if (!$artistData) {
 	                    <?php echo htmlspecialchars($artist); ?>
 	                    
 	                    <?php if ($artistData['is_admin'] == 1): ?>
-	                        <img src="app-images/admin-badge.png" 
+	                        <img src="app_images/admin-badge.png" 
 	                             alt="Admin" 
 	                             class="verified-badge" 
 	                             title="Admin">
 	                    <?php elseif ($artistData['is_verified'] == 1): ?>
-	                        <img src="app-images/verified-badge.png" 
+	                        <img src="app_images/verified-badge.png" 
 	                             alt="Verified" 
 	                             class="verified-badge" 
 	                             title="Verified Artist">
 	                    <?php endif; ?>
 	                    
 	                    <?php if ($artistData['is_developer'] == 1): ?>
-	                        <img src="app-images/developer-badge.png" 
+	                        <img src="app_images/developer-badge.png" 
 	                             alt="Developer" 
 	                             class="developer-badge" 
 	                             title="Developer">
 	                    <?php endif; ?>
 	                    
 	                    <?php if ($artistData['is_designer'] == 1): ?>
-	                        <img src="app-images/designer-badge.png" 
+	                        <img src="app_images/designer-badge.png" 
 	                             alt="Designer" 
 	                             class="designer-badge" 
 	                             title="Designer">
 	                    <?php endif; ?>
 	                    
 	                    <?php if ($artistData['is_helper'] == 1): ?>
-	                        <img src="app-images/helper-badge.png" 
+	                        <img src="app_images/helper-badge.png" 
 	                             alt="Helper" 
 	                             class="helper-badge" 
 	                             title="Helper">
 	                    <?php endif; ?>
 	                    
 	                    <?php if ($artistData['is_donator'] == 1): ?>
-	                        <img src="app-images/donator-badge.png" 
+	                        <img src="app_images/donator-badge.png" 
 	                             alt="Donator" 
 	                             class="donator-badge" 
 	                             title="Donator">
@@ -497,75 +497,7 @@ if (!$artistData) {
 	    </div>
 	</div>
 	
-	<div id="errorContainer"></div>
-	
-	<div class="player">
-	    <div class="player-container">
-	        <div class="song-info">
-	            <img id="player-album-art" 
-	                 src="" 
-	                 alt="Album Art" 
-	                 class="album-art" 
-	                 onerror="this.src='defaults/default-cover.jpg'">
-	            <div class="track-info">
-	                <h3 id="songTitle" class="track-name"></h3>
-	                <div id="artistName" class="artist-name"></div>
-	            </div>
-	        </div>
-	        
-	        <div class="player-controls">
-	            <div class="control-buttons">
-	                <button onclick="previousTrack()" aria-label="Previous Track">
-	                    <i class="fas fa-step-backward"></i>
-	                </button>
-	                <button onclick="playPause()" id="playPauseBtn" aria-label="Play/Pause">
-	                    <i class="fas fa-play"></i>
-	                </button>
-	                <button onclick="nextTrack()" aria-label="Next Track">
-	                    <i class="fas fa-step-forward"></i>
-	                </button>
-	                <button onclick="toggleLoop()" id="loopBtn" aria-label="Loop Track">
-	                    <svg xmlns="http://www.w3.org/2000/svg" 
-	                         viewBox="0 0 24 24" 
-	                         width="60" 
-	                         height="60" 
-	                         fill="none" 
-	                         stroke="currentColor" 
-	                         stroke-width="2" 
-	                         stroke-linecap="round" 
-	                         stroke-linejoin="round">
-	                        <path d="M3 12c0-3.866 3.134-7 7-7h6.5"/>
-	                        <polyline points="14 2 17 5 14 8"/>
-	                        <path d="M21 12c0 3.866-3.134 7-7 7H7.5"/>
-	                        <polyline points="10 22 7 19 10 16"/>
-	                    </svg>
-	                </button>
-	            </div>
-	            <div class="progress-container">
-	                <span id="currentTime">0:00</span>
-	                <input type="range" 
-	                       id="progress" 
-	                       value="0" 
-	                       max="100" 
-	                       class="slider" 
-	                       aria-label="Song Progress">
-	                <span id="duration">0:00</span>
-	            </div>
-	        </div>
-	        
-	        <div class="volume-control">
-	            <i class="fas fa-volume-up volume-icon" id="volumeIcon"></i>
-	            <input type="range" 
-	                   id="volume" 
-	                   min="0" 
-	                   max="1" 
-	                   step="0.01" 
-	                   value="1" 
-	                   class="volume-slider" 
-	                   aria-label="Volume Control">
-	        </div>
-	    </div>
-	</div>
+	<?php require_once 'includes/player.php'; ?>
 	
 	<script src="js/index.js"></script>
 	<script>
