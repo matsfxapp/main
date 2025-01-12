@@ -15,11 +15,16 @@ if (!$artist) {
     exit();
 }
 
+if (!isset($pdo)) {
+    error_log("Database connection is not initialized");
+    die("Unable to connect to database. Please check the configuration.");
+}
+
 function getArtistBio($artistName) {
-    global $conn;
+    global $pdo;
     try {
         $query = "SELECT bio FROM users WHERE username = :username";
-        $stmt = $conn->prepare($query);
+        $stmt = $pdo->prepare($query);
         $stmt->bindParam(":username", $artistName, PDO::PARAM_STR);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -32,10 +37,10 @@ function getArtistBio($artistName) {
 }
 
 function getArtistProfilePicture($artistName) {
-    global $conn;
+    global $pdo;
     try {
         $query = "SELECT profile_picture FROM users WHERE username = :username";
-        $stmt = $conn->prepare($query);
+        $stmt = $pdo->prepare($query);
         $stmt->bindParam(":username", $artistName, PDO::PARAM_STR);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -47,23 +52,14 @@ function getArtistProfilePicture($artistName) {
     }
 }
 
-$profilePicture = getArtistProfilePicture($artist);
-$artistBio = getArtistBio($artist);
-
-$ogImage = $profilePicture !== 'defaults/default-profile.jpg' 
-    ? $profilePicture 
-    : 'app_logos/matsfx_logo.png';
-
-
 function checkIfFollowing($currentUserId, $profileUserId) {
-    global $conn;
+    global $pdo;
     try {
-        // Prevent self-following
         if ($currentUserId === $profileUserId) {
             return false;
         }
 
-        $stmt = $conn->prepare("SELECT 1 FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
+        $stmt = $pdo->prepare("SELECT 1 FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
         $stmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
         $stmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
         $stmt->execute();
@@ -75,35 +71,29 @@ function checkIfFollowing($currentUserId, $profileUserId) {
 }
 
 function followOrUnfollow($currentUserId, $profileUserId, $action) {
-    global $conn;
+    global $pdo;
     try {
-        // prevent self-following
         if ($currentUserId === $profileUserId) {
             return false;
         }
 
         if ($action === 'follow') {
-            // check if already following
-            $checkStmt = $conn->prepare("SELECT 1 FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
+            $checkStmt = $pdo->prepare("SELECT 1 FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
             $checkStmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
             $checkStmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
             $checkStmt->execute();
             
             if ($checkStmt->fetchColumn()) {
-                return false; // already following
+                return false;
             }
 
-            // insert a new follow
-            $stmt = $conn->prepare("INSERT INTO followers (follower_id, followed_id, follow_date) VALUES (:follower_id, :followed_id, NOW())");
-            $stmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
-            $stmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
+            $stmt = $pdo->prepare("INSERT INTO followers (follower_id, followed_id, follow_date) VALUES (:follower_id, :followed_id, NOW())");
         } else {
-            // remove the follow
-            $stmt = $conn->prepare("DELETE FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
-            $stmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
-            $stmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
+            $stmt = $pdo->prepare("DELETE FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
         }
         
+        $stmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
+        $stmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
         return $stmt->execute();
     } catch (PDOException $e) {
         error_log("Database error in followOrUnfollow: " . $e->getMessage());
@@ -111,8 +101,47 @@ function followOrUnfollow($currentUserId, $profileUserId, $action) {
     }
 }
 
+function getArtistSongs($artistName) {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM songs WHERE artist = :artist ORDER BY upload_date DESC");
+        $stmt->bindValue(':artist', $artistName, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        return [];
+    }
+}
+
+function checkArtistExists($artistName) {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("SELECT *, is_verified, bio, is_developer FROM users WHERE username = :username");
+        $stmt->bindValue(':username', $artistName, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        return false;
+    }
+}
+
+function sanitizeFilename($filename) {
+    return preg_replace('/[^a-zA-Z0-9-_.]/', '', $filename);
+}
+
+$profilePicture = getArtistProfilePicture($artist);
+$artistBio = getArtistBio($artist);
+
+$ogImage = $profilePicture !== 'defaults/default-profile.jpg' 
+    ? $profilePicture 
+    : 'app_logos/matsfx_logo.png';
+
 $currentUserId = $_SESSION['user_id'] ?? null;
+$artistData = checkArtistExists($artist);
 $profileUserId = $artistData['user_id'] ?? null;
+$songs = $artistData ? getArtistSongs($artist) : [];
 
 $isFollowing = false;
 if ($currentUserId && $profileUserId) {
@@ -138,42 +167,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['follow_action'], $cur
     header("Location: ?name=" . urlencode($artist));
     exit();
 }
-
-
-function getArtistSongs($artistName) {
-    global $conn;
-    try {
-        $stmt = $conn->prepare("SELECT * FROM songs WHERE artist = :artist ORDER BY upload_date DESC");
-        $stmt->bindValue(':artist', $artistName, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Database error: " . $e->getMessage());
-        return [];
-    }
-}
-
-function checkArtistExists($artistName) {
-    global $conn;
-    try {
-        $stmt = $conn->prepare("SELECT *, is_verified, bio, is_developer FROM users WHERE username = :username");
-        $stmt->bindValue(':username', $artistName, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Database error: " . $e->getMessage());
-        return false;
-    }
-}
-
-function sanitizeFilename($filename) {
-    return preg_replace('/[^a-zA-Z0-9-_.]/', '', $filename);
-}
-
-$artistData = checkArtistExists($artist);
-$profileUserId = $artistData['user_id'] ?? null;
-$songs = $artistData ? getArtistSongs($artist) : [];
-$profilePicture = getArtistProfilePicture($artist);
 
 if (!$artistData) {
     ?>
