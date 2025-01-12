@@ -759,7 +759,7 @@ if (isset($_SESSION['user_id'])) {
 
             <!-- User Profile with Dropdown -->
             <div class="nav-user-profile">
-				<img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
+				<img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '../defaults/default-profile.jpg'); ?>" 
                  alt="User Profile" class="nav-profile-picture" onclick="toggleDropdown()">
                 
                 <!-- Dropdown Menu -->
