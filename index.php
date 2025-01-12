@@ -61,11 +61,14 @@ foreach ($songs as $song) {
 	<meta property="og:image" content="app_logos/matsfx_logo.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://matsfx.com/" />
-	<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-    <title>matSFX - Music for everyone</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+	<link rel="icon" type="image/png" href="/app-images/matsfx_logo.png">
+    	<link rel="shortcut icon" type="image/png" href="/app-images/matsfx_logo.png">
+        <title>matSFX - Music for everyone</title>
+
+	<!-- links -->
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/player-style.css">
 	<link rel="stylesheet" href="css/index-artistsection.css">
 	<link rel="stylesheet" href="css/share-button.css">
