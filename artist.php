@@ -188,6 +188,7 @@ if (!$artistData) {
 
 		<!-- links -->
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         <link rel="stylesheet" href="css/style.css">
 		<link rel="stylesheet" href="css/share-button.js">
 		<script src="js/share-button.js" defer></script>
@@ -296,9 +297,13 @@ if (!$artistData) {
     <meta property="og:image" content="https://alpha.matsfx.com/<?php echo htmlspecialchars($profilePicture ?: '/defaults/default-profile.jpg', ENT_QUOTES, 'UTF-8'); ?>">
 	<meta property="og:type" content="website">
 	<meta property="og:url" content="https://alpha.matsfx.com/song?song_id=3">
-	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx_logo.png">
+	<link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
+    <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <title><?php echo htmlspecialchars($artist); ?> - matSFX</title>
+
+	<!-- links -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/player-style.css">
 	<link rel="stylesheet" href="css/style.css">

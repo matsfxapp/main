@@ -128,7 +128,9 @@
 </head>
 <body>
 
-    <?php require_once '../includes/header.php';?>
+    <?php
+    require_once '../includes/legal-header.php';
+    ?>
 
     <div class="container">
         <h1>matSFX License - as of 11th January 2024</h1>

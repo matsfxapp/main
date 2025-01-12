@@ -12,6 +12,7 @@
     <title>matSFX Terms</title>
 	<link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
+    <link rel="stylesheet" href="../includes/css/header.css">    
     <style>
         :root {
             --primary-color: #2D7FF9;
@@ -152,10 +153,11 @@
     </style>
 </head>
 <body>
-	<?php
-    require_once '../includes/header.php';
-    ?>
 	
+    <?php
+    require_once '../includes/legal-header.php';
+    ?>
+
     <div class="tos-container">
         <div class="tos-header">
             <h1>Terms of Service</h1>
@@ -215,6 +217,5 @@
             <p class="last-updated">Last updated: December 28, 2024</p>
         </div>
     </div>
-    <script src="../js/search.js"></script>
 </body>
 </html>

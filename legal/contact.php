@@ -180,7 +180,9 @@
 </head>
 <body>
 
-	<?php require_once '../includes/header.php';?>
+    <?php
+    require_once '../includes/legal-header.php';
+    ?>
 	
     <div class="contact-container">
         <div class="contact-header">

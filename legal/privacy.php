@@ -172,8 +172,9 @@
     </style>
 </head>
 <body>
-	<?php
-    require_once '../includes/header.php';
+
+    <?php
+    require_once '../includes/legal-header.php';
     ?>
 	
     <div class="privacy-container">

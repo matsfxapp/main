@@ -13,6 +13,8 @@
 	--hover-bg: rgba(255, 255, 255, 0.12);
 	--active-bg: rgba(255, 255, 255, 0.15);
 	--dropdown-bg: rgba(25, 28, 35, 0.98);
+	--placeholder-content: Search for artists, songs and more...;
+    --placeholder-content-mobile: Tap to search...;
 }
 
 .global-header {
@@ -133,7 +135,13 @@
 }
 
 .search-input::placeholder {
-	color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
 }
 
 .search-input:focus {
@@ -318,7 +326,7 @@
   }
 
   .search-icon {
-	left: 1rem;
+	right: 2rem;
   }
 }
 
@@ -661,6 +669,7 @@
 	.header-container {
 		padding: 0 1rem;
 		gap: 1rem;
+		height: 3rem;
 	}
 
 	.search-container {
@@ -673,11 +682,35 @@
 	}
 
 	.nav-link {
-		padding: 0.5rem 0.75rem;
+		padding: 0.25rem 0.5rem;
 	}
 
 	.profile-dropdown {
 		width: 260px;
+	}
+
+	.search-icon {
+		left: 1.5rem;
+	}
+
+	.logo-image {
+		width: 28px;
+		height: 28px;
+	}
+
+	.search-input {
+		padding: 0.5rem 1rem 0.5rem 2.5rem;
+		height: 2.25rem;
+	}
+
+	.nav-profile-picture {
+		width: 32px;
+		height: 32px;
+		transform: translateY(8px);
+	}
+
+	.global-header {
+		padding: 0.5rem;
 	}
 }
 

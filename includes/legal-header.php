@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="/includes/css/header.css">    
-	
-	<header class="global-header">
+
+<header class="global-header">
         <div class="header-container">
             <!-- Logo -->
             <a href="/" class="brand">
@@ -9,13 +9,6 @@
                     <span class="brand-text">alpha_0.4.23</span>
                 </div>
             </a>
-
-			<!-- Search Bar -->
-			<div class="search-container">
-				<span class="search-icon">🔍</span>
-				<input type="text" class="search-input" id="artistSearch">
-				<div class="search-results" id="searchResults" style="display: none;"></div>
-			</div>
 
             <!-- User Profile with Dropdown -->
             <div class="nav-user-profile">
@@ -66,8 +59,7 @@
             </div>
         </div>
     </header>
-
-	<script src="../js/search.js"></script>
+    
     <script>
         function toggleDropdown() {
             const dropdown = document.getElementById('profileDropdown');
