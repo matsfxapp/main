@@ -217,31 +217,31 @@
         
         <div class="badges-grid">
             <div class="badge-card">
-                <img src="app-images/admin-badge.png" alt="Admin Badge">
+                <img src="app_images/admin-badge.png" alt="Admin Badge">
                 <h3>Admin Badge</h3>
                 <p>Reserved for admins and high-level team members with special privileges.</p>
             </div>
             
             <div class="badge-card">
-                <img src="app-images/developer-badge.png" alt="Developer Badge">
+                <img src="app_images/developer-badge.png" alt="Developer Badge">
                 <h3>Developer Badge</h3>
                 <p>Awarded to official developers and contributors to the matSFX project.</p>
             </div>
             
             <div class="badge-card">
-                <img src="app-images/donator-badge.png" alt="Donator Badge">
+                <img src="app_images/donator-badge.png" alt="Donator Badge">
                 <h3>Donator Badge</h3>
                 <p>Celebrates our loyal supporters who contribute financially, no matter the amount.</p>
             </div>
             
             <div class="badge-card">
-                <img src="app-images/helper-badge.png" alt="Helper Badge">
+                <img src="app_images/helper-badge.png" alt="Helper Badge">
                 <h3>Helper Badge</h3>
                 <p>Recognizes community members who help identify or fix bugs in the app.</p>
             </div>
             
             <div class="badge-card">
-                <img src="app-images/verified-badge.png" alt="Verified Badge">
+                <img src="app_images/verified-badge.png" alt="Verified Badge">
                 <h3>Verified Badge</h3>
                 <p>Earned by uploading two original songs, verified within two weeks of submission.</p>
             </div>
