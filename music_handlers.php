@@ -1,8 +1,15 @@
 <?php
 require_once 'config/config.php';
 
-if (!$conn) {
-    error_log("Database connection failed");
+try {
+    $conn = new PDO(
+        "mysql:host=" . $dbConfig['host'] . ";dbname=" . $dbConfig['name'],
+        $dbConfig['user'],
+        $dbConfig['pass'],
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
+} catch (PDOException $e) {
+    error_log("Connection failed: " . $e->getMessage());
     die("Database connection error");
 }
 
@@ -139,6 +146,10 @@ function getArtistProfilePicture($artist) {
 }
 
 function sanitizeFilename($filename) {
+    if (empty($filename)) {
+        return false;
+    }
     $filename = preg_replace('/[^a-zA-Z0-9-_]/', '', $filename);
-    return strtolower($filename);
+    $filename = strtolower($filename);
+    return strlen($filename) > 0 ? $filename : false;
 }
