@@ -200,12 +200,6 @@
     </style>
 </head>
 <body>
-	
-<?php
-
-    require_once 'includes/header.php';
-
-    ?>
 
 	
     <div class="container">
