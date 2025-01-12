@@ -6,6 +6,11 @@ if (session_status() == PHP_SESSION_NONE) {
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+header('Content-Type: text/html; charset=utf-8');
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+
 require_once __DIR__ . '/../themes/theme-handler.php';
 
 $dbConfig = [
@@ -25,10 +30,6 @@ try {
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());
 }
-
-header("X-XSS-Protection: 1; mode=block");
-header("X-Content-Type-Options: nosniff");
-header("X-Frame-Options: SAMEORIGIN");
 
 function isLoggedIn() {
     return isset($_SESSION['user_id']);
