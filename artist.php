@@ -438,8 +438,8 @@ if (!$artistData) {
 	                             title="Donator">
 	                    <?php endif; ?>
 	                    
-	                    <?php if ($artistData['is_ukystudiosmember'] == 1): ?>
-	                        <img src="app-images/uky_studios_badge.png" 
+	                    <!-- <?php if ($artistData['is_ukystudiosmember'] == 1): ?>
+	                        <img src="app-images/uky_studios_badge.png" -->
 	                             alt="UkY Studios" 
 	                             class="donator-badge" 
 	                             title="UkY Studios">
