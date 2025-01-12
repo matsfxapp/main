@@ -3,6 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
+	<meta property="og:title" content="matSFX - Listen with Joy!" />
+	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
+	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://matsfx.com/" />
+    <title>matSFX Contact</title>
+    <link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
+    <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <style>
         :root {
             --primary-color: #2D7FF9;
@@ -195,5 +204,7 @@
             </div>
         </div>
     </div>
+
+    <script src="../js/search.js"></script>
 </body>
 </html>

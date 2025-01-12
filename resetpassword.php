@@ -122,7 +122,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://matsfx.com/" />
-	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx_logo.png">
+	<link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
+    <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <title>matSFX - Password Reset</title>
     <link rel="stylesheet" href="css/reset-password.css">
 </head>

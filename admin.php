@@ -95,8 +95,9 @@ if (isset($_GET['action'])) {
 	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx-logo-squared.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://matsfx.com/" />
+    <link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
+    <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <title>Admin Dashboard</title>
-	<link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx-logo-squared.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {

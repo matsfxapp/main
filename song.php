@@ -44,7 +44,8 @@ $shareable_link = "https://alpha.matsfx.com/song?song_id={$song_id}";
     <meta property="og:image" content="https://alpha.matsfx.com/<?php echo htmlspecialchars($cover_art, ENT_QUOTES, 'UTF-8'); ?>" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="<?php echo $shareable_link; ?>" />
-    <link rel="icon" type="image/png" sizes="32x32" href="https://matsfx.com/app_logos/matsfx_logo.png">
+    <link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
+    <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <title><?php echo $song_title; ?> - matSFX</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
