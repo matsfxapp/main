@@ -179,17 +179,15 @@ foreach ($songs as $song) {
     require_once 'includes/header.php';
     ?>
 	
-	<!-- 
     <div class="sticky-banner" id="stickyBanner">
         <div class="matsfx-error-notice">
             <button class="close-banner" onclick="closeStickyBanner()" aria-label="Close Banner">
                 &#10005;
             </button>
             <div class="matsfx-error-heading">Important Notice</div>
-            <div class="matsfx-error-text">We're aware of the current issue where songs aren't playing when clicked/tapped. Our development team is working on a fix.</div>
+			<div class="matsfx-error-text">We're aware of the current issue that you can't update your profile picture or upload songs. We're currently working to fix this issue.</div>
         </div>
-    </div> -->
-
+    </div> 
 
     <div class="container">
         <!-- Top Artists Sections -->
