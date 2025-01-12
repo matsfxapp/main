@@ -1,25 +1,42 @@
 <?php
 require_once 'config/config.php';
 
+if (!$conn) {
+    error_log("Database connection failed");
+    die("Database connection error");
+}
+
 function uploadSong($title, $artist, $album, $genre, $file, $cover_art) {
     global $conn;
+    
+    if (!$conn) {
+        error_log("Database connection lost");
+        return false;
+    }
+    
     $upload_dir = "uploads/songs/";
     $cover_dir = "uploads/covers/";
     
-    if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
+    foreach ([$upload_dir, $cover_dir] as $dir) {
+        if (!file_exists($dir) && !mkdir($dir, 0777, true)) {
+            error_log("Failed to create directory: " . $dir);
+            return false;
+        }
     }
-    if (!file_exists($cover_dir)) {
-        mkdir($cover_dir, 0777, true);
-    }
+    
     $song_filename = uniqid() . "_" . basename($file["name"]);
     $song_path = $upload_dir . $song_filename;
     $cover_path = 'defaults/default-cover.jpg';
+
     if (is_array($cover_art) && $cover_art["error"] === 0) {
         $cover_filename = uniqid() . "_" . basename($cover_art["name"]);
         $cover_path = $cover_dir . $cover_filename;
-        move_uploaded_file($cover_art["tmp_name"], $cover_path);
+        if (!move_uploaded_file($cover_art["tmp_name"], $cover_path)) {
+            error_log("Failed to upload cover art");
+            return false;
+        }
     }
+
     if (move_uploaded_file($file["tmp_name"], $song_path)) {
         try {
             $query = "INSERT INTO songs (title, artist, album, genre, file_path, cover_art, uploaded_by) 
@@ -32,17 +49,18 @@ function uploadSong($title, $artist, $album, $genre, $file, $cover_art) {
                 ':genre' => $genre,
                 ':file_path' => $song_path,
                 ':cover_path' => $cover_path,
-                ':uploaded_by' => $_SESSION['user_id']
+                ':uploaded_by' => $_SESSION['user_id'] ?? 0
             ]);
             return true;
         } catch (PDOException $e) {
-            error_log("db error: " . $e->getMessage());
+            error_log("Database error: " . $e->getMessage());
             return false;
         }
     }
+    
+    error_log("Failed to upload song file");
     return false;
 }
-
 
 function getAllSongs() {
     global $conn;
