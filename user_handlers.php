@@ -4,6 +4,10 @@ require_once 'config/config.php';
 function getUserData($user_id) {
     global $conn;
     
+    if (!$conn) {
+        throw new Exception("Database connection not established");
+    }
+    
     $query = "SELECT user_id, username, email, profile_picture, bio FROM users WHERE user_id = :user_id";
     $stmt = $conn->prepare($query);
     $stmt->execute([':user_id' => $user_id]);

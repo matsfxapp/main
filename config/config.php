@@ -20,6 +20,7 @@ $dbConfig = [
     'name' => getenv('DB_NAME')
 ];
 
+global $pdo;
 try {
     $pdo = new PDO(
         "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']}", 
