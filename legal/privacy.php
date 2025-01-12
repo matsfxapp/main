@@ -176,9 +176,6 @@ require_once '../config/config.php';
 </head>
 <body>
 
-    <?php
-    require_once '../includes/legal-header.php';
-    ?>
 	
     <div class="privacy-container">
         <div class="privacy-header">

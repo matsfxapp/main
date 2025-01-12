@@ -156,10 +156,6 @@ require_once '../config/config.php';
     </style>
 </head>
 <body>
-	
-    <?php
-    require_once '../includes/legal-header.php';
-    ?>
 
     <div class="tos-container">
         <div class="tos-header">
