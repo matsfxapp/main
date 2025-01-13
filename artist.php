@@ -77,6 +77,8 @@ function followOrUnfollow($currentUserId, $profileUserId, $action) {
             return false;
         }
 
+        $pdo->beginTransaction();
+
         if ($action === 'follow') {
             $checkStmt = $pdo->prepare("SELECT 1 FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
             $checkStmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
@@ -84,23 +86,55 @@ function followOrUnfollow($currentUserId, $profileUserId, $action) {
             $checkStmt->execute();
             
             if ($checkStmt->fetchColumn()) {
+                $pdo->rollBack();
                 return false;
             }
 
+            // Insert follow relationship
             $stmt = $pdo->prepare("INSERT INTO followers (follower_id, followed_id, follow_date) VALUES (:follower_id, :followed_id, NOW())");
+            $stmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
+            $stmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Increment follower count
+            $updateCount = $pdo->prepare("UPDATE users SET follower_count = follower_count + 1 WHERE user_id = :user_id");
+            $updateCount->bindValue(':user_id', $profileUserId, PDO::PARAM_INT);
+            $updateCount->execute();
         } else {
+            // Remove follow relationship
             $stmt = $pdo->prepare("DELETE FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
+            $stmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
+            $stmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Decrement follower count
+            $updateCount = $pdo->prepare("UPDATE users SET follower_count = GREATEST(follower_count - 1, 0) WHERE user_id = :user_id");
+            $updateCount->bindValue(':user_id', $profileUserId, PDO::PARAM_INT);
+            $updateCount->execute();
         }
         
-        $stmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
-        $stmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
-        return $stmt->execute();
+        $pdo->commit();
+        return true;
     } catch (PDOException $e) {
+        $pdo->rollBack();
         error_log("Database error in followOrUnfollow: " . $e->getMessage());
         return false;
     }
 }
 
+// get follower count
+function getFollowerCount($userId) {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("SELECT follower_count FROM users WHERE user_id = :user_id");
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchColumn() ?: 0;
+    } catch (PDOException $e) {
+        error_log("Database error in getFollowerCount: " . $e->getMessage());
+        return 0;
+    }
+}
 function getArtistSongs($artistName) {
     global $pdo;
     try {
@@ -381,6 +415,16 @@ if (!$artistData) {
 	    	    position: relative;
 	    	    z-index: 1;
 	    	}
+
+			.profile-stats span {
+				margin-right: 20px;
+				color: var(--gray-text);
+				font-size: 0.9em;
+			}
+
+			.profile-stats span:last-child {
+				margin-right: 0;
+			}
         </style>
 	
 	<?php outputChristmasThemeCSS(); ?>
@@ -446,8 +490,9 @@ if (!$artistData) {
 	                <?php endif; ?>
 	
 	                <div class="profile-stats">
-	                    <span><?php echo count($songs); ?> Songs</span>
-	                </div>
+						<span><?php echo count($songs); ?> Songs</span>
+						<span><?php echo getFollowerCount($profileUserId); ?> Followers</span>
+					</div>
 	
 	                <?php if ($currentUserId): ?>
 	                    <form id="follow-form" method="POST">
@@ -519,7 +564,6 @@ if (!$artistData) {
 	                if (data.status === 'success') {
 	                    if (action === 'follow') {
 	                        followBtn.innerHTML = `
-	                            <span class="follow-icon">➕</span>
 	                            <span class="follow-text">Following</span>
 	                        `;
 	                        followBtn.classList.add('following');

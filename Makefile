@@ -11,7 +11,7 @@ banner:
 	@echo "      / __  __ \/ __  / __/\__ \/ /_   |   /   "
 	@echo "     / / / / / / /_/ / /_ ___/ / __/  /   |    "
 	@echo "    /_/ /_/ /_/\__,_/\__//____/_/    /_/|_|    "
-	@echo ""
+	@echo "                                               "
 up: banner
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 	@echo ""

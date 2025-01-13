@@ -23,8 +23,9 @@ function uploadSong($title, $artist, $album, $genre, $file, $cover_art) {
     
     $upload_dir = "uploads/songs/";
     $cover_dir = "uploads/covers/";
+    $profile_dir = "uploads/profiles/";
     
-    foreach ([$upload_dir, $cover_dir] as $dir) {
+    foreach ([$upload_dir, $cover_dir, $profile_dir] as $dir) {
         if (!file_exists($dir) && !mkdir($dir, 0777, true)) {
             error_log("Failed to create directory: $dir");
             return false;
@@ -34,7 +35,6 @@ function uploadSong($title, $artist, $album, $genre, $file, $cover_art) {
     $song_filename = uniqid() . "_" . basename($file["name"]);
     $song_path = $upload_dir . $song_filename;
     $cover_path = 'defaults/default-cover.jpg';
-
     if (is_array($cover_art) && $cover_art["error"] === 0) {
         $cover_filename = uniqid() . "_" . basename($cover_art["name"]);
         $cover_path = $cover_dir . $cover_filename;
