@@ -71,35 +71,41 @@ function checkIfFollowing($currentUserId, $profileUserId) {
 }
 
 function followOrUnfollow($currentUserId, $profileUserId, $action) {
-    global $pdo;
-    try {
-        if ($currentUserId === $profileUserId) {
-            return false;
-        }
+	global $pdo;
+	try {
+		if ($currentUserId === $profileUserId) {
+			return false;
+		}
 
-        $pdo->beginTransaction();
+		$pdo->beginTransaction();
 
-        if ($action === 'follow') {
-            $checkStmt = $pdo->prepare("SELECT 1 FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
-            $checkStmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
-            $checkStmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
-            $checkStmt->execute();
-            
-            if ($checkStmt->fetchColumn()) {
-                $pdo->rollBack();
-                return false;
-            }
+		if ($action === 'follow') {
+			$checkStmt = $pdo->prepare("SELECT 1 FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
+			$checkStmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
+			$checkStmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
+			$checkStmt->execute();
+			
+			if ($checkStmt->fetchColumn()) {
+				$pdo->rollBack();
+				return false;
+			}
 
-            // Insert follow relationship
-            $stmt = $pdo->prepare("INSERT INTO followers (follower_id, followed_id, follow_date) VALUES (:follower_id, :followed_id, NOW())");
-            $stmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
-            $stmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
-            $stmt->execute();
+			// Insert follow relationship
+			$stmt = $pdo->prepare("INSERT INTO followers (follower_id, followed_id, follow_date) VALUES (:follower_id, :followed_id, NOW())");
+			$stmt->bindValue(':follower_id', $currentUserId, PDO::PARAM_INT);
+			$stmt->bindValue(':followed_id', $profileUserId, PDO::PARAM_INT);
+			$stmt->execute();
 
-            // Increment follower count
-            $updateCount = $pdo->prepare("UPDATE users SET follower_count = follower_count + 1 WHERE user_id = :user_id");
-            $updateCount->bindValue(':user_id', $profileUserId, PDO::PARAM_INT);
-            $updateCount->execute();
+			// Calculate and update correct follower count
+			$countStmt = $pdo->prepare("SELECT COUNT(*) FROM followers WHERE followed_id = :user_id");
+			$countStmt->bindValue(':user_id', $profileUserId, PDO::PARAM_INT);
+			$countStmt->execute();
+			$followerCount = $countStmt->fetchColumn();
+
+			$updateCount = $pdo->prepare("UPDATE users SET follower_count = :count WHERE user_id = :user_id");
+			$updateCount->bindValue(':count', $followerCount, PDO::PARAM_INT);
+			$updateCount->bindValue(':user_id', $profileUserId, PDO::PARAM_INT);
+			$updateCount->execute();
         } else {
             // Remove follow relationship
             $stmt = $pdo->prepare("DELETE FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");
@@ -122,7 +128,7 @@ function followOrUnfollow($currentUserId, $profileUserId, $action) {
     }
 }
 
-// get follower count
+// follower count for the artist
 function getFollowerCount($userId) {
     global $pdo;
     try {
@@ -135,6 +141,7 @@ function getFollowerCount($userId) {
         return 0;
     }
 }
+
 function getArtistSongs($artistName) {
     global $pdo;
     try {
