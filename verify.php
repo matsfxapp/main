@@ -135,7 +135,7 @@ session_start();
             <p>No verification code was provided. Please check the link you received.</p>
             <script>
                 setTimeout(() => {
-                    window.location.href = '/signup';
+                    window.location.href = '/register';
                 }, 2000);
             </script>
             <?php
