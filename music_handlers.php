@@ -26,7 +26,7 @@ function uploadSong($title, $artist, $album, $genre, $file, $cover_art) {
     
     foreach ([$upload_dir, $cover_dir] as $dir) {
         if (!file_exists($dir) && !mkdir($dir, 0777, true)) {
-            error_log("Failed to create directory: " . $dir);
+            error_log("Failed to create directory: $dir");
             return false;
         }
     }
@@ -86,7 +86,7 @@ function getAllSongs() {
 function searchArtists($search) {
     global $conn;
     try {
-        $search = '%' . $search . '%';
+        $search = "%$search%";
         $stmt = $conn->prepare("SELECT DISTINCT artist FROM songs WHERE artist LIKE :search");
         $stmt->bindValue(':search', $search, PDO::PARAM_STR);
         $stmt->execute();
@@ -132,7 +132,7 @@ function getArtistProfilePicture($artist) {
         
         if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $profile_picture = $row['profile_picture'];
-            if ($profile_picture && file_exists('uploads/profiles/' . $profile_picture)) {
+            if ($profile_picture && file_exists("uploads/profiles/$profile_picture")) {
                 return "uploads/profiles/$profile_picture";
             }
         }

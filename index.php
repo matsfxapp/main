@@ -251,47 +251,126 @@ foreach ($songs as $song) {
 	</div>
 
 	<style>
+	.new-users-section {
+		position: relative;
+		padding: 0 1rem;
+	}
+
+	.new-users-grid {
+		display: flex;
+		gap: 2rem;
+		margin-top: 2rem;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scroll-snap-type: x mandatory;
+		scroll-behavior: smooth;
+		padding: 1rem 0.5rem;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* Custom Scrollbar Styles */
+	.new-users-grid::-webkit-scrollbar {
+		height: 8px;
+	}
+
+	.new-users-grid::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 4px;
+	}
+
+	.new-users-grid::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.3);
+		border-radius: 4px;
+	}
+
+	.new-users-grid::-webkit-scrollbar-thumb:hover {
+		background: rgba(255, 255, 255, 0.4);
+	}
+
+	.user-card {
+		flex: 0 0 auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-decoration: none;
+		color: inherit;
+		transition: all 0.2s ease;
+		scroll-snap-align: start;
+		width: 120px;
+		opacity: 0.7;
+	}
+
+	.user-card:hover {
+		transform: translateY(-5px);
+		opacity: 1;
+	}
+
+	.user-profile-pic {
+		width: 120px;
+		height: 120px;
+		border-radius: 50%;
+		object-fit: cover;
+		margin-bottom: 1rem;
+		transition: transform 0.2s ease;
+	}
+
+	.user-info {
+		text-align: center;
+		width: 100%;
+	}
+
+	.username {
+		font-weight: 600;
+		margin-bottom: 0.5rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.join-date {
+		font-size: 0.9rem;
+		color: #666;
+	}
+
+	/* Mobile Styles */
+	@media (max-width: 768px) {
 		.new-users-grid {
-			display: grid;
-			grid-template-columns: repeat(5, 1fr);
-			gap: 2rem;
-			margin-top: 2rem;
+			gap: 1rem;
+			padding: 0.5rem;
+			/* uncomment if people like this better
+			mask-image: linear-gradient(
+				to right,
+				transparent,
+				black 50%,
+				black 90%,
+				transparent
+			);
+			-webkit-mask-image: linear-gradient(
+				to right,
+				transparent,
+				black 10%,
+				black 90%,
+				transparent
+			); */
 		}
 
 		.user-card {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			text-decoration: none;
-			color: inherit;
-			transition: transform 0.2s;
-		}
-
-		.user-card:hover {
-			transform: translateY(-5px);
+			width: 80px;
 		}
 
 		.user-profile-pic {
-			width: 120px;
-			height: 120px;
-			border-radius: 50%;
-			object-fit: cover;
-			margin-bottom: 1rem;
-		}
-
-		.user-info {
-			text-align: center;
+			width: 80px;
+			height: 80px;
 		}
 
 		.username {
-			font-weight: 600;
-			margin-bottom: 0.5rem;
+			font-size: 0.9rem;
 		}
 
 		.join-date {
-			font-size: 0.9rem;
-			color: #666;
+			font-size: 0.75rem;
 		}
+	}
 	</style>
 
 	<!-- Remaining Songs in Grid -->

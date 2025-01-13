@@ -57,6 +57,7 @@
 	            </div>
 	        </div>
 	        
+			<!--
 	        <div class="volume-control">
 	            <i class="fas fa-volume-up volume-icon" id="volumeIcon"></i>
 	            <input type="range" 
@@ -67,6 +68,6 @@
 	                   value="1" 
 	                   class="volume-slider" 
 	                   aria-label="Volume Control">
-	        </div>
+	        </div> -->
 	    </div>
 	</div>

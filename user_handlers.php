@@ -2,29 +2,50 @@
 require_once 'config/config.php';
 
 function getUserData($user_id) {
-    global $conn;
+    global $pdo;
     
-    if (!$conn) {
-        throw new Exception("Database connection not established");
+    if (!$pdo) {
+        error_log("Database connection not established in getUserData()");
+        return false;
     }
     
-    $query = "SELECT user_id, username, email, profile_picture, bio FROM users WHERE user_id = :user_id";
-    $stmt = $conn->prepare($query);
-    $stmt->execute([':user_id' => $user_id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    try {
+        $query = "SELECT user_id, username, email, profile_picture, bio FROM users WHERE user_id = :user_id";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([':user_id' => $user_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database query failed in getUserData(): " . $e->getMessage());
+        return false;
+    }
 }
 
 function getUserSongs($user_id) {
-    global $conn;
+    global $pdo;
     
-    $query = "SELECT * FROM songs WHERE uploaded_by = :user_id ORDER BY upload_date DESC";
-    $stmt = $conn->prepare($query);
-    $stmt->execute([':user_id' => $user_id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (!$pdo) {
+        error_log("Database connection not established in getUserSongs()");
+        return false;
+    }
+    
+    try {
+        $query = "SELECT * FROM songs WHERE uploaded_by = :user_id ORDER BY upload_date DESC";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([':user_id' => $user_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database query failed in getUserSongs(): " . $e->getMessage());
+        return false;
+    }
 }
 
 function updateProfile($user_id, $data, $profile_picture = null) {
-    global $conn;
+    global $pdo;
+    
+    if (!$pdo) {
+        error_log("Database connection not established in updateProfile()");
+        return ['success' => false, 'error' => 'Database connection not established'];
+    }
     
     try {
         // Validate email
@@ -34,7 +55,7 @@ function updateProfile($user_id, $data, $profile_picture = null) {
         
         // Check if username or email already exists
         $check_query = "SELECT user_id FROM users WHERE (username = :username OR email = :email) AND user_id != :user_id";
-        $check_stmt = $conn->prepare($check_query);
+        $check_stmt = $pdo->prepare($check_query);
         $check_stmt->execute([
             ':username' => $data['username'],
             ':email' => $data['email'],
@@ -77,12 +98,13 @@ function updateProfile($user_id, $data, $profile_picture = null) {
         
         $query .= " WHERE user_id = :user_id";
         
-        $stmt = $conn->prepare($query);
+        $stmt = $pdo->prepare($query);
         $stmt->execute($params);
         
         return ['success' => true];
     } catch (PDOException $e) {
-        return ['success' => false, 'error' => 'Database error: ' . $e->getMessage()];
+        error_log("Database query failed in updateProfile(): " . $e->getMessage());
+        return ['success' => false, 'error' => 'Database query failed'];
     }
 }
 
