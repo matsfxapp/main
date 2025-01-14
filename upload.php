@@ -3,7 +3,7 @@ require_once 'config/config.php';
 require_once 'music_handlers.php';
 
 if (!isLoggedIn()) {
-    header("Location: login.php");
+    header("Location: login");
     exit();
 }
 
