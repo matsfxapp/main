@@ -86,15 +86,15 @@ function sendVerificationEmail($email, $code) {
 	$mail = new PHPMailer(true);
 	try {
 		$mail->isSMTP();
-		$mail->Host = $_ENV['SMTP_HOST'];
-		$mail->SMTPAuth = true;
-		$mail->Username = $_ENV['SMTP_USERNAME'];
-		$mail->Password = $_ENV['SMTP_PASSWORD'];
-		$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-		$mail->Port = $_ENV['SMTP_PORT'];
-		$mail->setFrom($_ENV['SMTP_FROM_EMAIL'], $_ENV['SMTP_FROM_NAME']);
-		$mail->addAddress($email);
-		$verifyLink = $_ENV['APP_URL'] . "/verify?code=$code";
+        $mail->Host = getenv('SMTP_HOST');
+        $mail->SMTPAuth = true;
+        $mail->Username = getenv('SMTP_USERNAME');
+        $mail->Password = getenv('SMTP_PASSWORD');
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = getenv('SMTP_PORT');
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME'));
+        $mail->addAddress($email);
+        $verifyLink = getenv('APP_URL') . "/verify?code=$code";
 
         $mail->isHTML(true);
         $mail->Subject = 'Welcome to matSFX!';
@@ -173,7 +173,7 @@ function sendVerificationEmail($email, $code) {
         <body>
             <div class="email-wrapper">
                 <div class="header">
-                    <img src="'.$_ENV['APP_URL'].'/app_logos/matsfx_logo.png" alt="matSFX Logo">
+                    <img src="'.getenv('APP_URL').'/app_logos/matsfx_logo.png" alt="matSFX Logo">
                 </div>
                 <div class="content">
                     <h1>Welcome to matSFX!</h1>

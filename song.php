@@ -7,15 +7,16 @@ require_once 'config/config.php';
 if (isset($_GET['song_id'])) {
     $song_id = $_GET['song_id'];
 } else {
-    echo "Song not found.";
+    require_once 'includes/header.php';
+    echo '<div class="container"><h1>Error</h1><p>Song not found.</p></div>';
     exit;
 }
 
-$stmt = $conn->prepare("SELECT * FROM songs WHERE song_id = :song_id");
+$stmt = $pdo->prepare("SELECT * FROM songs WHERE song_id = :song_id");
 $stmt->bindParam(':song_id', $song_id, PDO::PARAM_INT);
 $stmt->execute();
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
+ 
 if ($result) {
     $song_title = htmlspecialchars($result['title']);
     $artist = htmlspecialchars($result['artist']);

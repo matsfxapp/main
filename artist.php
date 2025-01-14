@@ -354,19 +354,12 @@ if (!$artistData) {
 	            vertical-align: middle;
 	        }
 			
-		.developer-badge, .helper-badge, .donator-badge {
+			.developer-badge, .helper-badge, .donator-badge, .designer-badge {
 	            width: 20px;
 	            height: 20px;
 	            
 	            vertical-align: middle;
 	        }		
-	
-	        .designer-badge {
-	            width: 27px;
-	            height: 27px;
-	                
-	            vertical-align: middle;
-	        }
 	    			
 	    	.follow-button {
 	    	    position: relative;
@@ -535,7 +528,9 @@ if (!$artistData) {
 	                         class="cover-art">
 	                    <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
 	                    <div class="song-artist"><?php echo htmlspecialchars($song['artist']); ?></div>
-	                    <div class="song-controls"></div>
+	                    <?php
+						require 'includes/like_button.php';
+						?>
 	                </div>
 	            <?php endforeach; ?>
 	        <?php endif; ?>

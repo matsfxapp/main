@@ -1,11 +1,18 @@
 <?php
+
+// Start the session before any output
 if (session_status() == PHP_SESSION_NONE) {
+    ini_set('session.cookie_lifetime', 2592000);
+    ini_set('session.gc_maxlifetime', 2592000);
     session_start();
 }
+
+require_once 'auth.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Set headers before any output
 header('Content-Type: text/html; charset=utf-8');
 header("X-XSS-Protection: 1; mode=block");
 header("X-Content-Type-Options: nosniff");
@@ -33,7 +40,19 @@ try {
 }
 
 function isLoggedIn() {
-    return isset($_SESSION['user_id']);
+    if (!isset($_SESSION['user_id'])) {
+        return false;
+    }
+    
+    // Check session timeout (30 minutes)
+    if (isset($_SESSION['last_activity']) && 
+        (time() - $_SESSION['last_activity'] > 1800)) {
+        logoutUser();
+        return false;
+    }
+    
+    $_SESSION['last_activity'] = time();
+    return true;
 }
 
 function sanitizeInput($data) {
