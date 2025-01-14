@@ -1,5 +1,4 @@
 <?php
-// includes/like-button.php
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -30,12 +29,11 @@ if (!isset($_SESSION['user_id'])) {
 }
 ?>
 
-<div class="like-button-container" data-song-id="<?php echo htmlspecialchars($songId); ?>">
-    <button class="like-button <?php echo $isLiked ? 'liked' : ''; ?>" 
-            onclick="toggleLike(this, <?php echo htmlspecialchars($songId); ?>)">
+<div class="like-button-container" data-song-id="<?php echo isset($songId) ? htmlspecialchars($songId) : ''; ?>">
+    <button class="like-button" onclick="toggleLike(this, <?php echo isset($songId) ? htmlspecialchars($songId) : 0; ?>)">
         <i class="fas fa-heart"></i>
     </button>
-    <span class="like-count"><?php echo $likeCount; ?></span>
+    <span class="like-count">0</span>
 </div>
 
 <style>
@@ -96,8 +94,6 @@ function toggleLike(button, songId) {
     })
     .catch(error => {
         console.error('Error:', error);
-        // Don't show alert since the operation actually succeeded
-        // Just update the UI based on the button's current state
         button.classList.toggle('liked');
         const countElement = button.nextElementSibling;
         const currentCount = parseInt(countElement.textContent);
