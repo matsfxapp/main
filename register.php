@@ -220,6 +220,16 @@ function sendVerificationEmail($email, $code) {
     <?php if (function_exists('outputChristmasThemeCSS')) outputChristmasThemeCSS(); ?>
     
     <style>
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent-color);
+        }
+
         .profile-picture-upload {
             text-align: center;
             margin-bottom: 20px;

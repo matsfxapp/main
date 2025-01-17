@@ -77,19 +77,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php outputChristmasThemeCSS(); ?>
     
     <style>
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent-color);
+        }
+
         .remember-me {
             display: flex;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            gap: 0.5rem;
         }
-        
+
         .remember-me input[type="checkbox"] {
-            margin-right: 0.5rem;
+            width: 1.125rem;
+            height: 1.125rem;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
         }
-        
+
         .remember-me label {
-            font-size: 0.9rem;
-            color: #666;
+            margin-bottom: 0;
+            color: var(--gray-text);
+            cursor: pointer;
         }
     </style>
 </head>

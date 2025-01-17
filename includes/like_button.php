@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../config/config.php';
 
-if (!isset($_SESSION['user_id']) || !isset($songId['song_id'])) {
+if (!isset($_SESSION['user_id'])) {
     $isLiked = false;
     $likeCount = 0;
 } else {
@@ -29,11 +29,12 @@ if (!isset($_SESSION['user_id']) || !isset($songId['song_id'])) {
 }
 ?>
 
-<div class="like-button-container" data-song-id="<?php echo isset($songId) ? htmlspecialchars($songId) : ''; ?>">
-    <button class="like-button" onclick="toggleLike(this, <?php echo isset($songId) ? htmlspecialchars($songId) : 0; ?>)">
+<div class="like-button-container" data-song-id="<?php echo htmlspecialchars($songId); ?>">
+    <button class="like-button <?php echo $isLiked ? 'liked' : ''; ?>" 
+            onclick="toggleLike(this, <?php echo htmlspecialchars($songId); ?>)">
         <i class="fas fa-heart"></i>
     </button>
-    <span class="like-count">0</span>
+    <span class="like-count"><?php echo $likeCount; ?></span>
 </div>
 
 <style>

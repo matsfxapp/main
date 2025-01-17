@@ -168,6 +168,41 @@ function checkArtistExists($artistName) {
     }
 }
 
+function getUserBadges($userId) {
+	global $pdo;
+	try {
+		$userCheck = $pdo->prepare("SELECT is_admin, is_verified FROM users WHERE user_id = :user_id");
+		$userCheck->execute(['user_id' => $userId]);
+		$userData = $userCheck->fetch(PDO::FETCH_ASSOC);
+
+		$whereClause = "";
+		if ($userData && $userData['is_admin'] == 1 && $userData['is_verified'] == 1) {
+			$whereClause = "AND b.badge_id != '2'";
+		}
+
+		$query = "SELECT b.* 
+				  FROM badges b
+				  INNER JOIN user_badges ub ON b.badge_id = ub.badge_id
+				  WHERE ub.user_id = :user_id
+				  $whereClause
+				  ORDER BY 
+					CASE 
+						WHEN b.badge_name LIKE '%Admin%' THEN 1
+						WHEN b.badge_name LIKE '%Verified%' THEN 2
+						ELSE 3
+					END,
+					b.badge_name";
+				  
+		$stmt = $pdo->prepare($query);
+		$stmt->execute(['user_id' => $userId]);
+		
+		return $stmt->fetchAll(PDO::FETCH_ASSOC);
+	} catch (PDOException $e) {
+		error_log("Database error in getUserBadges: " . $e->getMessage());
+		return [];
+	}
+}
+
 function sanitizeFilename($filename) {
     return preg_replace('/[^a-zA-Z0-9-_.]/', '', $filename);
 }
@@ -347,14 +382,8 @@ if (!$artistData) {
 	<link rel="stylesheet" href="css/navbar.css">
 	<script src="js/share-button.js"></script>
 	<style>
-	        .verified-badge {
-	            width: 20px;
-	            height: 20px;
-	            margin-left: 8px;
-	            vertical-align: middle;
-	        }
 			
-			.developer-badge, .helper-badge, .donator-badge, .designer-badge {
+			.developer-badge, .helper-badge, .donator-badge, .designer-badge, .verified-badge {
 	            width: 20px;
 	            height: 20px;
 	            
@@ -441,49 +470,17 @@ if (!$artistData) {
 	                 class="profile-image">
 	            
 	            <div class="profile-info">
-	                <h1 class="profile-name">
-	                    <?php echo htmlspecialchars($artist); ?>
-	                    
-	                    <?php if ($artistData['is_admin'] == 1): ?>
-	                        <img src="app_images/admin-badge.png" 
-	                             alt="Admin" 
-	                             class="verified-badge" 
-	                             title="Admin">
-	                    <?php elseif ($artistData['is_verified'] == 1): ?>
-	                        <img src="app_images/verified-badge.png" 
-	                             alt="Verified" 
-	                             class="verified-badge" 
-	                             title="Verified Artist">
-	                    <?php endif; ?>
-	                    
-	                    <?php if ($artistData['is_developer'] == 1): ?>
-	                        <img src="app_images/developer-badge.png" 
-	                             alt="Developer" 
-	                             class="developer-badge" 
-	                             title="Developer">
-	                    <?php endif; ?>
-	                    
-	                    <?php if ($artistData['is_designer'] == 1): ?>
-	                        <img src="app_images/designer-badge.png" 
-	                             alt="Designer" 
-	                             class="designer-badge" 
-	                             title="Designer">
-	                    <?php endif; ?>
-	                    
-	                    <?php if ($artistData['is_helper'] == 1): ?>
-	                        <img src="app_images/helper-badge.png" 
-	                             alt="Helper" 
-	                             class="helper-badge" 
-	                             title="Helper">
-	                    <?php endif; ?>
-	                    
-	                    <?php if ($artistData['is_donator'] == 1): ?>
-	                        <img src="app_images/donator-badge.png" 
-	                             alt="Donator" 
-	                             class="donator-badge" 
-	                             title="Donator">
-	                    <?php endif; ?>
-	                </h1>
+					<h1 class="profile-name">
+						<?php echo htmlspecialchars($artist); ?>
+						<?php 
+						$userBadges = getUserBadges($artistData['user_id']);
+						foreach ($userBadges as $badge): ?>
+							<img src="<?php echo htmlspecialchars($badge['image_path']); ?>" 
+								alt="<?php echo htmlspecialchars($badge['alt_text']); ?>" 
+								class="<?php echo htmlspecialchars($badge['css_class']); ?>" 
+								title="<?php echo htmlspecialchars($badge['title_text']); ?>">
+						<?php endforeach; ?>
+					</h1>
 	
 	                <?php if (!empty($artistData['bio'])): ?>
 	                    <p><?php echo nl2br(htmlspecialchars($artistData['bio'])); ?></p>

@@ -3,7 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 require 'vendor/autoload.php';
-require_once 'config.php';
+require_once 'config/config.php';
 
 function sendEmail($to, $subject, $body, $reset_link = '') {
     $mail = new PHPMailer(true);
