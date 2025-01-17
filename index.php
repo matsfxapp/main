@@ -66,7 +66,21 @@ foreach ($songs as $song) {
 	<link rel="stylesheet" href="css/share-button.css">
 	<link rel="stylesheet" href="css/navbar.css">
 	<script src="js/share-button.js"></script>
-
+	<script>
+		window.addEventListener('scroll', function() {
+		  const banner = document.querySelector('.sticky-banner');
+		  if (window.pageYOffset > -1) {
+			banner.style.display = 'block';
+		  } else {
+			banner.style.display = 'none';
+		  }
+		});
+		
+		function closeStickyBanner() {
+            const banner = document.getElementById('stickyBanner');
+            banner.classList.add('banner-hidden');
+        }
+	</script>
 	<style>
 		.sticky-banner {
 			position: fixed;
@@ -392,68 +406,6 @@ foreach ($songs as $song) {
 
     <script src="js/index.js"></script>
 	<script src="js/search.js"></script>
-	<script>
-		window.addEventListener('scroll', function() {
-		  const banner = document.querySelector('.sticky-banner');
-		  if (window.pageYOffset > -1) {
-			banner.style.display = 'block';
-		  } else {
-			banner.style.display = 'none';
-		  }
-		});
-		
-		function closeStickyBanner() {
-            const banner = document.getElementById('stickyBanner');
-            banner.classList.add('banner-hidden');
-        }
-	</script>
-	<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			const profilePic = document.getElementById('profilePic');
-			const profileMenu = document.getElementById('profileMenu');
-			const profileContainer = document.getElementById('profileContainer');
-
-			// Toggle menu when clicking profile picture
-			if (profilePic) {
-				profilePic.addEventListener('click', function(e) {
-					e.preventDefault();
-					e.stopPropagation();
-					profileMenu.classList.toggle('active');
-				});
-			}
-
-			// Close menu when clicking outside
-			document.addEventListener('click', function(e) {
-				if (profileMenu && profileMenu.classList.contains('active') && !profileContainer.contains(e.target)) {
-					profileMenu.classList.remove('active');
-				}
-			});
-
-			// Close menu on ESC key
-			document.addEventListener('keydown', function(e) {
-				if (e.key === 'Escape' && profileMenu && profileMenu.classList.contains('active')) {
-					profileMenu.classList.remove('active');
-				}
-			});
-
-			// Initialize Ko-fi widget if it exists
-			if (typeof kofiWidgetOverlay !== 'undefined') {
-				kofiWidgetOverlay.draw('matsfx', {
-					'type': 'floating-chat',
-					'floating-chat.donateButton.text': 'Support Us',
-					'floating-chat.donateButton.background-color': '#ffffff',
-					'floating-chat.donateButton.text-color': '#323842'
-				});
-
-				// Move Ko-fi button into menu
-				const kofiFrame = document.querySelector('#kofi-iframe-wrapper');
-				const kofiContainer = document.querySelector('.kofi-container');
-				if (kofiFrame && kofiContainer) {
-					kofiContainer.appendChild(kofiFrame);
-				}
-			}
-		});
-	</script>
 	<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6530871411657748"
      crossorigin="anonymous"></script>
 </body>
