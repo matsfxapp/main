@@ -14,8 +14,14 @@ if (!isset($_SESSION['user_id'])) {
 require_once __DIR__ . '/../config/config.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
-$songId = $data['song_id'];
+$songId = $data['song_id'] ?? null;
 $userId = $_SESSION['user_id'];
+
+// Validate input
+if (empty($songId) || !is_numeric($songId)) {
+    echo json_encode(['success' => false, 'error' => 'Invalid song ID']);
+    exit;
+}
 
 try {
     $pdo->beginTransaction();
@@ -59,5 +65,12 @@ try {
     
 } catch (Exception $e) {
     $pdo->rollBack();
-    echo json_encode(['success' => true, 'likes_count' => $exists ? $likeCount - 1 : $likeCount + 1]);
+    
+    // Log error for debugging
+    error_log('Error processing like/unlike: ' . $e->getMessage());
+    
+    echo json_encode([
+        'success' => false,
+        'error' => 'An error occurred. Please try again later.'
+    ]);
 }

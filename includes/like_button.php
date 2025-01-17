@@ -6,18 +6,22 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../config/config.php';
 
+$songId = isset($song['song_id']) ? $song['song_id'] : null;
+if ($songId === null) {
+    echo "Error: Song ID is not defined.";
+    exit;
+}
+
 if (!isset($_SESSION['user_id'])) {
     $isLiked = false;
     $likeCount = 0;
 } else {
     $userId = $_SESSION['user_id'];
-    $songId = $song['song_id'];
-    
     try {
         $stmt = $pdo->prepare("SELECT 1 FROM likes WHERE user_id = ? AND song_id = ?");
         $stmt->execute([$userId, $songId]);
         $isLiked = $stmt->rowCount() > 0;
-        
+
         $stmt = $pdo->prepare("SELECT likes_count FROM song_likes_count WHERE song_id = ?");
         $stmt->execute([$songId]);
         $result = $stmt->fetch();
@@ -29,9 +33,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 ?>
 
-<div class="like-button-container" data-song-id="<?php echo htmlspecialchars($songId); ?>">
+<div class="like-button-container" data-song-id="<?php echo htmlspecialchars($songId ?? '', ENT_QUOTES, 'UTF-8'); ?>">
     <button class="like-button <?php echo $isLiked ? 'liked' : ''; ?>" 
-            onclick="toggleLike(this, <?php echo htmlspecialchars($songId); ?>)">
+            onclick="toggleLike(event, this, <?php echo htmlspecialchars($songId ?? '', ENT_QUOTES, 'UTF-8'); ?>)">
         <i class="fas fa-heart"></i>
     </button>
     <span class="like-count"><?php echo $likeCount; ?></span>
@@ -68,9 +72,9 @@ if (!isset($_SESSION['user_id'])) {
 </style>
 
 <script>
-function toggleLike(button, songId) {
+function toggleLike(event, button, songId) {
     event.stopPropagation();
-    
+
     fetch('includes/process_like.php', {
         method: 'POST',
         headers: {
@@ -95,10 +99,7 @@ function toggleLike(button, songId) {
     })
     .catch(error => {
         console.error('Error:', error);
-        button.classList.toggle('liked');
-        const countElement = button.nextElementSibling;
-        const currentCount = parseInt(countElement.textContent);
-        countElement.textContent = button.classList.contains('liked') ? currentCount + 1 : currentCount - 1;
+        alert('An error occurred. Please try again.');
     });
 }
 </script>
