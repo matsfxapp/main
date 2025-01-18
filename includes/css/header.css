@@ -14,7 +14,7 @@
 	--active-bg: rgba(255, 255, 255, 0.15);
 	--dropdown-bg: rgba(25, 28, 35, 0.98);
 	--placeholder-content: Search for artists, songs and more...;
-    --placeholder-content-mobile: Tap to search...;
+	--placeholder-content-mobile: Tap to search...;
 }
 
 .global-header {
@@ -135,13 +135,13 @@
 }
 
 .search-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+	color: rgba(255, 255, 255, 0.4);
 }
 
 @media (max-width: 768px) {
-    .search-input::placeholder {
-        color: rgba(255, 255, 255, 0.4);
-    }
+	.search-input::placeholder {
+		color: rgba(255, 255, 255, 0.4);
+	}
 }
 
 .search-input:focus {
@@ -307,27 +307,27 @@
 }
 	
 @media (max-width: 768px) {
-  .header-container {
+.header-container {
 	grid-template-columns: auto 1fr auto;
 	gap: 1rem;
-  }
+}
 
-  .search-container {
+.search-container {
 	position: relative;
 	width: 100%;
 	right: auto;
 	left: auto;
-  }
+}
 
-  .search-results {
+.search-results {
 	left: 0;
 	transform: none;
 	width: 100%;
-  }
+}
 
-  .search-icon {
+.search-icon {
 	right: 2rem;
-  }
+}
 }
 
 @media (max-width: 480px) {
@@ -560,6 +560,31 @@
 	transition: all 0.2s ease;
 	position: relative;
 	overflow: hidden;
+}
+
+.dropdown-msg {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px 18px;
+	color: var(--secondary-text);
+	text-decoration: none;
+	font-size: 0.9375rem;
+	transition: all 0.2s ease;
+	position: relative;
+	overflow: hidden;
+}
+
+.dropdown-mag::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: var(--hover-bg);
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	z-index: 0;
 }
 
 .dropdown-item::before {

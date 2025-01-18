@@ -156,7 +156,7 @@ function logoutUser() {
     $_SESSION = [];
     session_destroy();
     
-    header("Location: login.php");
+    header("Location: /");
     exit();
 }
 

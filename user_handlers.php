@@ -10,7 +10,7 @@ function getUserData($user_id) {
     }
     
     try {
-        $query = "SELECT user_id, username, email, profile_picture, bio FROM users WHERE user_id = :user_id";
+        $query = "SELECT user_id, username, email, profile_picture, bio, is_admin FROM users WHERE user_id = :user_id";
         $stmt = $pdo->prepare($query);
         $stmt->execute([':user_id' => $user_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
