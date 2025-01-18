@@ -95,7 +95,7 @@ document.body.insertAdjacentHTML('beforeend', `
         </div>
         <div class="modal-body">
             <i class="fas fa-heart modal-icon"></i>
-            <p>Sign in to like songsy upload them and add them to your playlist :D</p>
+            <p>Sign in to like songs upload them and add them to your playlist :D</p>
             <div class="modal-buttons">
                 <button onclick="window.location.href='login'" class="modal-button login-btn">Log In</button>
                 <button onclick="window.location.href='signup'" class="modal-button signup-btn">Sign Up</button>
