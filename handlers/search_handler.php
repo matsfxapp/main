@@ -6,9 +6,10 @@ function searchAll($query) {
     $query = '%' . trim($query) . '%';
 
     $artistStmt = $pdo->prepare("
-        SELECT DISTINCT artist, 'artist' as type 
-        FROM songs 
-        WHERE artist LIKE :query 
+        SELECT DISTINCT s.artist, u.profile_picture, 'artist' as type 
+        FROM songs s
+        LEFT JOIN users u ON s.uploaded_by = u.user_id 
+        WHERE s.artist LIKE :query 
         LIMIT 5
     ");
     $artistStmt->execute(['query' => $query]);
