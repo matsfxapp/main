@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         item.href = link;
         item.className = 'search-result-item';
         item.innerHTML = `
-            <img src="${image}" alt="${text}" class="result-image" onerror="this.src='defaults/default-cover.jpg'">
+            <img src="${image}" alt="${text}" class="result-image" onerror="this.src='defaults/default-profile.jpg'">
             <div class="result-info">
                 <div class="result-name">${text}</div>
                 ${subtitle ? `<div class="result-subtitle">${subtitle}</div>` : ''}
