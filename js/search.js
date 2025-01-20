@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     artist.artist,
                     'artist',
                     `artist?name=${encodeURIComponent(artist.artist)}`,
-                    user.profile_picture || 'defaults/default-profile.jpg'
+                    artist.profile_picture || 'defaults/default-profile.jpg'
                 );
                 artistSection.appendChild(item);
             });
