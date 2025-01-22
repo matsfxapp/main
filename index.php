@@ -67,7 +67,6 @@ foreach ($songs as $song) {
 	<link rel="stylesheet" href="css/share-button.css">
 	<link rel="stylesheet" href="css/navbar.css">
 	<script src="js/share-button.js"></script>
-	<script>(function(d,z,s){s.src='https://'+d+'/400/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('vemtoutcheeg.com',8833185,document.createElement('script'))</script>
 	<script>
 		window.addEventListener('scroll', function() {
 		  const banner = document.querySelector('.sticky-banner');
