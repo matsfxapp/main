@@ -47,6 +47,7 @@ foreach ($songs as $song) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="monetag" content="5b5da452bb7f578199b5f1d963c7b3bf">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
 	<meta property="og:title" content="matSFX - Listen with Joy!" />
