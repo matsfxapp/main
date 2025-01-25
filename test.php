@@ -14,11 +14,12 @@
             flex-direction: column;
         }
 
+        .content {
+            flex: 1;
+        }
+
         .ad-container {
-            position: fixed;
-            bottom: 0;
             width: 100%;
-            background: #f1f1f1;
             text-align: center;
             padding: 10px;
             box-sizing: border-box;
@@ -26,8 +27,10 @@
     </style>
 </head>
 <body>
-    <h1>Testpage for ads</h1>
-    <p>If it works, the ad will be displayed.</p>
+    <div class="content">
+        <h1>Testpage for ads</h1>
+        <p>If it works, the ad will be displayed.</p>
+    </div>
 
     <div class="ad-container">
         <script>
