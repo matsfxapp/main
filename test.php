@@ -8,8 +8,15 @@
 </head>
 <body>
     <h1>Testpage for ads</h1>
-    <p>if it works the ad will be displayed.</p>
+    <p>If it works, the ad will be displayed.</p>
 
-<script>(function(d,z,s){s.src='https://'+d+'/400/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('vemtoutcheeg.com',8833185,document.createElement('script'))</script>
+    <script>
+        (function(d, z, s) {
+            s.src = 'https://' + d + '/400/' + z;
+            try {
+                (document.body || document.documentElement).appendChild(s);
+            } catch (e) {}
+        })('vemtoutcheeg.com', 8833185, document.createElement('script'));
+    </script>
 </body>
 </html>
