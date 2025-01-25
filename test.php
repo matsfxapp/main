@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ads Test</title>
 </head>
-  <script>(function(d,z,s){s.src='https://'+d+'/400/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('vemtoutcheeg.com',8833185,document.createElement('script'))</script>
 <body>
     <h1>Testpage for ads</h1>
     <p>if it works the ad will be displayed.</p>
+
+<script>(function(d,z,s){s.src='https://'+d+'/400/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('vemtoutcheeg.com',8833185,document.createElement('script'))</script>
 </body>
 </html>
