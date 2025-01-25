@@ -1,3 +1,4 @@
+<?php include_once (dirname(__FILE__) . '/pa_antiadblock_8849565.php'); ?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
