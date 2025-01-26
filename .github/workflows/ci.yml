@@ -1,0 +1,17 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Create Upload Directories
+      run: |
+        mkdir -p ${{ github.workspace }}/uploads/covers
+        mkdir -p ${{ github.workspace }}/uploads/songs
+        mkdir -p ${{ github.workspace }}/uploads/profiles
+        chmod -R 777 ${{ github.workspace }}/uploads
