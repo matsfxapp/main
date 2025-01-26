@@ -9,9 +9,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Create Upload Directories
+    - name: Prepare Upload Directories
       run: |
-        mkdir -p ${{ github.workspace }}/uploads/covers
-        mkdir -p ${{ github.workspace }}/uploads/songs
-        mkdir -p ${{ github.workspace }}/uploads/profiles
-        chmod -R 777 ${{ github.workspace }}/uploads
+        sudo mkdir -p ${{ github.workspace }}/uploads/covers
+        sudo mkdir -p ${{ github.workspace }}/uploads/songs
+        sudo mkdir -p ${{ github.workspace }}/uploads/profiles
+        sudo chmod -R 777 ${{ github.workspace }}/uploads
