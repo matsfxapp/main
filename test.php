@@ -1,4 +1,5 @@
 <?php include_once (dirname(__FILE__) . '/pa_antiadblock_8849565.php'); ?>
+<?php include_once (dirname(__FILE__) . '/pa_antiadblock_8886122.php'); ?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
