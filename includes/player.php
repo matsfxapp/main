@@ -59,28 +59,29 @@
     </div>
 </div>
 
+
 <script>
     let audioPlayer = new Audio();
     let isChangingTrack = false;
-
+    
     document.addEventListener('DOMContentLoaded', function() {
         const progressBar = document.getElementById('progress');
-
+    
         initializePlayerControls(audioPlayer, progressBar);
     });
-
+    
     function playSong(filePath, songCardElement) {
         if (isChangingTrack) return;
         isChangingTrack = true;
-
+    
         const coverArt = songCardElement.querySelector('.cover-art').src;
         const songTitle = songCardElement.querySelector('.song-title').textContent;
         const artistName = songCardElement.querySelector('.artist-link')?.textContent || 'Unknown Artist';
-
+    
         document.getElementById('player-album-art').src = coverArt || 'defaults/default-cover.jpg';
         document.getElementById('songTitle').textContent = songTitle;
         document.getElementById('artistName').textContent = artistName;
-
+    
         if (audioPlayer.src === filePath && !audioPlayer.paused) {
             audioPlayer.pause();
             songCardElement.classList.remove('active-song');
@@ -105,14 +106,14 @@
                 });
         }
     }
-
+    
     function updatePlayPauseButton(isPlaying) {
         const playPauseBtn = document.getElementById('playPauseBtn');
         const icon = playPauseBtn.querySelector('i');
         icon.classList.remove('fa-play', 'fa-pause');
         icon.classList.add(isPlaying ? 'fa-pause' : 'fa-play');
     }
-
+    
     function formatTime(seconds) {
         if (isNaN(seconds)) return "0:00";
         const minutes = Math.floor(seconds / 60);
@@ -134,22 +135,24 @@
                 updatePlayPauseButton(false);
             }
         };
-
+    
         audioPlayer.addEventListener('timeupdate', function() {
             const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
             progressBar.value = progress;
-
+    
             document.getElementById('currentTime').textContent = formatTime(audioPlayer.currentTime);
             document.getElementById('duration').textContent = formatTime(audioPlayer.duration || 0);
         });
-
+    
         progressBar.addEventListener('input', (e) => {
             const time = (e.target.value / 100) * audioPlayer.duration;
             audioPlayer.currentTime = time;
         });
-
+    
         window.toggleLoop = function() {
             audioPlayer.loop = !audioPlayer.loop;
+            const loopBtn = document.getElementById('loopBtn');
+            loopBtn.classList.toggle('active', audioPlayer.loop);
         };
     }
 </script>
