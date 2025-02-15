@@ -152,7 +152,15 @@
         window.toggleLoop = function() {
             audioPlayer.loop = !audioPlayer.loop;
             const loopBtn = document.getElementById('loopBtn');
-            loopBtn.classList.toggle('active', audioPlayer.loop);
+            const svgIcon = loopBtn.querySelector('svg');
+        
+            if (audioPlayer.loop) {
+                svgIcon.style.fill = 'rgba(45, 127, 249, 0.8)';
+                svgIcon.style.stroke = 'rgba(45, 127, 249, 0.8)';
+            } else {
+                svgIcon.style.fill = 'none';
+                svgIcon.style.stroke = 'currentColor';
+            }
         };
     }
 </script>
