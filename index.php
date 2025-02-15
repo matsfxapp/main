@@ -193,7 +193,7 @@ foreach ($songs as $song) {
     <?php
     require_once 'includes/header.php';
     ?>
-
+   <!--
     <div class="sticky-banner" id="stickyBanner">
         <div class="matsfx-error-notice">
             <button class="close-banner" onclick="closeStickyBanner()" aria-label="Close Banner">
@@ -202,7 +202,7 @@ foreach ($songs as $song) {
             <div class="matsfx-error-heading">Important Notice</div>
             <div class="matsfx-error-text">We're aware of the current issue that you can't update your profile picture or upload songs. We're currently working to fix this issue.</div>
         </div>
-    </div> 
+    </div>  -->
 
     <div class="container">
         <!-- Top Artists Sections -->
