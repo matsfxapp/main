@@ -10,7 +10,7 @@ RUN a2enmod rewrite
 RUN mkdir -p /var/www/html/uploads/songs /var/www/html/uploads/covers /var/www/html/uploads/profiles
 
 RUN chown -R www-data:www-data /var/www/html/uploads && \
-    chmod -R 755 /var/www/html/uploads
+    chmod -R 777 /var/www/html/uploads
 
 WORKDIR /var/www/html
 COPY . .
