@@ -219,6 +219,11 @@ input[type="range"]::-moz-range-thumb {
 	height: 24px;
 }
 
+#loopBtn.active {
+    fill: rgba(45, 127, 249, 0.8);
+    stroke: rgba(45, 127, 249, 0.8);
+}
+
 @keyframes fadeIn {
 	from { opacity: 0; transform: translateY(10px); }
 	to { opacity: 1; transform: translateY(0); }
