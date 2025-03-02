@@ -1,6 +1,6 @@
 <?php
 $isDocker = file_exists('/.dockerenv');
-$minioHost = $isDocker ? 'matsfx-minio' : 'localhost';
+$minioHost = $isDocker ? 'matsfx-minio' : 'minio';
 
 $minioConfig = [
     'endpoint' => 'http://' . $minioHost . ':9000',
