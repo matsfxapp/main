@@ -568,10 +568,8 @@ if (!$artistData) {
 				}
 			}
 			
-			// Now determine which albums have at least 2 songs
 			foreach ($songsByAlbum as $albumName => $albumSongs) {
 				if (count($albumSongs) >= 2) {
-					// This is a true album with 2+ songs
 					$albums[$albumName] = [
 						'album_name' => $albumName,
 						'cover_art' => $albumSongs[0]['cover_art'] ?? 'defaults/default-cover.jpg',
@@ -657,7 +655,7 @@ if (!$artistData) {
 		<?php endif; ?>
 	</div>
 	<div class="player-spacer"></div>
-	<?php require_once 'includes/player.php'; ?>
+	<?php require_once 'includes/player_artist.php'; ?>
 	
 	<script src="js/index.js"></script>
 	<script>
@@ -705,18 +703,19 @@ if (!$artistData) {
 	            });
 	        });
 	    }
-		/*
-		const albumHeaders = document.querySelectorAll('.album-header');
-		albumHeaders.forEach(header => {
-			header.addEventListener('click', function() {
-				const songsSection = this.nextElementSibling;
-				if (songsSection.style.display === 'none') {
-					songsSection.style.display = 'block';
-				} else {
-					songsSection.style.display = 'none';
-				}
-			});
-		}); */
+
+        // Add functionality to expand/collapse album sections
+        const albumHeaders = document.querySelectorAll('.album-header');
+        albumHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const songsSection = this.nextElementSibling;
+                if (songsSection.style.display === 'none') {
+                    songsSection.style.display = 'block';
+                } else {
+                    songsSection.style.display = 'none';
+                }
+            });
+        });
 	});
 
 	const albumCovers = document.querySelectorAll('.album-cover');
@@ -724,8 +723,10 @@ if (!$artistData) {
 		cover.addEventListener('dblclick', function() {
 			const albumSection = this.closest('.album-section');
 			if (albumSection) {
+				// Prepare the album's songs for playback
 				const songs = albumSection.querySelectorAll('.song-row');
 				if (songs.length > 0) {
+					// Get the first song and play it
 					const firstSong = songs[0];
 					const filePath = firstSong.getAttribute('data-song-file') || 
 									firstSong.getAttribute('onclick').toString().match(/'([^']+)'/)[1];
@@ -736,20 +737,23 @@ if (!$artistData) {
 		});
 	});
 
+	// Add a Play All button for each album
 	const albumHeaders = document.querySelectorAll('.album-header');
 	albumHeaders.forEach(header => {
+		// Create a play button if it doesn't exist
 		if (!header.querySelector('.album-play-button')) {
 			const playButton = document.createElement('button');
 			playButton.className = 'album-play-button';
 			playButton.innerHTML = '<i class="fas fa-play"></i> Play All';
-			playButton.style.marginLeft = '950px';
+			playButton.style.marginLeft = '10px';
 			playButton.style.padding = '5px 10px';
-			playButton.style.borderRadius = '12px';
+			playButton.style.borderRadius = '4px';
 			playButton.style.backgroundColor = 'var(--primary-color)';
 			playButton.style.color = 'white';
 			playButton.style.border = 'none';
 			playButton.style.cursor = 'pointer';
 			
+			// Add hover effect
 			playButton.addEventListener('mouseenter', function() {
 				this.style.backgroundColor = 'var(--primary-hover)';
 			});
@@ -758,8 +762,9 @@ if (!$artistData) {
 				this.style.backgroundColor = 'var(--primary-color)';
 			});
 			
+			// Add click handler
 			playButton.addEventListener('click', function(e) {
-				e.stopPropagation();
+				e.stopPropagation(); // Don't trigger album collapse/expand
 				const albumSection = this.closest('.album-section');
 				if (albumSection) {
 					const songs = albumSection.querySelectorAll('.song-row');
