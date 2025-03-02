@@ -41,7 +41,6 @@ foreach ($songs as $song) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="monetag" content="5b5da452bb7f578199b5f1d963c7b3bf">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
     <meta property="og:title" content="matSFX - Listen with Joy!" />
@@ -51,6 +50,14 @@ foreach ($songs as $song) {
     <meta property="og:url" content="https://matsfx.com/" />
     <link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="matSFX">
+    <link rel="apple-touch-icon" href="/app_logos/matsfx_logo.png">
+    <meta name="theme-color" content="#000000">
+    
     <title>matSFX - Music for everyone</title>
 
     <!-- links -->
@@ -257,7 +264,16 @@ foreach ($songs as $song) {
 
     <script src="js/index.js"></script>
     <script src="js/search.js"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6530871411657748"
-        crossorigin="anonymous"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, function(err) {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+            });
+        }
+    </script>
 </body>
 </html>
