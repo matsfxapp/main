@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($configError)) {
             $uploadResult = uploadSong($title, $artist, $album, $genre, $_FILES['song_file'], $coverArt);
             
             if ($uploadResult['success']) {
-                $success = "Song uploaded successfully to cloud storage!";
+                $success = "Song uploaded successfully!";
             } else {
                 $error = "Error uploading song: " . $uploadResult['message'];
             }
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($configError)) {
 
     <div class="container">
         <div class="upload-form">
-            <h2>Upload Music to Cloud Storage</h2>
+            <h2>Upload a Song</h2>
             
             <?php if (isset($configError)): ?>
                 <div class="alert error"><?php echo $configError; ?></div>
