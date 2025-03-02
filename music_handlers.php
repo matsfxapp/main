@@ -45,12 +45,12 @@ function getMinIOObjectUrl($bucket, $key) {
     
     // Map bucket names to their specific URL prefixes
     $bucketUrls = [
-        'music-songs' => 'http://localhost:9000/music-songs/',
-        'songs' => 'http://localhost:9000/music-songs/',
-        'music-covers' => 'http://localhost:9000/music-covers/',
-        'covers' => 'http://localhost:9000/music-covers/',
-        'user-profiles' => 'http://localhost:9000/user-profiles/',
-        'profiles' => 'http://localhost:9000/user-profiles/'
+        'music-songs' => 'http://minio:9000/music-songs/',
+        'songs' => 'http://minio:9000/music-songs/',
+        'music-covers' => 'http://minio:9000/music-covers/',
+        'covers' => 'http://minio:9000/music-covers/',
+        'user-profiles' => 'http://minio:9000/user-profiles/',
+        'profiles' => 'http://minio:9000/user-profiles/'
     ];
     
     // Check if we have a specific URL for this bucket
