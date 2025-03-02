@@ -772,7 +772,7 @@ if (isset($_SESSION['user_id'])) {
             <a href="/" class="brand">
                 <div class="logo-wrapper">
                     <img src="/app_logos/matsfx_logo.png" alt="Logo" class="logo-image">
-                    <span class="brand-text">alpha_0.4.23</span>
+                    <span class="brand-text">alpha_0.5.1</span>
                 </div>
             </a>
 
