@@ -378,84 +378,83 @@ if (!$artistData) {
 	<link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/player-style.css">
 	<link rel="stylesheet" href="css/index-artistsection.css">
-	<link rel="stylesheet" href="css/share-button.css">
 	<link rel="stylesheet" href="css/navbar.css">
+	<link rel="stylesheet" href="css/share-button.css">
 	<script src="js/share-button.js"></script>
 	<style>
 			
-			.developer-badge, .helper-badge, .donator-badge, .designer-badge, .verified-badge {
-	            width: 20px;
-	            height: 20px;
-	            
-	            vertical-align: middle;
-	        }		
-	    			
-	    	.follow-button {
-	    	    position: relative;
-	    	    padding: 10px 20px;
-	    	    font-size: 16px;
-	    	    font-weight: bold;
-	    	    color: #fff;
-	    	    background-color: #007bff;
-	    	    border: none;
-	    	    border-radius: 8px;
-	    	    cursor: pointer;
-	    	    overflow: hidden;
-	    	    transition: all 0.3s ease;
-	    	    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-	    	    transform-style: preserve-3d;
-	    	}
-	    
-	    	.follow-button:before {
-	    	    content: '';
-	    	    position: absolute;
-	    	    top: 0;
-	    	    left: -100%;
-	    	    width: 100%;
-	    	    height: 100%;
-	    	    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
-	    	    transition: all 0.6s ease;
-	    	}
-	    
-	    	.follow-button:hover:before {
-	    	    left: 100%;
-	    	}
-	    
-	    	.follow-button:hover {
-	    	    transform: scale(1.05) perspective(1px);
-	    	    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-	    	}
-	    
-	    	.follow-button.unfollow-button {
-	    	    background-color: #dc3545;
-	    	}
-	    
-	    	.follow-button.following {
-	    	    background-color: #28a745;
-	    	}
-	    
-	    	.follow-button .follow-text {
-	    	    position: relative;
-	    	    z-index: 1;
-	    	}
-	    
-	    	.follow-button .follow-icon {
-	    	    margin-right: 8px;
-	    	    position: relative;
-	    	    z-index: 1;
-	    	}
+	.developer-badge, .helper-badge, .donator-badge, .designer-badge, .verified-badge {
+		width: 20px;
+		height: 20px;
+		
+		vertical-align: middle;
+	}		
+			
+	.follow-button {
+		position: relative;
+		padding: 10px 20px;
+		font-size: 16px;
+		font-weight: bold;
+		color: #fff;
+		background-color: #007bff;
+		border: none;
+		border-radius: 8px;
+		cursor: pointer;
+		overflow: hidden;
+		transition: all 0.3s ease;
+		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+		transform-style: preserve-3d;
+	}
 
-			.profile-stats span {
-				margin-right: 20px;
-				color: var(--gray-text);
-				font-size: 0.9em;
-			}
+	.follow-button:before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+		transition: all 0.6s ease;
+	}
 
-			.profile-stats span:last-child {
-				margin-right: 0;
-			}
-        </style>
-	
+	.follow-button:hover:before {
+		left: 100%;
+	}
+
+	.follow-button:hover {
+		transform: scale(1.05) perspective(1px);
+		box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+	}
+
+	.follow-button.unfollow-button {
+		background-color: #dc3545;
+	}
+
+	.follow-button.following {
+		background-color: #28a745;
+	}
+
+	.follow-button .follow-text {
+		position: relative;
+		z-index: 1;
+	}
+
+	.follow-button .follow-icon {
+		margin-right: 8px;
+		position: relative;
+		z-index: 1;
+	}
+
+	.profile-stats span {
+		margin-right: 20px;
+		color: var(--gray-text);
+		font-size: 0.9em;
+	}
+
+	.profile-stats span:last-child {
+		margin-right: 0;
+	}
+	</style>
 	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
@@ -525,8 +524,9 @@ if (!$artistData) {
 	                         class="cover-art">
 	                    <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
 	                    <div class="song-artist"><?php echo htmlspecialchars($song['artist']); ?></div>
-	                    <?php
+						<?php
 						require 'includes/like_button.php';
+						require 'includes/share_button.php';
 						?>
 	                </div>
 	            <?php endforeach; ?>

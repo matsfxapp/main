@@ -1,23 +1,34 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 require_once 'config/config.php';
 
-if (isset($_GET['song_id'])) {
+$song_found = false;
+
+if (isset($_GET['share'])) {
+    $shareCode = $_GET['share'];
+    
+    $stmt = $pdo->prepare("SELECT * FROM songs WHERE share_code = :share_code LIMIT 1");
+    $stmt->bindParam(':share_code', $shareCode, PDO::PARAM_STR);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+        $song_found = true;
+    }
+}
+elseif (isset($_GET['song_id'])) {
     $song_id = $_GET['song_id'];
-} else {
-    require_once 'includes/header.php';
-    echo '<div class="container"><h1>Error</h1><p>Song not found.</p></div>';
-    exit;
+    
+    $stmt = $pdo->prepare("SELECT * FROM songs WHERE song_id = :song_id");
+    $stmt->bindParam(':song_id', $song_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+        $song_found = true;
+    }
 }
 
-$stmt = $pdo->prepare("SELECT * FROM songs WHERE song_id = :song_id");
-$stmt->bindParam(':song_id', $song_id, PDO::PARAM_INT);
-$stmt->execute();
-$result = $stmt->fetch(PDO::FETCH_ASSOC);
- 
-if ($result) {
+if ($song_found) {
     $song_title = htmlspecialchars($result['title']);
     $artist = htmlspecialchars($result['artist']);
     $album = htmlspecialchars($result['album']);
@@ -25,14 +36,18 @@ if ($result) {
     $cover_art = htmlspecialchars($result['cover_art']);
     $uploaded_by = htmlspecialchars($result['artist']);
     $upload_date = htmlspecialchars($result['upload_date']);
-	$og_cover_art = htmlspecialchars($result['cover_art']);
+    $og_cover_art = htmlspecialchars($result['cover_art']);
+    $song_id = $result['song_id'];
+    
+    require_once 'handlers/share_utils.php';
+    $shareCode = getShareCode($pdo, $song_id);
+
+    $shareable_link = "https://alpha.matsfx.com/song?share={$shareCode}";
 } else {
-    echo "Song not found.";
+    require_once 'includes/header.php';
+    echo '<div class="container"><h1>Error</h1><p>Song not found.</p></div>';
     exit;
 }
-
-// generate link
-$shareable_link = "https://alpha.matsfx.com/song?song_id={$song_id}";
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -59,6 +59,7 @@ foreach ($songs as $song) {
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/index-artistsection.css">
     <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/share-button.css">
     <script src="js/share-button.js"></script>
     <?php outputChristmasThemeCSS(); ?>
 </head>
@@ -83,9 +84,9 @@ foreach ($songs as $song) {
                     <div class="music-grid-artist">
                         <?php foreach ($songsByArtist[$artist] as $song): ?>
                             <div class="song-card" 
-                                 onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
-                                 data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
-                                 data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>">
+                                onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
+                                data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
+                                data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>">
                                 <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                                 <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                                 <div class="song-artist">
@@ -95,6 +96,7 @@ foreach ($songs as $song) {
                                 </div>
                                 <?php
                                 require 'includes/like_button.php';
+                                require 'includes/share_button.php';
                                 ?>
                             </div>
                         <?php endforeach; ?>
@@ -242,6 +244,7 @@ foreach ($songs as $song) {
                     </div>
                     <?php
                     require 'includes/like_button.php';
+                    require 'includes/share_button.php';
                     ?>
                 </div>
             <?php endforeach; ?>
