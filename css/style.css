@@ -805,3 +805,15 @@ body {
         text-align: center;
     }
 }
+
+.player-spacer {
+	height: 300px;
+	width: 100%;
+	display: block;
+}
+
+@media (max-width: 768px) {
+	.player-spacer {
+		height: 380px;
+	}
+}

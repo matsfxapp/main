@@ -383,3 +383,40 @@ function getAllSongs() {
         return [];
     }
 }
+
+function incrementPlayCount($songId) {
+    global $pdo;
+    
+    if (!$pdo) {
+        error_log("Database connection not established in incrementPlayCount()");
+        return false;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("UPDATE songs SET play_count = play_count + 1 WHERE song_id = :song_id");
+        $stmt->bindParam(':song_id', $songId, PDO::PARAM_INT);
+        return $stmt->execute();
+    } catch (PDOException $e) {
+        error_log("Database error in incrementPlayCount(): " . $e->getMessage());
+        return false;
+    }
+}
+
+function getPopularSongs($limit = 10) {
+    global $pdo;
+    
+    if (!$pdo) {
+        error_log("Database connection not established in getPopularSongs()");
+        return [];
+    }
+    
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM songs ORDER BY play_count DESC LIMIT :limit");
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database error in getPopularSongs(): " . $e->getMessage());
+        return [];
+    }
+}

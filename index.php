@@ -250,7 +250,7 @@ foreach ($songs as $song) {
             <?php endforeach; ?>
         </div>
     </div>
-
+    <div class="player-spacer"></div>
     <?php
     require_once 'includes/player.php'
     ?>

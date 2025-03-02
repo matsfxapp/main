@@ -63,16 +63,30 @@
 <script>
     let audioPlayer = new Audio();
     let isChangingTrack = false;
+    let currentPlaylist = [];
+    let currentPlaylistIndex = 0;
     
     document.addEventListener('DOMContentLoaded', function() {
         const progressBar = document.getElementById('progress');
-    
         initializePlayerControls(audioPlayer, progressBar);
     });
     
-    function playSong(filePath, songCardElement) {
+    function playSong(filePath, element) {
         if (isChangingTrack) return;
         isChangingTrack = true;
+        
+        // Check if we're playing a song from an album
+        const albumSection = element.closest('.album-section');
+        if (albumSection) {
+            // Create a playlist from all songs in this album
+            const songRows = albumSection.querySelectorAll('.song-row');
+            currentPlaylist = Array.from(songRows);
+            currentPlaylistIndex = Array.from(songRows).indexOf(element);
+        } else {
+            // Single track playing
+            currentPlaylist = [];
+            currentPlaylistIndex = 0;
+        }
 
         // Check if this is a MinIO path and transform it if needed
         if (filePath.includes('minio_path') || filePath.includes('minio_cover_path')) {
@@ -81,7 +95,7 @@
                 .then(response => response.text())
                 .then(actualUrl => {
                     audioPlayer.src = actualUrl;
-                    continuePlaySong(songCardElement);
+                    continuePlaySong(element);
                 })
                 .catch(error => {
                     console.error('Error fetching MinIO URL:', error);
@@ -90,25 +104,66 @@
                 });
         } else {
             audioPlayer.src = filePath;
-            continuePlaySong(songCardElement);
+            continuePlaySong(element);
+        }
+    }
+    
+    // Function to play all songs in an album
+    function playAlbum(albumSection) {
+        const songRows = albumSection.querySelectorAll('.song-row');
+        if (songRows.length > 0) {
+            currentPlaylist = Array.from(songRows);
+            currentPlaylistIndex = 0;
+            
+            // Get the file path from the first song's onclick attribute
+            const firstSong = songRows[0];
+            const songId = firstSong.getAttribute('data-song-id');
+            const filePath = firstSong.getAttribute('data-song-file') || 
+                             firstSong.getAttribute('onclick').toString().match(/'([^']+)'/)[1];
+            
+            playSong(filePath, firstSong);
         }
     }
 
-    function continuePlaySong(songCardElement) {
-        const coverArt = songCardElement.querySelector('.cover-art').src;
-        const songTitle = songCardElement.querySelector('.song-title').textContent;
-        const artistName = songCardElement.querySelector('.artist-link')?.textContent || 'Unknown Artist';
+    function continuePlaySong(element) {
+        // Get song info from the clicked element
+        let songTitle, artistName, coverArt;
+        
+        // Check if element is a song row from album or a song card
+        if (element.classList.contains('song-row')) {
+            songTitle = element.getAttribute('data-song-title') || element.querySelector('.song-row-title').textContent;
+            artistName = element.getAttribute('data-song-artist') || element.querySelector('.song-row-artist').textContent;
+            
+            // Get cover art from the album section
+            const albumSection = element.closest('.album-section');
+            coverArt = albumSection ? albumSection.querySelector('.album-cover').src : 'defaults/default-cover.jpg';
+            
+            // Mark this song as playing
+            document.querySelectorAll('.song-row').forEach(row => row.classList.remove('playing'));
+            element.classList.add('playing');
+        } else if (element.classList.contains('song-card')) {
+            // For single song cards
+            coverArt = element.querySelector('.song-card-image').src;
+            songTitle = element.querySelector('.song-card-title').textContent;
+            artistName = element.querySelector('.song-card-artist').textContent;
+            
+            // Mark this song as active
+            document.querySelectorAll('.song-card').forEach(card => card.classList.remove('active-song'));
+            element.classList.add('active-song');
+        } else {
+            // Fallback for other elements
+            songTitle = element.getAttribute('data-song-title') || 'Unknown Title';
+            artistName = element.getAttribute('data-song-artist') || 'Unknown Artist';
+            coverArt = 'defaults/default-cover.jpg';
+        }
 
-        document.getElementById('player-album-art').src = coverArt || 'defaults/default-cover.jpg';
+        // Update player display
+        document.getElementById('player-album-art').src = coverArt;
         document.getElementById('songTitle').textContent = songTitle;
         document.getElementById('artistName').textContent = artistName;
 
         audioPlayer.play()
             .then(() => {
-                document.querySelectorAll('.song-card').forEach(card => 
-                    card.classList.remove('active-song')
-                );
-                songCardElement.classList.add('active-song');
                 updatePlayPauseButton(true);
             })
             .catch(error => {
@@ -132,6 +187,35 @@
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = Math.floor(seconds % 60);
         return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    
+    function nextTrack() {
+        if (currentPlaylist.length > 0 && currentPlaylistIndex < currentPlaylist.length - 1) {
+            currentPlaylistIndex++;
+            const nextSong = currentPlaylist[currentPlaylistIndex];
+            
+            // Extract the file path
+            const filePath = nextSong.getAttribute('data-song-file') || 
+                            nextSong.getAttribute('onclick').toString().match(/'([^']+)'/)[1];
+            
+            playSong(filePath, nextSong);
+        }
+    }
+    
+    function previousTrack() {
+        if (currentPlaylist.length > 0 && currentPlaylistIndex > 0) {
+            currentPlaylistIndex--;
+            const prevSong = currentPlaylist[currentPlaylistIndex];
+            
+            // Extract the file path
+            const filePath = prevSong.getAttribute('data-song-file') || 
+                            prevSong.getAttribute('onclick').toString().match(/'([^']+)'/)[1];
+            
+            playSong(filePath, prevSong);
+        } else if (audioPlayer.currentTime > 3) {
+            // If current time is more than 3 seconds, restart the current song
+            audioPlayer.currentTime = 0;
+        }
     }
     
     function initializePlayerControls(audioPlayer, progressBar) {
@@ -173,5 +257,22 @@
                 svgIcon.style.stroke = 'currentColor';
             }
         };
+        
+        // Add event listener for when a song ends
+        audioPlayer.addEventListener('ended', function() {
+            if (!audioPlayer.loop && currentPlaylist.length > 0 && currentPlaylistIndex < currentPlaylist.length - 1) {
+                // If we have more songs in the playlist, play the next one
+                nextTrack();
+            } else {
+                // Reset the play button
+                updatePlayPauseButton(false);
+            }
+        });
     }
+    
+    // Make functions available globally
+    window.playSong = playSong;
+    window.playAlbum = playAlbum;
+    window.nextTrack = nextTrack;
+    window.previousTrack = previousTrack;
 </script>

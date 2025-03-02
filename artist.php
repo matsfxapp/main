@@ -145,13 +145,52 @@ function getFollowerCount($userId) {
 function getArtistSongs($artistName) {
     global $pdo;
     try {
-        $stmt = $pdo->prepare("SELECT * FROM songs WHERE artist = :artist ORDER BY upload_date DESC");
+        // Get songs and order by album, then upload_date
+        $stmt = $pdo->prepare("SELECT * FROM songs WHERE artist = :artist ORDER BY album, upload_date DESC");
         $stmt->bindValue(':artist', $artistName, PDO::PARAM_STR);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $allSongs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Organize songs by album
+        $songsByAlbum = [];
+        $singleTracks = [];
+        
+        foreach ($allSongs as $song) {
+            if (!empty($song['album'])) {
+                $albumName = $song['album'];
+                if (!isset($songsByAlbum[$albumName])) {
+                    $songsByAlbum[$albumName] = [
+                        'album_name' => $albumName,
+                        'cover_art' => $song['cover_art'] ?? 'defaults/default-cover.jpg',
+                        'songs' => []
+                    ];
+                }
+                $songsByAlbum[$albumName]['songs'][] = $song;
+            } else {
+                // Group songs without album as singles
+                $singleTracks[] = $song;
+            }
+        }
+        
+        // If there are singles, add them as a special group
+        if (!empty($singleTracks)) {
+            $songsByAlbum['Singles'] = [
+                'album_name' => 'Singles',
+                'cover_art' => !empty($singleTracks[0]['cover_art']) ? $singleTracks[0]['cover_art'] : 'defaults/default-cover.jpg',
+                'songs' => $singleTracks
+            ];
+        }
+        
+        return [
+            'by_album' => $songsByAlbum,
+            'all_songs' => $allSongs
+        ];
     } catch (PDOException $e) {
         error_log("Database error: " . $e->getMessage());
-        return [];
+        return [
+            'by_album' => [],
+            'all_songs' => []
+        ];
     }
 }
 
@@ -217,7 +256,7 @@ $ogImage = $profilePicture !== 'defaults/default-profile.jpg'
 $currentUserId = $_SESSION['user_id'] ?? null;
 $artistData = checkArtistExists($artist);
 $profileUserId = $artistData['user_id'] ?? null;
-$songs = $artistData ? getArtistSongs($artist) : [];
+$songsData = $artistData ? getArtistSongs($artist) : ['by_album' => [], 'all_songs' => []];
 
 $isFollowing = false;
 if ($currentUserId && $profileUserId) {
@@ -378,8 +417,9 @@ if (!$artistData) {
 	<link rel="stylesheet" href="css/style.css">
 	<link rel="stylesheet" href="css/player-style.css">
 	<link rel="stylesheet" href="css/index-artistsection.css">
-	<link rel="stylesheet" href="css/navbar.css">
 	<link rel="stylesheet" href="css/share-button.css">
+	<link rel="stylesheet" href="css/navbar.css">
+	<link rel="stylesheet" href="css/artist.css">
 	<script src="js/share-button.js"></script>
 	<style>
 			
@@ -486,8 +526,9 @@ if (!$artistData) {
 	                <?php endif; ?>
 	
 	                <div class="profile-stats">
-						<span><?php echo count($songs); ?> Songs</span>
+						<span><?php echo count($songsData['all_songs']); ?> Songs</span>
 						<span><?php echo getFollowerCount($profileUserId); ?> Followers</span>
+                        <span><?php echo count($songsData['by_album']); ?> Albums</span>
 					</div>
 	
 	                <?php if ($currentUserId): ?>
@@ -506,34 +547,116 @@ if (!$artistData) {
 	    </div>
 	</div>
         
-	<div class="artist-songs" style="padding-bottom: 10%;">
-	    <!-- <div class="songs-header">
-	        <h2 class="section-title"></h2>
-	    </div> -->
-	    <div class="music-grid">
-	        <?php if (empty($songs)): ?>
-	            <p>No songs uploaded yet.</p>
-	        <?php else: ?>
-	            <?php foreach ($songs as $song): ?>
-	                <div class="song-card" 
-	                     onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
-	                     data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
-	                     data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>">
-	                    <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
-	                         alt="Cover Art" 
-	                         class="cover-art">
-	                    <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
-	                    <div class="song-artist"><?php echo htmlspecialchars($song['artist']); ?></div>
-						<?php
-						require 'includes/like_button.php';
-						require 'includes/share_button.php';
-						?>
-	                </div>
-	            <?php endforeach; ?>
-	        <?php endif; ?>
-	    </div>
+	<?php
+		if (empty($songsData['all_songs'])): ?>
+			<p>No songs uploaded yet.</p>
+		<?php else: ?>
+			<?php 
+			$albums = [];
+			$singles = [];
+			
+			$songsByAlbum = [];
+			foreach ($songsData['all_songs'] as $song) {
+				if (!empty($song['album'])) {
+					$albumName = $song['album'];
+					if (!isset($songsByAlbum[$albumName])) {
+						$songsByAlbum[$albumName] = [];
+					}
+					$songsByAlbum[$albumName][] = $song;
+				} else {
+					$singles[] = $song;
+				}
+			}
+			
+			// Now determine which albums have at least 2 songs
+			foreach ($songsByAlbum as $albumName => $albumSongs) {
+				if (count($albumSongs) >= 2) {
+					// This is a true album with 2+ songs
+					$albums[$albumName] = [
+						'album_name' => $albumName,
+						'cover_art' => $albumSongs[0]['cover_art'] ?? 'defaults/default-cover.jpg',
+						'songs' => $albumSongs
+					];
+				} else {
+					$singles = array_merge($singles, $albumSongs);
+				}
+			}
+			?>
+			
+			<!-- Display Albums -->
+			<?php if (!empty($albums)): ?>
+				<div class="albums-container">
+					<h2 class="section-title">Albums</h2>
+					<?php foreach ($albums as $albumName => $albumData): ?>
+						<div class="album-section">
+							<div class="album-header">
+								<img src="<?php echo htmlspecialchars($albumData['cover_art']); ?>" 
+									alt="Album Cover" 
+									class="album-cover">
+								<div class="album-info">
+									<div class="album-title"><?php echo htmlspecialchars($albumData['album_name']); ?></div>
+									<div class="album-details"><?php echo count($albumData['songs']); ?> songs</div>
+								</div>
+							</div>
+							
+							<div class="album-songs">
+								<?php foreach ($albumData['songs'] as $index => $song): ?>
+									<div class="song-row" 
+										onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
+										data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
+										data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
+										data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
+										<div class="song-number"><?php echo $index + 1; ?></div>
+										<div class="song-info">
+											<div class="song-row-title"><?php echo htmlspecialchars($song['title']); ?></div>
+											<div class="song-row-artist"><?php echo htmlspecialchars($song['artist']); ?></div>
+										</div>
+										<div class="song-action-buttons">
+											<?php 
+											require 'includes/like_button.php';
+											?>
+										</div>
+									</div>
+								<?php endforeach; ?>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+			
+			<!-- Display Singles -->
+			<?php if (!empty($singles)): ?>
+				<div class="singles-container">
+					<h2 class="section-title">Singles</h2>
+					<div class="song-cards">
+						<?php foreach ($singles as $song): ?>
+							<div class="song-card" 
+								onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
+								data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
+								data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
+								data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
+								<img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
+									alt="Song Cover" 
+									class="song-card-image">
+								<div class="song-card-info">
+									<div class="song-card-title"><?php echo htmlspecialchars($song['title']); ?></div>
+									<div class="song-card-artist"><?php echo htmlspecialchars($song['artist']); ?></div>
+									<div class="song-card-actions">
+										<?php 
+										$songId = $song['song_id'];
+										require 'includes/like_button.php';
+										require 'includes/share_button.php';
+										?>
+									</div>
+								</div>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+		<?php endif; ?>
 	</div>
-	
+	<div class="player-spacer"></div>
 	<?php require_once 'includes/player.php'; ?>
 	
 	<script src="js/index.js"></script>
@@ -582,6 +705,76 @@ if (!$artistData) {
 	            });
 	        });
 	    }
+		/*
+		const albumHeaders = document.querySelectorAll('.album-header');
+		albumHeaders.forEach(header => {
+			header.addEventListener('click', function() {
+				const songsSection = this.nextElementSibling;
+				if (songsSection.style.display === 'none') {
+					songsSection.style.display = 'block';
+				} else {
+					songsSection.style.display = 'none';
+				}
+			});
+		}); */
+	});
+
+	const albumCovers = document.querySelectorAll('.album-cover');
+	albumCovers.forEach(cover => {
+		cover.addEventListener('dblclick', function() {
+			const albumSection = this.closest('.album-section');
+			if (albumSection) {
+				const songs = albumSection.querySelectorAll('.song-row');
+				if (songs.length > 0) {
+					const firstSong = songs[0];
+					const filePath = firstSong.getAttribute('data-song-file') || 
+									firstSong.getAttribute('onclick').toString().match(/'([^']+)'/)[1];
+					
+					playSong(filePath, firstSong);
+				}
+			}
+		});
+	});
+
+	const albumHeaders = document.querySelectorAll('.album-header');
+	albumHeaders.forEach(header => {
+		if (!header.querySelector('.album-play-button')) {
+			const playButton = document.createElement('button');
+			playButton.className = 'album-play-button';
+			playButton.innerHTML = '<i class="fas fa-play"></i> Play All';
+			playButton.style.marginLeft = '950px';
+			playButton.style.padding = '5px 10px';
+			playButton.style.borderRadius = '12px';
+			playButton.style.backgroundColor = 'var(--primary-color)';
+			playButton.style.color = 'white';
+			playButton.style.border = 'none';
+			playButton.style.cursor = 'pointer';
+			
+			playButton.addEventListener('mouseenter', function() {
+				this.style.backgroundColor = 'var(--primary-hover)';
+			});
+			
+			playButton.addEventListener('mouseleave', function() {
+				this.style.backgroundColor = 'var(--primary-color)';
+			});
+			
+			playButton.addEventListener('click', function(e) {
+				e.stopPropagation();
+				const albumSection = this.closest('.album-section');
+				if (albumSection) {
+					const songs = albumSection.querySelectorAll('.song-row');
+					if (songs.length > 0) {
+						const firstSong = songs[0];
+						const filePath = firstSong.getAttribute('data-song-file') || 
+										firstSong.getAttribute('onclick').toString().match(/'([^']+)'/)[1];
+						
+						playSong(filePath, firstSong);
+					}
+				}
+			});
+			
+			header.querySelector('.album-info').appendChild(playButton);
+		}
 	});
 	</script>
 </body>
