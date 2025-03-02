@@ -59,9 +59,9 @@ services:
     container_name: matsfx-minio
     restart: always
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-      - MINIO_HTTP_SIGNATURES=${MINIO_HTTP_SIGNATURES}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_HTTP_SIGNATURES: ${MINIO_HTTP_SIGNATURES}
     command: server /data --console-address ":9001"
     ports:
       - "${MINIO_PORT}:9000"
