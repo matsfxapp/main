@@ -73,38 +73,51 @@
     function playSong(filePath, songCardElement) {
         if (isChangingTrack) return;
         isChangingTrack = true;
-    
+
+        // Check if this is a MinIO path and transform it if needed
+        if (filePath.includes('minio_path') || filePath.includes('minio_cover_path')) {
+            // Make an AJAX call to get the actual URL
+            fetch('get_minio_url.php?path=' + encodeURIComponent(filePath))
+                .then(response => response.text())
+                .then(actualUrl => {
+                    audioPlayer.src = actualUrl;
+                    continuePlaySong(songCardElement);
+                })
+                .catch(error => {
+                    console.error('Error fetching MinIO URL:', error);
+                    alert('Could not access the song file. Please try again.');
+                    isChangingTrack = false;
+                });
+        } else {
+            audioPlayer.src = filePath;
+            continuePlaySong(songCardElement);
+        }
+    }
+
+    function continuePlaySong(songCardElement) {
         const coverArt = songCardElement.querySelector('.cover-art').src;
         const songTitle = songCardElement.querySelector('.song-title').textContent;
         const artistName = songCardElement.querySelector('.artist-link')?.textContent || 'Unknown Artist';
-    
+
         document.getElementById('player-album-art').src = coverArt || 'defaults/default-cover.jpg';
         document.getElementById('songTitle').textContent = songTitle;
         document.getElementById('artistName').textContent = artistName;
-    
-        if (audioPlayer.src === filePath && !audioPlayer.paused) {
-            audioPlayer.pause();
-            songCardElement.classList.remove('active-song');
-            updatePlayPauseButton(false);
-            isChangingTrack = false;
-        } else {
-            audioPlayer.src = filePath;
-            audioPlayer.play()
-                .then(() => {
-                    document.querySelectorAll('.song-card').forEach(card => 
-                        card.classList.remove('active-song')
-                    );
-                    songCardElement.classList.add('active-song');
-                    updatePlayPauseButton(true);
-                })
-                .catch(error => {
-                    console.error('Error playing song:', error);
-                    alert('Could not play the song. Please try again.');
-                })
-                .finally(() => {
-                    isChangingTrack = false;
-                });
-        }
+
+        audioPlayer.play()
+            .then(() => {
+                document.querySelectorAll('.song-card').forEach(card => 
+                    card.classList.remove('active-song')
+                );
+                songCardElement.classList.add('active-song');
+                updatePlayPauseButton(true);
+            })
+            .catch(error => {
+                console.error('Error playing song:', error);
+                alert('Could not play the song. Please try again.');
+            })
+            .finally(() => {
+                isChangingTrack = false;
+            });
     }
     
     function updatePlayPauseButton(isPlaying) {

@@ -12,7 +12,6 @@ services:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
-    attach: false
 
   php:
     build:
@@ -24,7 +23,7 @@ services:
       DB_NAME: ${MYSQL_DATABASE}
       DB_USER: ${MYSQL_USER}
       DB_PASS: ${MYSQL_PASSWORD}
-      DB_HOST: ${MYSQL_HOST}
+      DB_HOST: matsfx-mariadb
     ports:
       - "${PORT}:80"
     depends_on:
@@ -40,9 +39,9 @@ services:
       - "${PHPMYADMIN_PORT}:80"
     environment:
       PHPMYADMIN_PORT: ${PHPMYADMIN_PORT}
-      PMA_HOST: ${PMA_HOST}
-      PMA_PORT: ${PMA_PORT}
-      PMA_FORCE_SSL: false
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_FORCE_SSL: "false"
       PMA_ABSOLUTE_URI: ${PMA_ABSOLUTE_URI}
     depends_on:
       - mariadb

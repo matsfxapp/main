@@ -1,6 +1,6 @@
 <?php
+require_once 'minio.php';
 
-// Start the session before any output
 if (session_status() == PHP_SESSION_NONE) {
     ini_set('session.cookie_lifetime', 2592000);
     ini_set('session.gc_maxlifetime', 2592000);
@@ -9,10 +9,9 @@ if (session_status() == PHP_SESSION_NONE) {
 
 require_once 'auth.php';
 
-error_reporting(E_ALL);
+error_reporting(E_ALL & ~E_DEPRECATED);
 ini_set('display_errors', 1);
 
-// Set headers before any output
 header('Content-Type: text/html; charset=utf-8');
 header("X-XSS-Protection: 1; mode=block");
 header("X-Content-Type-Options: nosniff");
@@ -39,25 +38,28 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-function isLoggedIn() {
-    if (!isset($_SESSION['user_id'])) {
-        return false;
+if (!function_exists('isLoggedIn')) {
+    function isLoggedIn() {
+        if (!isset($_SESSION['user_id'])) {
+            return false;
+        }
+
+        if (isset($_SESSION['last_activity']) && 
+            (time() - $_SESSION['last_activity'] > 1800)) {
+            logoutUser();
+            return false;
+        }
+        
+        $_SESSION['last_activity'] = time();
+        return true;
     }
-    
-    // Check session timeout (30 minutes)
-    if (isset($_SESSION['last_activity']) && 
-        (time() - $_SESSION['last_activity'] > 1800)) {
-        logoutUser();
-        return false;
-    }
-    
-    $_SESSION['last_activity'] = time();
-    return true;
 }
 
-function sanitizeInput($data) {
-    if (is_array($data)) {
-        return array_map('sanitizeInput', $data);
+if (!function_exists('sanitizeInput')) {
+    function sanitizeInput($data) {
+        if (is_array($data)) {
+            return array_map('sanitizeInput', $data);
+        }
+        return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
     }
-    return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
 }

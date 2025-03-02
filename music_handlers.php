@@ -1,155 +1,385 @@
 <?php
 require_once 'config/config.php';
+require 'vendor/autoload.php';
 
-try {
-    $conn = new PDO(
-        "mysql:host=" . $dbConfig['host'] . ";dbname=" . $dbConfig['name'],
-        $dbConfig['user'],
-        $dbConfig['pass'],
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-} catch (PDOException $e) {
-    error_log("Connection failed: " . $e->getMessage());
-    die("Database connection error");
+use Aws\S3\S3Client;
+use Aws\Exception\AwsException;
+
+function getMinioClient() {
+    global $minioConfig;
+    
+    try {
+        // Log connection attempt
+        error_log("Attempting to connect to MinIO at: " . $minioConfig['endpoint']);
+        
+        $client = new S3Client([
+            'version' => 'latest',
+            'region' => 'us-east-1',
+            'endpoint' => $minioConfig['endpoint'],
+            'use_path_style_endpoint' => true,
+            'credentials' => [
+                'key' => $minioConfig['credentials']['key'],
+                'secret' => $minioConfig['credentials']['secret'],
+            ],
+            // Increased timeouts for reliability
+            'http' => [
+                'connect_timeout' => 10,
+                'timeout' => 15
+            ]
+        ]);
+        
+        // Test the connection
+        $client->listBuckets();
+        error_log("MinIO connection successful");
+        return $client;
+    } catch (Exception $e) {
+        error_log("MinIO connection error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+        throw new Exception("Failed to connect to storage service: " . $e->getMessage());
+    }
 }
 
-function uploadSong($title, $artist, $album, $genre, $file, $cover_art) {
-    global $conn;
-    
-    if (!$conn) {
-        error_log("Database connection lost");
-        return false;
+function getMinIOObjectUrl($bucket, $key) {
+    if (empty($key)) {
+        return '/defaults/default-cover.jpg';
     }
     
-    $upload_dir = "uploads/songs/";
-    $cover_dir = "uploads/covers/";
-    $profile_dir = "uploads/profiles/";
+    // Map bucket names to their specific URL prefixes
+    $bucketUrls = [
+        'music-songs' => 'http://localhost:9000/music-songs/',
+        'songs' => 'http://localhost:9000/music-songs/',
+        'music-covers' => 'http://localhost:9000/music-covers/',
+        'covers' => 'http://localhost:9000/music-covers/',
+        'user-profiles' => 'http://localhost:9000/user-profiles/',
+        'profiles' => 'http://localhost:9000/user-profiles/'
+    ];
     
-    foreach ([$upload_dir, $cover_dir, $profile_dir] as $dir) {
-        if (!file_exists($dir) && !mkdir($dir, 0777, true)) {
-            error_log("Failed to create directory: $dir");
-            return false;
-        }
+    // Check if we have a specific URL for this bucket
+    if (isset($bucketUrls[$bucket])) {
+        return $bucketUrls[$bucket] . $key;
     }
     
-    $song_filename = uniqid() . "_" . basename($file["name"]);
-    $song_path = $upload_dir . $song_filename;
-    $cover_path = 'defaults/default-cover.jpg';
-    if (is_array($cover_art) && $cover_art["error"] === 0) {
-        $cover_filename = uniqid() . "_" . basename($cover_art["name"]);
-        $cover_path = $cover_dir . $cover_filename;
-        if (!move_uploaded_file($cover_art["tmp_name"], $cover_path)) {
-            error_log("Failed to upload cover art");
-            return false;
-        }
-    }
+    // Fallback to the original implementation if bucket not in our map
+    global $minioConfig;
+    $endpoint = rtrim($minioConfig['endpoint'], '/');
+    return "$endpoint/$bucket/$key";
+}
 
-    if (move_uploaded_file($file["tmp_name"], $song_path)) {
+function ensureMinIOBuckets() {
+    global $minioConfig;
+    
+    try {
+        $s3 = getMinioClient();
+        
+        // Get bucket names from config
+        $buckets = [
+            $minioConfig['buckets']['songs'] ?? 'music-songs',
+            $minioConfig['buckets']['covers'] ?? 'music-covers',
+            $minioConfig['buckets']['profiles'] ?? 'music-profiles'
+        ];
+        
+        foreach ($buckets as $bucket) {
+            // Check if bucket exists
+            try {
+                $bucketExists = $s3->doesBucketExist($bucket);
+                error_log("Bucket $bucket exists: " . ($bucketExists ? "yes" : "no"));
+            } catch (Exception $e) {
+                $bucketExists = false;
+                error_log("Error checking if bucket exists: " . $e->getMessage());
+                throw new Exception("Failed to check if bucket '$bucket' exists: " . $e->getMessage());
+            }
+            
+            // Create bucket if it doesn't exist
+            if (!$bucketExists) {
+                error_log("Creating bucket: $bucket");
+                
+                try {
+                    $result = $s3->createBucket([
+                        'Bucket' => $bucket
+                    ]);
+                    
+                    // Set more permissive access policy on the bucket
+                    $s3->putBucketPolicy([
+                        'Bucket' => $bucket,
+                        'Policy' => json_encode([
+                            'Version' => '2012-10-17',
+                            'Statement' => [
+                                [
+                                    'Effect' => 'Allow',
+                                    'Principal' => '*',
+                                    'Action' => [
+                                        's3:GetObject',
+                                        's3:PutObject',
+                                        's3:DeleteObject',
+                                        's3:ListBucket'
+                                    ],
+                                    'Resource' => [
+                                        "arn:aws:s3:::$bucket",
+                                        "arn:aws:s3:::$bucket/*"
+                                    ]
+                                ]
+                            ]
+                        ])
+                    ]);
+                    
+                    error_log("Successfully created bucket: $bucket with full access policy");
+                } catch (Exception $e) {
+                    error_log("Failed to create bucket $bucket: " . $e->getMessage());
+                    throw new Exception("Failed to create bucket '$bucket': " . $e->getMessage());
+                }
+            } else {
+                try {
+                    $s3->putBucketPolicy([
+                        'Bucket' => $bucket,
+                        'Policy' => json_encode([
+                            'Version' => '2012-10-17',
+                            'Statement' => [
+                                [
+                                    'Effect' => 'Allow',
+                                    'Principal' => '*',
+                                    'Action' => [
+                                        's3:GetObject',
+                                        's3:PutObject',
+                                        's3:DeleteObject',
+                                        's3:ListBucket'
+                                    ],
+                                    'Resource' => [
+                                        "arn:aws:s3:::$bucket",
+                                        "arn:aws:s3:::$bucket/*"
+                                    ]
+                                ]
+                            ]
+                        ])
+                    ]);
+                    error_log("Updated policy for existing bucket: $bucket");
+                } catch (Exception $e) {
+                    error_log("Failed to update policy for bucket $bucket: " . $e->getMessage());
+                }
+            }
+        }
+        
+        return true;
+    } catch (Exception $e) {
+        error_log("Error ensuring MinIO buckets: " . $e->getMessage());
+        throw new Exception("Storage setup error: " . $e->getMessage());
+    }
+}
+
+function uploadSong($title, $artist, $album, $genre, $file, $cover_art = null) {
+    global $pdo, $minioConfig;
+    
+    // Debug log
+    error_log("Starting upload process for: $title by $artist");
+    
+    // Initialize result array
+    $result = [
+        'success' => false,
+        'message' => 'Unknown error occurred'
+    ];
+    
+    // Check file error
+    if (!isset($file) || !is_array($file) || $file["error"] !== 0) {
+        $errorMsg = "File upload error code: " . ($file["error"] ?? 'No file');
+        error_log($errorMsg);
+        $result['message'] = $errorMsg;
+        return $result;
+    }
+    
+    // Validate database connection
+    if (!$pdo) {
+        $errorMsg = "Database connection not established";
+        error_log($errorMsg);
+        $result['message'] = $errorMsg;
+        return $result;
+    }
+    
+    // Get bucket names from config
+    $songs_bucket = $minioConfig['buckets']['songs'] ?? 'music-songs';
+    $covers_bucket = $minioConfig['buckets']['covers'] ?? 'music-covers';
+    
+    // Generate unique filenames for storage
+    $song_key = uniqid() . "_" . preg_replace('/[^a-zA-Z0-9._-]/', '', basename($file["name"]));
+    $cover_filename = null;
+    
+    try {
+        // Create a MinIO client
+        $s3 = getMinioClient();
+        
+        // Ensure buckets exist
         try {
-            $query = "INSERT INTO songs (title, artist, album, genre, file_path, cover_art, uploaded_by) 
-                     VALUES (:title, :artist, :album, :genre, :file_path, :cover_path, :uploaded_by)";
-            $stmt = $conn->prepare($query);
+            ensureMinIOBuckets();
+        } catch (Exception $e) {
+            $result['message'] = "Storage setup failed: " . $e->getMessage();
+            return $result;
+        }
+        
+        // Upload song file
+        error_log("Uploading song file: {$file['name']} to bucket $songs_bucket");
+        
+        try {
+            $result_song = $s3->putObject([
+                'Bucket' => $songs_bucket,
+                'Key' => $song_key,
+                'SourceFile' => $file["tmp_name"],
+                'ContentType' => $file["type"],
+                'ACL' => 'public-read'
+            ]);
+            
+            // Store the full URL instead of just the filename
+            $song_filename = getMinIOObjectUrl($songs_bucket, $song_key);
+            error_log("Song uploaded successfully to MinIO: $song_filename");
+        } catch (Exception $e) {
+            $errorMsg = "Failed to upload song file to storage: " . $e->getMessage();
+            error_log($errorMsg);
+            $result['message'] = $errorMsg;
+            return $result;
+        }
+        
+        // Upload cover art if provided
+        if (is_array($cover_art) && $cover_art["error"] === 0) {
+            $cover_key = uniqid() . "_" . preg_replace('/[^a-zA-Z0-9._-]/', '', basename($cover_art["name"]));
+            
+            error_log("Uploading cover art: {$cover_art['name']} to bucket $covers_bucket");
+            
+            try {
+                $result_cover = $s3->putObject([
+                    'Bucket' => $covers_bucket,
+                    'Key' => $cover_key,
+                    'SourceFile' => $cover_art["tmp_name"],
+                    'ContentType' => $cover_art["type"],
+                    'ACL' => 'public-read'
+                ]);
+                
+                // Store the full URL instead of just the filename
+                $cover_filename = getMinIOObjectUrl($covers_bucket, $cover_key);
+                error_log("Cover art uploaded successfully to MinIO: $cover_filename");
+            } catch (Exception $e) {
+                error_log("Warning: Failed to upload cover art to MinIO: " . $e->getMessage());
+                $cover_filename = null;
+            }
+        }
+        
+        // Store in database
+        error_log("Storing song information in database");
+        
+        try {
+            $stmt = $pdo->prepare("INSERT INTO songs (title, artist, album, genre, file_path, cover_art, uploaded_by) 
+                     VALUES (:title, :artist, :album, :genre, :file_path, :cover_path, :uploaded_by)");
+                     
             $stmt->execute([
                 ':title' => $title,
                 ':artist' => $artist,
                 ':album' => $album,
                 ':genre' => $genre,
-                ':file_path' => $song_path,
-                ':cover_path' => $cover_path,
+                ':file_path' => $song_filename,
+                ':cover_path' => $cover_filename ? $cover_filename : '/defaults/default-cover.jpg',
                 ':uploaded_by' => $_SESSION['user_id'] ?? 0
             ]);
-            return true;
+            
+            error_log("Song database entry created successfully: $title by $artist");
+            $result['success'] = true;
+            $result['message'] = "Song uploaded successfully!";
+            return $result;
         } catch (PDOException $e) {
-            error_log("Database error: " . $e->getMessage());
-            return false;
+            $errorMsg = "Database error while storing song: " . $e->getMessage();
+            error_log($errorMsg);
+            $result['message'] = $errorMsg;
+            return $result;
         }
+    } catch (Exception $e) {
+        $errorMsg = "Upload error: " . $e->getMessage();
+        error_log($errorMsg . "\n" . $e->getTraceAsString());
+        $result['message'] = $errorMsg;
+        return $result;
+    }
+}
+
+
+function uploadToMinIO($bucket, $file) {
+    global $minioConfig;
+    
+    // Initialize result
+    $result = [
+        'success' => false,
+        'message' => 'Unknown error',
+        'path' => null,
+        'url' => null
+    ];
+    
+    if (!is_array($file) || $file['error'] !== 0) {
+        $result['message'] = "Invalid file data or file has error: " . ($file['error'] ?? 'unknown');
+        error_log($result['message']);
+        return $result;
     }
     
-    error_log("Failed to upload song file");
-    return false;
+    try {
+        // Create a MinIO client
+        $s3 = getMinioClient();
+        
+        // Get the proper bucket name from config
+        $bucketName = isset($minioConfig['buckets'][$bucket]) ? 
+                      $minioConfig['buckets'][$bucket] : 
+                      $bucket;
+        
+        // Ensure the bucket exists
+        ensureMinIOBuckets();
+        
+        // Generate a safe filename
+        $file_key = uniqid() . "_" . preg_replace('/[^a-zA-Z0-9._-]/', '', basename($file["name"]));
+        
+        // Upload the file
+        $s3Result = $s3->putObject([
+            'Bucket' => $bucketName,
+            'Key' => $file_key,
+            'SourceFile' => $file["tmp_name"],
+            'ContentType' => $file["type"],
+            'ACL' => 'public-read'
+        ]);
+        
+        // Generate the full URL
+        $full_url = getMinIOObjectUrl($bucketName, $file_key);
+        
+        // Return success with file data - store full URL in path
+        $result['success'] = true;
+        $result['message'] = 'File uploaded successfully';
+        $result['path'] = $full_url;
+        $result['url'] = $full_url;  // Keep for backward compatibility
+        return $result;
+    } catch (Exception $e) {
+        $result['message'] = "Error uploading to MinIO: " . $e->getMessage();
+        error_log($result['message']);
+        return $result;
+    }
 }
 
 function getAllSongs() {
-    global $conn;
+    global $pdo, $minioConfig;
     
-    try {
-        $query = "SELECT * FROM songs ORDER BY upload_date DESC";
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Database error: " . $e->getMessage());
+    if (!$pdo) {
+        error_log("Database connection not established in getAllSongs()");
         return [];
     }
-}
-
-function searchArtists($search) {
-    global $conn;
+    
     try {
-        $search = "%$search%";
-        $stmt = $conn->prepare("SELECT DISTINCT artist FROM songs WHERE artist LIKE :search");
-        $stmt->bindValue(':search', $search, PDO::PARAM_STR);
+        $stmt = $pdo->prepare("SELECT * FROM songs ORDER BY upload_date DESC");
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Database error: " . $e->getMessage());
-        return [];
-    }
-}
-
-function getArtistSongs($artist) {
-    global $conn;
-    try {
-        $stmt = $conn->prepare("SELECT * FROM songs WHERE artist = :artist");
-        $stmt->bindValue(':artist', $artist, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Database error: " . $e->getMessage());
-        return [];
-    }
-}
-
-function getArtistProfilePicture($artist) {
-    global $conn;
-    
-    $artistProfileDir = 'uploads/artist_profiles/';
-    if (!file_exists($artistProfileDir)) {
-        mkdir($artistProfileDir, 0777, true);
-    }
-    
-    $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-    foreach ($validExtensions as $ext) {
-        $artistProfilePath = $artistProfileDir . sanitizeFilename($artist) . '.' . $ext;
-        if (file_exists($artistProfilePath)) {
-            return $artistProfilePath;
-        }
-    }
-    
-    try {
-        $stmt = $conn->prepare("SELECT profile_picture FROM users WHERE username = :username");
-        $stmt->execute(['username' => $artist]);
+        $songs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $profile_picture = $row['profile_picture'];
-            if ($profile_picture && file_exists("uploads/profiles/$profile_picture")) {
-                return "uploads/profiles/$profile_picture";
-            }
+        // Add URLs for song files and cover art
+        foreach ($songs as &$song) {
+            $song['song_url'] = getMinIOObjectUrl(
+                $minioConfig['buckets']['songs'] ?? 'music-songs', 
+                $song['file_path']
+            );
+            
+            $song['cover_url'] = getMinIOObjectUrl(
+                $minioConfig['buckets']['covers'] ?? 'music-covers', 
+                $song['cover_art']
+            );
         }
         
-        return 'defaults/default-profile.jpg';
-        
+        return $songs;
     } catch (PDOException $e) {
-        error_log("Error fetching profile picture: " . $e->getMessage());
-        return 'defaults/default-profile.jpg';
+        error_log("Database error in getAllSongs(): " . $e->getMessage());
+        return [];
     }
-}
-
-function sanitizeFilename($filename) {
-    if (empty($filename)) {
-        return false;
-    }
-    $filename = preg_replace('/[^a-zA-Z0-9-_]/', '', $filename);
-    $filename = strtolower($filename);
-    return strlen($filename) > 0 ? $filename : false;
 }

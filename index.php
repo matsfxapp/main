@@ -1,10 +1,10 @@
 <?php
-require_once 'config/config.php';
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/config/config.php';
 require_once 'config/auth.php';
 require_once 'music_handlers.php';
 require_once 'handlers/search_handler.php';
 
-// Group songs by artist and count
 $songsByArtist = [];
 $songs = getAllSongs();
 foreach ($songs as $song) {
@@ -15,16 +15,11 @@ foreach ($songs as $song) {
     $songsByArtist[$artist][] = $song;
 }
 
-// sort artists by number of songs
 $artistSongCounts = array_map('count', $songsByArtist);
 arsort($artistSongCounts);
 
-// get top 2 artists
 $topArtists = array_slice(array_keys($artistSongCounts), 0, 2);
 
-// get new users by creation date 
-// only add users who have uploaded songs
-// they will be ordered by creation date
 $newUsersQuery = "
     SELECT DISTINCT u.username, u.created_at, u.profile_picture, COUNT(s.song_id) as song_count 
     FROM users u 
@@ -32,10 +27,9 @@ $newUsersQuery = "
     GROUP BY u.username, u.created_at, u.profile_picture 
     ORDER BY u.created_at DESC 
     LIMIT 5";
-$newUsersResult = $conn->query($newUsersQuery);
+$newUsersResult = $pdo->query($newUsersQuery);
 $newUsers = $newUsersResult->fetchAll(PDO::FETCH_ASSOC);
 
-// remaining songs
 $remainingSongs = [];
 foreach ($songs as $song) {
     if (!in_array($song['artist'], $topArtists)) {
@@ -64,145 +58,14 @@ foreach ($songs as $song) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/index-artistsection.css">
-    <link rel="stylesheet" href="css/share-button.css">
     <link rel="stylesheet" href="css/navbar.css">
     <script src="js/share-button.js"></script>
-    <script>
-        window.addEventListener('scroll', function() {
-            const banner = document.querySelector('.sticky-banner');
-            if (window.pageYOffset > -1) {
-                banner.style.display = 'block';
-            } else {
-                banner.style.display = 'none';
-            }
-        });
-
-        function closeStickyBanner() {
-            const banner = document.getElementById('stickyBanner');
-            banner.classList.add('banner-hidden');
-        }
-    </script>
-    <style>
-        .sticky-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000; 
-        }
-
-        :root {
-            --error-background: rgba(255, 71, 87, 0.6);
-            --error-backdrop-filter: blur(15px);
-            --error-border: rgba(255, 255, 255, 0.2);
-            --error-text-primary: #FFFFFF;
-            --error-text-secondary: rgba(255, 255, 255, 0.85);
-        }
-
-        .matsfx-error-notice {
-            position: relative;
-            background-color: var(--error-background);
-            backdrop-filter: var(--error-backdrop-filter);
-            -webkit-backdrop-filter: var(--error-backdrop-filter);
-            color: var(--error-text-primary);
-            text-align: center;
-            left: 30%;
-            padding: 2.5rem;
-            border-radius: 0px 0px 20px 20px;
-            border: 1px solid var(--error-border);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
-            max-width: 600px;
-            width: 90%;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .matsfx-error-notice:hover {
-            transform: scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .matsfx-error-heading {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--error-text-primary);
-            margin-bottom: 1rem;
-            letter-spacing: -1px;
-            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .matsfx-error-text {
-            font-size: 1.25rem;
-            color: var(--error-text-secondary);
-            line-height: 1.6;
-            max-width: 500px;
-            margin: 0 auto 2rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .close-banner {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: var(--error-text-primary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            background: none;
-            border: none;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-        }
-
-        .close-banner:hover {
-            opacity: 1;
-        }
-
-        .banner-hidden {
-            display: none !important;
-        }
-
-        @media (max-width: 768px) {
-            .container, .artist-songs {
-                padding-bottom: 50%;
-                min-height: 200px;
-            }
-
-            .matsfx-error-notice {
-                position: absolute;
-                left: 0%;
-                top: -15px;
-                padding: 1.5rem;
-                margin: 1rem;
-                width: calc(100% - 2rem);
-            }
-
-            .matsfx-error-heading {
-                font-size: 1.35rem;
-            }
-
-            .matsfx-error-text {
-                font-size: 0.90rem;
-            }
-        }
-    </style>
-
     <?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
     <?php
     require_once 'includes/header.php';
     ?>
-   <!--
-    <div class="sticky-banner" id="stickyBanner">
-        <div class="matsfx-error-notice">
-            <button class="close-banner" onclick="closeStickyBanner()" aria-label="Close Banner">
-                &#10005;
-            </button>
-            <div class="matsfx-error-heading">Important Notice</div>
-            <div class="matsfx-error-text">We're aware of the current issue that you can't update your profile picture or upload songs. We're currently working to fix this issue.</div>
-        </div>
-    </div>  -->
 
     <div class="container">
         <!-- Top Artists Sections -->
@@ -275,7 +138,7 @@ foreach ($songs as $song) {
                 padding: 1rem 0.5rem;
                 -webkit-overflow-scrolling: touch;
             }
-		
+
             .new-users-grid::-webkit-scrollbar {
                 height: 8px;
             }
