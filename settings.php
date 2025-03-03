@@ -39,11 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (isset($_POST['update_song'])) {
-        $result = updateSongDetails($user_id, $_POST['song_id'], [
+        $details = [
             'title' => $_POST['title'],
             'album' => $_POST['album'],
             'genre' => $_POST['genre'],
-        ]);
+        ];
+        
+        $result = updateSongDetails($user_id, $_POST['song_id'], $details);
         $message = $result['success'] ? "Song details updated successfully!" : "Error: " . $result['error'];
         if ($result['success']) {
             $userSongs = getUserSongs($user_id);
@@ -65,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <title>User Settings - matSFX</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 	<style>
@@ -275,25 +278,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         
                         <div id="edit-form-<?php echo $song['song_id']; ?>" class="edit-form" style="display: none;">
-                            <form method="POST" class="song-edit-form">
+                            <form method="POST" class="song-edit-form" enctype="multipart/form-data">
                                 <input type="hidden" name="song_id" value="<?php echo $song['song_id']; ?>">
                                 
                                 <div class="form-group">
                                     <label for="title-<?php echo $song['song_id']; ?>">Title</label>
                                     <input type="text" id="title-<?php echo $song['song_id']; ?>" 
-                                           name="title" value="<?php echo htmlspecialchars($song['title']); ?>" required>
+                                        name="title" value="<?php echo htmlspecialchars($song['title']); ?>" required>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="album-<?php echo $song['song_id']; ?>">Album</label>
                                     <input type="text" id="album-<?php echo $song['song_id']; ?>" 
-                                           name="album" value="<?php echo htmlspecialchars($song['album']); ?>">
+                                        name="album" value="<?php echo htmlspecialchars($song['album']); ?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="genre-<?php echo $song['song_id']; ?>">Genre</label>
                                     <input type="text" id="genre-<?php echo $song['song_id']; ?>" 
-                                           name="genre" value="<?php echo htmlspecialchars($song['genre']); ?>">
+                                        name="genre" value="<?php echo htmlspecialchars($song['genre']); ?>">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="song_cover-<?php echo $song['song_id']; ?>">Cover Art</label>
+                                    <input type="file" id="song_cover-<?php echo $song['song_id']; ?>" 
+                                        name="song_cover" accept="image/*">
+                                    <div class="current-cover">
+                                        <img src="<?php echo htmlspecialchars($song['cover_url'] ?? '/defaults/default-cover.jpg'); ?>" 
+                                            alt="Cover Art" style="max-width: 100px; margin-top: 10px;">
+                                        <small>Current cover</small>
+                                    </div>
                                 </div>
                                 
                                 <button type="submit" name="update_song" class="button">Save Changes</button>

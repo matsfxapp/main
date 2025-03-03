@@ -263,9 +263,8 @@ function deleteSong($user_id, $song_id) {
 }
 
 function updateSongDetails($user_id, $song_id, $details) {
-    global $conn;
-    
-    // Prepare the update query with new fields
+    global $pdo;
+
     $updateFields = [];
     $params = [
         ':song_id' => $song_id,
@@ -289,29 +288,28 @@ function updateSongDetails($user_id, $song_id, $details) {
         $params[':visibility'] = $details['visibility'];
     }
     
-    // Handle song cover upload to MinIO
     if (isset($_FILES['song_cover']) && $_FILES['song_cover']['error'] == 0) {
         ensureMinIOBuckets();
-        $coverUpload = uploadToMinIO('covers', $_FILES['song_cover']);
+        $coverUpload = uploadToMinIO('music-covers', $_FILES['song_cover']);
         
-        if ($coverUpload) {
+        if ($coverUpload && $coverUpload['success']) {
             $updateFields[] = 'cover_art = :cover_art';
             $params[':cover_art'] = $coverUpload['path'];
+            
+            $updateFields[] = 'cover_url = :cover_url';
+            $params[':cover_url'] = getMinIOObjectUrl('music-covers', $coverUpload['path']);
         }
     }
-    
-    // If no updates, return
+
     if (empty($updateFields)) {
         return ['success' => false, 'error' => 'No updates provided'];
     }
-    
-    // Construct the query
+
     $query = "UPDATE songs SET " . implode(', ', $updateFields) . 
              " WHERE song_id = :song_id AND uploaded_by = :user_id";
     
     try {
-        // Prepare and execute the statement
-        $stmt = $conn->prepare($query);
+        $stmt = $pdo->prepare($query);
         $stmt->execute($params);
         return ['success' => true];
     } catch (PDOException $e) {
