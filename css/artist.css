@@ -1,3 +1,90 @@
+.popular-container {
+    margin-bottom: 40px;
+    max-width: 1150px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.popular-container:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.popular-songs {
+    margin-top: 15px;
+}
+
+.popular-song-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    margin-bottom: 8px;
+    background-color: rgba(31, 41, 55, 0.5);
+    position: relative;
+}
+
+.popular-song-row:hover {
+    background-color: var(--card-hover);
+    transform: translateX(5px);
+}
+
+.song-image {
+    margin-right: 15px;
+    position: relative;
+}
+
+.popular-song-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.song-row-metrics {
+    display: flex;
+    align-items: center;
+    font-size: 0.8em;
+    color: var(--gray-text);
+    margin-top: 3px;
+}
+
+.popular-song-row .song-number {
+    transition: all 0.2s ease;
+}
+
+.popular-song-row:hover .song-number {
+    opacity: 0;
+}
+
+.popular-song-row:hover .song-number:after {
+    content: '\f04b';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 15px;
+    opacity: 1;
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .popular-container {
+        max-width: 90%;
+    }
+    
+    .popular-song-image {
+        width: 35px;
+        height: 35px;
+    }
+}
+
 .albums-container {
     margin-bottom: 40px;
     height: 115%;
@@ -13,6 +100,7 @@
     padding: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     min-height: 115%;
+    border: 1px solid var(--border-color);
 }
 
 .album-section:hover {
@@ -163,50 +251,61 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
-    min-height: 115%;
 }
 
 .song-card {
     background-color: var(--card-bg);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
+    border: 1px solid var(--border-color);
+    min-width: 220px;
+    width: 0%;
+    height: 100%;
+    margin-bottom: 1.5rem; 
 }
 
 .song-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
+    background-color: var(--card-hover);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
 }
 
 .song-card-image {
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
 }
 
-.song-card-info {
-    padding: 15px;
+.song-card:hover .song-card-image {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
 }
 
 .song-card-title {
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 0.5rem;
     color: var(--light-text);
+    font-size: 1.125rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .song-card-artist {
-    font-size: 0.8em;
     color: var(--gray-text);
-}
-
-.song-card-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
+    font-size: 0.925rem;
+    margin-bottom: 1.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .content-wrapper {
@@ -214,7 +313,6 @@
     margin: 0 auto;
     width: 100%;
 }
-
 
 .artist-profile {
     max-width: 1150px;

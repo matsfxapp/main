@@ -142,6 +142,32 @@ function getFollowerCount($userId) {
     }
 }
 
+function getArtistMostPopularSongs($artistName, $limit = 5) {
+    global $pdo;
+    try {
+        // Get most liked songs from this artist
+        $stmt = $pdo->prepare("
+            SELECT s.*, COUNT(l.song_id) as like_count 
+            FROM songs s
+            LEFT JOIN likes l ON s.song_id = l.song_id
+            WHERE s.artist = :artist
+            GROUP BY s.song_id
+            ORDER BY like_count DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':artist', $artistName, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database error in getArtistMostPopularSongs: " . $e->getMessage());
+        return [];
+    }
+}
+
+// Get the most popular songs for the current artist
+$popularSongs = getArtistMostPopularSongs($artist);
+
 function getArtistSongs($artistName) {
     global $pdo;
     try {
@@ -546,6 +572,37 @@ if (!$artistData) {
 	        </div>
 	    </div>
 	</div>
+
+	<?php if (!empty($popularSongs)): ?>
+	<div class="popular-container">
+		<h2 class="section-title">Popular</h2>
+		<div class="popular-songs">
+			<?php foreach ($popularSongs as $index => $song): ?>
+				<div class="song-row popular-song-row" 
+					onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
+					data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
+					data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
+					data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
+					<div class="song-number"><?php echo $index + 1; ?></div>
+					<div class="song-image">
+						<img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
+							alt="Song Cover" class="popular-song-image">
+					</div>
+					<div class="song-info">
+						<div class="song-row-title"><?php echo htmlspecialchars($song['title']); ?></div>
+					</div>
+					<div class="song-action-buttons">
+						<?php 
+						$songId = $song['song_id'];
+						require 'includes/like_button.php';
+						require 'includes/share_button.php';
+						?>
+					</div>
+				</div>
+			<?php endforeach; ?>
+		</div>
+	</div>
+	<?php endif; ?>
         
 	<?php
 		if (empty($songsData['all_songs'])): ?>
@@ -655,7 +712,7 @@ if (!$artistData) {
 		<?php endif; ?>
 	</div>
 	<div class="player-spacer"></div>
-	<?php require_once 'includes/player_artist.php'; ?>
+	<?php require_once 'includes/player.php'; ?>
 	
 	<script src="js/index.js"></script>
 	<script>
