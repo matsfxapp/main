@@ -304,7 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <input type="file" id="song_cover-<?php echo $song['song_id']; ?>" 
                                         name="song_cover" accept="image/*">
                                     <div class="current-cover">
-                                        <img src="<?php echo htmlspecialchars($song['cover_url'] ?? '/defaults/default-cover.jpg'); ?>" 
+                                        <img src="<?php echo htmlspecialchars($song['cover_art'] ?? '/defaults/default-cover.jpg'); ?>" 
                                             alt="Cover Art" style="max-width: 100px; margin-top: 10px;">
                                         <small>Current cover</small>
                                     </div>
