@@ -1,35 +1,26 @@
 <?php
-// Make sure session is started
-session_start();
-
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../user_handlers.php';
 
-// Debug session - comment these out once it's working
-// echo '<pre style="display:none;">';
-// var_dump($_SESSION);
-// echo '</pre>';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Initialize user array
 $user = [];
 
-// Check if user is logged in
 if (isset($_SESSION['user_id'])) {
-    // Get user data
     $user = getUserData($_SESSION['user_id']);
     
-    // If getUserData failed to return proper data
     if (empty($user) || !isset($user['username'])) {
-        // Log the error for debugging
         error_log("Failed to get data for user ID: " . $_SESSION['user_id']);
         
         // Clear the session if user data cannot be retrieved
         // This prevents an endless loop of failed retrievals
-        // $_SESSION = array(); // Uncomment to clear session if needed
+        $_SESSION = array();
     }
 }
 ?>
-<link rel="stylesheet" href="/includes/css/header.css"> 
+<link rel="stylesheet" href="/includes/css/header.css?v=<?php echo time(); ?>">
 	<header class="global-header">
         <div class="header-container">
             <!-- Logo -->
@@ -92,16 +83,16 @@ if (isset($_SESSION['user_id'])) {
 
 					<div class="dropdown-footer">
 						<div class="social-links">
-							<a href="https://discord.gg/YjvgAGU2ys" target="_blank" title="Discord">
+							<a href="https://discord.matsfx.com" target="_blank" title="Discord">
 								<img src="/includes/images/discord.png" alt="Discord">
 							</a>
-							<a href="https://youtube.com/@matsfxmusic" target="_blank" title="YouTube">
+							<a href="https://youtube.matsfx.com" target="_blank" title="YouTube">
 								<img src="/includes/images/youtube.png" alt="YouTube">
 							</a>
 							<a href="https://twitter.com/@matsfxmusic" target="_blank" title="Twitter">
 								<img src="/includes/images/twitter.png" alt="Twitter">
 							</a>
-							<a href="https://tiktok.com/@matsfxmusic" target="_blank" title="TikTok">
+							<a href="https://tiktok.matsfx.com" target="_blank" title="TikTok">
 								<img src="/includes/images/tiktok.png" target="_blank" alt="TikTok">
 							</a>
 						</div>
@@ -146,6 +137,15 @@ if (isset($_SESSION['user_id'])) {
                 searchInput.placeholder = placeholderContent;
             }
         }
+
+		function refreshDropdown() {
+			// Use AJAX to fetch the latest header content
+			fetch('/get_header_content.php')
+				.then(response => response.text())
+				.then(data => {
+					document.getElementById('profileDropdown').innerHTML = data;
+				});
+		}
 
         // Call setPlaceholder on load and on resize
         window.addEventListener('load', setPlaceholder);

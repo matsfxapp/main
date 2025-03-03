@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/config/config.php';
 require_once 'config/auth.php';
-require_once 'music_handlers.php';
 require_once 'handlers/search_handler.php';
+require_once 'music_handlers.php';
+require_once 'user_handlers.php';
+require_once 'config/config.php';
 
 $songsByArtist = [];
 $songs = getAllSongs();

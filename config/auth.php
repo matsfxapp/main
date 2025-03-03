@@ -147,6 +147,13 @@ function clearRememberMeToken() {
 
 // Logout user
 function logoutUser() {
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
     try {
         clearRememberMeToken();
     } catch (PDOException $e) {
@@ -159,7 +166,6 @@ function logoutUser() {
     header("Location: /");
     exit();
 }
-
 function checkBruteForce($attempts, $last_attempt_time) {
     if ($attempts >= 5) {
         $lockout_time = strtotime($last_attempt_time) + 15 * 60;
