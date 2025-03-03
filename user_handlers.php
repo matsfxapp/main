@@ -296,8 +296,8 @@ function updateSongDetails($user_id, $song_id, $details) {
             $updateFields[] = 'cover_art = :cover_art';
             $params[':cover_art'] = $coverUpload['path'];
             
-            $updateFields[] = 'cover_url = :cover_url';
-            $params[':cover_url'] = getMinIOObjectUrl('music-covers', $coverUpload['path']);
+            $updateFields[] = 'cover_art = :cover_art';
+            $params[':cover_art'] = getMinIOObjectUrl('music-covers', $coverUpload['path']);
         }
     }
 
