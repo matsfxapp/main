@@ -11,17 +11,17 @@ function sendEmail($to, $subject, $body, $reset_link = '') {
     try {
         // Server settings
         $mail->isSMTP();
-        $mail->Host       = $_ENV['SMTP_HOST'];
+        $mail->Host       = $_SERVER['SMTP_HOST'];
         $mail->SMTPAuth   = true;
-        $mail->Username   = $_ENV['SMTP_USERNAME'];
-        $mail->Password   = $_ENV['SMTP_PASSWORD'];
+        $mail->Username   = $_SERVER['SMTP_USERNAME'];
+        $mail->Password   = $_SERVER['SMTP_PASSWORD'];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = $_ENV['SMTP_PORT'];
+        $mail->Port       = $_SERVER['SMTP_PORT'];
 
         // Recipients
-        $mail->setFrom($_ENV['SMTP_FROM_EMAIL'], $_ENV['SMTP_FROM_NAME2']);
+        $mail->setFrom($_SERVER['SMTP_FROM_EMAIL'], $_SERVER['SMTP_FROM_NAME2']);
         $mail->addAddress($to);
-        $mail->addReplyTo($_ENV['SMTP_FROM_EMAIL'], $_ENV['SMTP_FROM_NAME2']);
+        $mail->addReplyTo($_SERVER['SMTP_FROM_EMAIL'], $_SERVER['SMTP_FROM_NAME2']);
 
         // Content
         $mail->isHTML(true);
@@ -105,7 +105,7 @@ function sendEmail($to, $subject, $body, $reset_link = '') {
         <body>
             <div class="email-wrapper">
                 <div class="header">
-                    <img src="'.$_ENV['APP_URL'].'/assets/images/logo.png" alt="matSFX Logo">
+                    <img src="'.$_SERVER['APP_URL'].'/assets/images/logo.png" alt="matSFX Logo">
                 </div>
                 <div class="content">
                     <h1>Password Reset Request</h1>

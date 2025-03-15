@@ -53,11 +53,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
             
             if (in_array($ext, $allowed)) {
-                $new_filename = uniqid() . '.' . $ext;
-                $upload_path = 'uploads/profiles/' . $new_filename;
+                require_once 'music_handlers.php';
                 
-                if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $upload_path)) {
-                    $profile_picture = $upload_path;
+                $upload_result = uploadToMinIO('profiles', $_FILES['profile_picture']);
+                
+                if ($upload_result['success']) {
+                    $profile_picture = $upload_result['path'];
+                } else {
+                    error_log("Failed to upload profile picture to MinIO: " . $upload_result['message']);
                 }
             }
         }
@@ -86,15 +89,15 @@ function sendVerificationEmail($email, $code) {
 	$mail = new PHPMailer(true);
 	try {
 		$mail->isSMTP();
-        $mail->Host = getenv('SMTP_HOST');
+        $mail->Host = $_SERVER['SMTP_HOST'];
         $mail->SMTPAuth = true;
-        $mail->Username = getenv('SMTP_USERNAME');
-        $mail->Password = getenv('SMTP_PASSWORD');
+        $mail->Username = $_SERVER['SMTP_USERNAME'];
+        $mail->Password = $_SERVER['SMTP_PASSWORD'];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = getenv('SMTP_PORT');
-        $mail->setFrom(getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME'));
+        $mail->Port = $_SERVER['SMTP_PORT'];
+        $mail->setFrom($_SERVER['SMTP_FROM_EMAIL'], $_SERVER['SMTP_FROM_NAME']);
         $mail->addAddress($email);
-        $verifyLink = getenv('APP_URL') . "/verify?code=$code";
+        $verifyLink = $_SERVER['APP_URL'] . "/verify?code=$code";
 
         $mail->isHTML(true);
         $mail->Subject = 'Welcome to matSFX!';
@@ -173,7 +176,7 @@ function sendVerificationEmail($email, $code) {
         <body>
             <div class="email-wrapper">
                 <div class="header">
-                    <img src="'.getenv('APP_URL').'/app_logos/matsfx_logo.png" alt="matSFX Logo">
+                    <img src="'.$_SERVER['APP_URL'].'/app_logos/matsfx_logo.png" alt="matSFX Logo">
                 </div>
                 <div class="content">
                     <h1>Welcome to matSFX!</h1>
