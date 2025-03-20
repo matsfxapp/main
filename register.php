@@ -86,18 +86,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 function sendVerificationEmail($email, $code) {
-	$mail = new PHPMailer(true);
-	try {
-		$mail->isSMTP();
-        $mail->Host = $_SERVER['SMTP_HOST'];
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = getenv('SMTP_HOST');
         $mail->SMTPAuth = true;
-        $mail->Username = $_SERVER['SMTP_USERNAME'];
-        $mail->Password = $_SERVER['SMTP_PASSWORD'];
+        $mail->Username = getenv('SMTP_USERNAME');
+        $mail->Password = getenv('SMTP_PASSWORD');
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = $_SERVER['SMTP_PORT'];
-        $mail->setFrom($_SERVER['SMTP_FROM_EMAIL'], $_SERVER['SMTP_FROM_NAME']);
+        $mail->Port = getenv('SMTP_PORT');
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME'));
         $mail->addAddress($email);
-        $verifyLink = $_SERVER['APP_URL'] . "/verify?code=$code";
+        $verifyLink = getenv('APP_URL') . "/verify?code=$code";
 
         $mail->isHTML(true);
         $mail->Subject = 'Welcome to matSFX!';
@@ -197,7 +197,7 @@ function sendVerificationEmail($email, $code) {
         $mail->send();
         return true;
     } catch (Exception $e) {
-        error_log(message: "PHPMailer Error: {$mail->ErrorInfo}");
+        error_log("PHPMailer Error: {$mail->ErrorInfo}");
         return false;
     }
 }
