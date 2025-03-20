@@ -176,7 +176,7 @@ function sendVerificationEmail($email, $code) {
         <body>
             <div class="email-wrapper">
                 <div class="header">
-                    <img src="'.$_SERVER['APP_URL'].'/app_logos/matsfx_logo.png" alt="matSFX Logo">
+                    <img src="alpha.matsfx.com/app_logos/matsfx_logo.png" alt="matSFX Logo">
                 </div>
                 <div class="content">
                     <h1>Welcome to matSFX!</h1>
