@@ -7,21 +7,19 @@ require_once 'config/config.php';
 
 function sendEmail($to, $subject, $body, $reset_link = '') {
     $mail = new PHPMailer(true);
-
     try {
-        // Server settings
         $mail->isSMTP();
-        $mail->Host       = $_SERVER['SMTP_HOST'];
-        $mail->SMTPAuth   = true;
-        $mail->Username   = $_SERVER['SMTP_USERNAME'];
-        $mail->Password   = $_SERVER['SMTP_PASSWORD'];
+        $mail->Host = getenv('SMTP_HOST');
+        $mail->SMTPAuth = true;
+        $mail->Username = getenv('SMTP_USERNAME');
+        $mail->Password = getenv('SMTP_PASSWORD');
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = $_SERVER['SMTP_PORT'];
+        $mail->Port = getenv('SMTP_PORT');
 
         // Recipients
-        $mail->setFrom($_SERVER['SMTP_FROM_EMAIL'], $_SERVER['SMTP_FROM_NAME2']);
+        $mail->setFrom = getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME2');
         $mail->addAddress($to);
-        $mail->addReplyTo($_SERVER['SMTP_FROM_EMAIL'], $_SERVER['SMTP_FROM_NAME2']);
+        $mail->addReplyTo = getenv('SMTP_FROM_EMAIL'], getenv('SMTP_FROM_NAME2');
 
         // Content
         $mail->isHTML(true);
