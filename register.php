@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $profile_picture
         ])) {
             if (sendVerificationEmail($registration_data['email'], $registration_data['verification_code'])) {
-                $success = "Registration successful! Check your email for verification.";
+                $success = "Registration successful! Check your inbox and spam folders, for the verification link.";
                 unset($_SESSION['registration_data']);
             } else {
                 $error = "Registration successful, but failed to send verification email.";
