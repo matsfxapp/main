@@ -1,0 +1,110 @@
+
+/* Artist Profile */
+.artist-profile {
+    max-width: 1400px;
+    max-height: 3000px;
+    margin: 0 auto;
+    padding: 2rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.profile-header {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+	margin-top: 6rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.profile-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.profile-image {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-color);
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition);
+}
+
+.profile-image:hover {
+    transform: scale(1.05);
+    border-color: var(--accent-color);
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--light-text), var(--primary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 2rem;
+    color: var(--gray-text);
+    font-size: 1.125rem;
+}
+
+.songs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
+
+.songs-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--light-text);
+}
+
+/* Artist Error */
+/* Main Heading */
+.error-user-heading {
+    font-size: 48px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 16px;
+}
+
+/* Error Message */
+.error-user-text {
+    font-size: 20px;
+    color: var(--gray-text);
+    margin-bottom: 32px;
+}
+
+/* Back to Home Button */
+.error-user-button {
+    display: inline-block;
+    text-decoration: none;
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--light-text);
+    background-color: var(--primary-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.error-user-button:hover {
+    background-color: var(--primary-hover);
+    box-shadow: var(--shadow-md);
+}

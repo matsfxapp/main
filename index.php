@@ -37,6 +37,43 @@ foreach ($songs as $song) {
         $remainingSongs[] = $song;
     }
 }
+
+if (isLoggedIn()) {
+    $userId = $_SESSION['user_id'];
+    $recentlyPlayed = getUserPlayHistory($userId, 5);
+    
+    if (!empty($recentlyPlayed)) {
+    }
+}
+
+/**
+ * Convert datetime to "time ago" format
+ * 
+ * @param string $datetime The datetime to convert
+ * @return string Formatted time string
+ */
+function getTimeAgo($datetime) {
+    $time = strtotime($datetime);
+    $now = time();
+    $diff = $now - $time;
+    
+    if ($diff < 60) {
+        return "Just now";
+    } elseif ($diff < 3600) {
+        $mins = floor($diff / 60);
+        return $mins . " min" . ($mins > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 86400) {
+        $hours = floor($diff / 3600);
+        return $hours . " hour" . ($hours > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 604800) {
+        $days = floor($diff / 86400);
+        return $days . " day" . ($days > 1 ? "s" : "") . " ago";
+    } else {
+        return date("M j", $time);
+    }
+}
+
+$popularSongs = getMostPlayedSongs(5);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,9 +102,14 @@ foreach ($songs as $song) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/index-artistsection.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/share-button.css">
+
+    <link rel="stylesheet" href="css/index/artistSection.css">
+    <link rel="stylesheet" href="css/index/newArtists.css">
+    <link rel="stylesheet" href="css/index/popularSongs.css">
+    <link rel="stylesheet" href="css/index/recentlyPlayed.css">
+
     <script src="js/share-button.js"></script>
     <?php outputChristmasThemeCSS(); ?>
 </head>
@@ -75,42 +117,114 @@ foreach ($songs as $song) {
     <?php
     require_once 'includes/header.php';
     ?>
-
+    <div class="header-spacer"></div>
     <div class="container">
-        <!-- Top Artists Sections -->
-        <?php foreach ($topArtists as $artist): ?>
-            <div class="artist-section" style="margin-top: 6rem;">
-                <div class="artist-section-header">
-                    <h2 class="section-title">Songs from <?php echo htmlspecialchars($artist); ?></h2>
-                    <div class="navigation-buttons">
-                        <button class="navigation-button nav-prev">&larr;</button>
-                        <button class="navigation-button nav-next">&rarr;</button>
+        <!-- recently played -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Recently Played</h2>
+            </div>
+            
+            <div class="recently-played-grid">
+                <?php foreach ($recentlyPlayed as $song): ?>
+                    <div class="song-card recent-play" 
+                        onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
+                        data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
+                        data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
+                        data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
+                        <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                        <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
+                        <div class="song-artist">
+                            <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
+                                <?php echo htmlspecialchars($song['artist']); ?>
+                            </a>
+                        </div>
+                        <div class="play-time">
+                            <i class="far fa-clock"></i> 
+                            <?php echo getTimeAgo($song['play_date']); ?>
+                        </div>
+                        <?php
+                        require 'includes/like_button.php';
+                        require 'includes/share_button.php';
+                        ?>
                     </div>
-                </div>
-
-                <div class="artist-songs-container">
-                    <div class="music-grid-artist">
-                        <?php foreach ($songsByArtist[$artist] as $song): ?>
-                            <div class="song-card" 
-                                onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
-                                data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
-                                data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>">
-                                <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
-                                <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
-                                <div class="song-artist">
-                                    <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
-                                        <?php echo htmlspecialchars($song['artist']); ?>
-                                    </a>
-                                </div>
-                                <?php
-                                require 'includes/like_button.php';
-                                require 'includes/share_button.php';
-                                ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <!-- popular songs section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Popular Songs</h2>
+                <div class="section-filters">
+                    <button class="filter-btn active" data-period="all">All Time</button>
+                    <button class="filter-btn" data-period="month">This Month</button>
+                    <button class="filter-btn" data-period="week">This Week</button>
+                    <button class="filter-btn" data-period="day">Today</button>
                 </div>
             </div>
+            
+            <div class="popular-songs-grid" id="popularSongsGrid">
+                <?php foreach ($popularSongs as $song): ?>
+                    <div class="song-card" 
+                        onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
+                        data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
+                        data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
+                        data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
+                        <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                        <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
+                        <div class="song-artist">
+                            <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
+                                <?php echo htmlspecialchars($song['artist']); ?>
+                            </a>
+                        </div>
+                        <div class="song-stats">
+                            <span class="play-count">
+                                <i class="fas fa-play-circle"></i> <?php echo number_format($song['play_count']); ?>
+                            </span>
+                        </div>
+                        <?php
+                        require 'includes/like_button.php';
+                        require 'includes/share_button.php';
+                        ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Top Artists Sections -->
+        <?php foreach ($topArtists as $artist): ?>
+        <div class="artist-section" style="margin-top: 6rem;">
+            <div class="artist-section-header">
+                <h2 class="section-title">Songs from <?php echo htmlspecialchars($artist); ?></h2>
+                <div class="navigation-buttons">
+                    <button class="navigation-button nav-prev">&larr;</button>
+                    <button class="navigation-button nav-next">&rarr;</button>
+                </div>
+            </div>
+            <div class="artist-songs-container">
+                <div class="music-grid-artist">
+                    <?php foreach ($songsByArtist[$artist] as $song): ?>
+                    <div class="song-card"
+                        onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
+                        data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
+                        data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
+                        data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
+                        <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                        <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
+                        <div class="song-artist">
+                            <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
+                                <?php echo htmlspecialchars($song['artist']); ?>
+                            </a>
+                        </div>
+                        <?php
+                        require 'includes/like_button.php';
+                        require 'includes/share_button.php';
+                        ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
         <?php endforeach; ?>
 
         <!-- New Artists Section -->
@@ -132,129 +246,29 @@ foreach ($songs as $song) {
         </div>
 
         <style>
-            .new-users-section {
-                position: relative;
-                padding: 0 1rem;
-            }
-
-            .new-users-grid {
-                display: flex;
-                gap: 2rem;
-                margin-top: 2rem;
-                overflow-x: auto;
-                overflow-y: hidden;
-                scroll-snap-type: x mandatory;
-                scroll-behavior: smooth;
-                padding: 1rem 0.5rem;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .new-users-grid::-webkit-scrollbar {
-                height: 8px;
-            }
-
-            .new-users-grid::-webkit-scrollbar-track {
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 4px;
-            }
-
-            .new-users-grid::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.3);
-                border-radius: 4px;
-            }
-
-            .new-users-grid::-webkit-scrollbar-thumb:hover {
-                background: rgba(255, 255, 255, 0.4);
-            }
-
-            .user-card {
-                flex: 0 0 auto;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-decoration: none;
-                color: inherit;
-                transition: all 0.2s ease;
-                scroll-snap-align: start;
-                width: 120px;
-                opacity: 0.7;
-            }
-
-            .user-card:hover {
-                transform: translateY(-5px);
-                opacity: 1;
-            }
-
-            .user-profile-pic {
-                width: 120px;
-                height: 120px;
-                border-radius: 50%;
-                object-fit: cover;
-                margin-bottom: 1rem;
-                transition: transform 0.2s ease;
-            }
-
-            .user-info {
-                text-align: center;
-                width: 100%;
-            }
-
-            .username {
-                font-weight: 600;
-                margin-bottom: 0.5rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .join-date {
-                font-size: 0.9rem;
-                color: #666;
-            }
-
-            /* Mobile Styles */
-            @media (max-width: 768px) {
-                .new-users-grid {
-                    gap: 1rem;
-                    padding: 0.5rem;
-                }
-
-                .user-card {
-                    width: 80px;
-                }
-
-                .user-profile-pic {
-                    width: 80px;
-                    height: 80px;
-                }
-
-                .username {
-                    font-size: 0.9rem;
-                }
-
-                .join-date {
-                    font-size: 0.75rem;
-                }
-            }
         </style>
 
         <!-- Remaining Songs in Grid -->
         <h2 class="section-title">More Songs</h2>
         <div class="music-grid">
             <?php foreach ($remainingSongs as $song): ?>
-                <div class="song-card" onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)">
-                    <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
-                    <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
-                    <div class="song-artist">
-                        <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
-                            <?php echo htmlspecialchars($song['artist']); ?>
-                        </a>
-                    </div>
-                    <?php
-                    require 'includes/like_button.php';
-                    require 'includes/share_button.php';
-                    ?>
+            <div class="song-card" 
+                onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)"
+                data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
+                data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
+                data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
+                <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
+                <div class="song-artist">
+                    <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
+                        <?php echo htmlspecialchars($song['artist']); ?>
+                    </a>
                 </div>
+                <?php
+                require 'includes/like_button.php';
+                require 'includes/share_button.php';
+                ?>
+            </div>
             <?php endforeach; ?>
         </div>
     </div>
@@ -265,16 +279,5 @@ foreach ($songs as $song) {
 
     <script src="js/index.js"></script>
     <script src="js/search.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            }, function(err) {
-                console.log('ServiceWorker registration failed: ', err);
-            });
-            });
-        }
-    </script>
 </body>
 </html>

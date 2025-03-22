@@ -1,0 +1,86 @@
+.popular-container {
+    margin-bottom: 40px;
+    max-width: 1150px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.popular-container:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.popular-songs {
+    margin-top: 15px;
+}
+
+.popular-song-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    margin-bottom: 8px;
+    background-color: rgba(31, 41, 55, 0.5);
+    position: relative;
+}
+
+.popular-song-row:hover {
+    background-color: var(--card-hover);
+    transform: translateX(5px);
+}
+
+.song-image {
+    margin-right: 15px;
+    position: relative;
+}
+
+.popular-song-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.song-row-metrics {
+    display: flex;
+    align-items: center;
+    font-size: 0.8em;
+    color: var(--gray-text);
+    margin-top: 3px;
+}
+
+.popular-song-row .song-number {
+    transition: all 0.2s ease;
+}
+
+.popular-song-row:hover .song-number {
+    opacity: 0;
+}
+
+.popular-song-row:hover .song-number:after {
+    content: '\f04b';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 15px;
+    opacity: 1;
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .popular-container {
+        max-width: 90%;
+    }
+    
+    .popular-song-image {
+        width: 35px;
+        height: 35px;
+    }
+}

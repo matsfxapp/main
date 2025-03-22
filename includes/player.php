@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-<link rel="stylesheet" href="/../css/player-style.css">
+<link rel="stylesheet" href="/../css/player.css">
 
 <div id="errorContainer"></div>
 
@@ -65,10 +65,54 @@
     let currentPlaylist = [];
     let currentPlaylistIndex = 0;
     
+    // Track played songs to prevent duplicate tracking
+    let trackedSongs = new Set();
+    
     document.addEventListener('DOMContentLoaded', function() {
         const progressBar = document.getElementById('progress');
         initializePlayerControls(audioPlayer, progressBar);
     });
+    
+    function trackSongPlay(songId) {
+        // Don't track if already tracked in this session
+        // or if songId is invalid
+        if (!songId) {
+            console.log("No song ID provided for tracking");
+            return;
+        }
+        
+        if (trackedSongs.has(songId)) {
+            console.log(`Song ${songId} already tracked in this session`);
+            return;
+        }
+        
+        console.log(`Tracking play for song ID: ${songId}`);
+        
+        fetch('includes/track_play.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ song_id: songId })
+        })
+        .then(response => {
+            console.log('Track play response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Track play response data:', data);
+            if (data.success) {
+                // Add to tracked songs set
+                trackedSongs.add(songId);
+                console.log(`Play count for song ${songId} updated to: ${data.play_count}`);
+            } else {
+                console.error('Track play failed:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error tracking play:', error);
+        });
+    }
     
     function playSong(filePath, element) {
         if (isChangingTrack) return;
@@ -119,6 +163,68 @@
         }
     }
     
+    function continuePlaySong(element) {
+        let songTitle, artistName, coverArt, songId;
+
+        // Get song ID attribute from the element
+        if (element.getAttribute('data-song-id')) {
+            songId = element.getAttribute('data-song-id');
+        }
+
+        if (element.classList.contains('song-row')) {
+            // Handle song rows (from album view)
+            songTitle = element.getAttribute('data-song-title') || element.querySelector('.song-row-title')?.textContent || 'Unknown Title';
+            artistName = element.getAttribute('data-song-artist') || element.querySelector('.song-row-artist')?.textContent || 'Unknown Artist';
+            songId = songId || element.getAttribute('data-song-id');
+            
+            const albumSection = element.closest('.album-section');
+            coverArt = albumSection ? albumSection.querySelector('.album-cover')?.src : 'defaults/default-cover.jpg';
+            
+            // Update UI to show current playing song
+            document.querySelectorAll('.song-row').forEach(row => row.classList.remove('playing'));
+            element.classList.add('playing');
+        } else if (element.classList.contains('song-card')) {
+            // Handle song cards (from discover/search view)
+            coverArt = element.querySelector('.song-card-image, .cover-art')?.src || 'defaults/default-cover.jpg';
+            songTitle = element.querySelector('.song-card-title, .song-title')?.textContent || 'Unknown Title';
+            artistName = element.querySelector('.song-card-artist, .artist-link')?.textContent || 'Unknown Artist';
+            songId = songId || element.getAttribute('data-song-id');
+            
+            // Update UI to show current playing song
+            document.querySelectorAll('.song-card').forEach(card => card.classList.remove('active-song'));
+            element.classList.add('active-song');
+        } else {
+            // Handle other element types or direct invocation
+            songTitle = element.getAttribute('data-song-title') || 'Unknown Title';
+            artistName = element.getAttribute('data-song-artist') || 'Unknown Artist';
+            coverArt = element.getAttribute('data-cover-art') || 'defaults/default-cover.jpg';
+            songId = songId || element.getAttribute('data-song-id');
+        }
+
+        // Update player UI
+        document.getElementById('player-album-art').src = coverArt;
+        document.getElementById('songTitle').textContent = songTitle;
+        document.getElementById('artistName').textContent = artistName;
+
+        // Track song play if we have a song ID
+        if (songId) {
+            trackSongPlay(songId);
+        }
+
+        // Play the audio
+        audioPlayer.play()
+            .then(() => {
+                updatePlayPauseButton(true);
+            })
+            .catch(error => {
+                console.error('Error playing song:', error);
+                displayError('Could not play the song. Please try again.');
+            })
+            .finally(() => {
+                isChangingTrack = false;
+            });
+    }
+    
     function playAlbum(albumSection) {
         const songRows = albumSection.querySelectorAll('.song-row');
         if (songRows.length > 0) {
@@ -136,55 +242,6 @@
                 displayError('Could not find song file path.');
             }
         }
-    }
-
-    function continuePlaySong(element) {
-        let songTitle, artistName, coverArt;
-
-        if (element.classList.contains('song-row')) {
-            // Handle song rows (from album view)
-            songTitle = element.getAttribute('data-song-title') || element.querySelector('.song-row-title')?.textContent || 'Unknown Title';
-            artistName = element.getAttribute('data-song-artist') || element.querySelector('.song-row-artist')?.textContent || 'Unknown Artist';
-            
-            const albumSection = element.closest('.album-section');
-            coverArt = albumSection ? albumSection.querySelector('.album-cover')?.src : 'defaults/default-cover.jpg';
-            
-            // Update UI to show current playing song
-            document.querySelectorAll('.song-row').forEach(row => row.classList.remove('playing'));
-            element.classList.add('playing');
-        } else if (element.classList.contains('song-card')) {
-            // Handle song cards (from discover/search view)
-            coverArt = element.querySelector('.song-card-image, .cover-art')?.src || 'defaults/default-cover.jpg';
-            songTitle = element.querySelector('.song-card-title, .song-title')?.textContent || 'Unknown Title';
-            artistName = element.querySelector('.song-card-artist, .artist-link')?.textContent || 'Unknown Artist';
-            
-            // Update UI to show current playing song
-            document.querySelectorAll('.song-card').forEach(card => card.classList.remove('active-song'));
-            element.classList.add('active-song');
-        } else {
-            // Handle other element types or direct invocation
-            songTitle = element.getAttribute('data-song-title') || 'Unknown Title';
-            artistName = element.getAttribute('data-song-artist') || 'Unknown Artist';
-            coverArt = element.getAttribute('data-cover-art') || 'defaults/default-cover.jpg';
-        }
-
-        // Update player UI
-        document.getElementById('player-album-art').src = coverArt;
-        document.getElementById('songTitle').textContent = songTitle;
-        document.getElementById('artistName').textContent = artistName;
-
-        // Play the audio
-        audioPlayer.play()
-            .then(() => {
-                updatePlayPauseButton(true);
-            })
-            .catch(error => {
-                console.error('Error playing song:', error);
-                displayError('Could not play the song. Please try again.');
-            })
-            .finally(() => {
-                isChangingTrack = false;
-            });
     }
     
     function updatePlayPauseButton(isPlaying) {

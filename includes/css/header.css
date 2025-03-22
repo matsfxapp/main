@@ -28,6 +28,7 @@
 	z-index: 1000;
 	border-bottom: 1px solid var(--header-border);
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	border-radius: 0 0 25px 25px;
 }
 
 .header-container {
@@ -394,7 +395,7 @@
 /* Dropdown Menu Styles */
 .profile-dropdown {
 	position: absolute;
-	top: calc(100% + 14px);
+	top: calc(100% + 26px);
 	right: 0;
 	background-color: var(--dropdown-bg);
 	backdrop-filter: blur(20px) saturate(180%);
@@ -603,17 +604,6 @@
 		padding: 0.5rem;
 	}
 }
-
-@media (prefers-color-scheme: dark) {
-	.global-header {
-		background-color: rgba(10, 12, 16, 0.95);
-	}
-
-	.profile-dropdown {
-		background-color: rgba(20, 22, 28, 0.98);
-	}
-}
-
 html {
 	scroll-behavior: smooth;
 }

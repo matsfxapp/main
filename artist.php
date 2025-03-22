@@ -323,86 +323,8 @@ if (!$artistData) {
 		<!-- links -->
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-        <link rel="stylesheet" href="css/style.css">
-		<link rel="stylesheet" href="css/share-button.js">
-		<script src="js/share-button.js" defer></script>
 		<link rel="stylesheet" href="css/style.css">
-		<link rel="stylesheet" href="css/player-style.css">
-		<link rel="stylesheet" href="css/index-artistsection.css">
-		<link rel="stylesheet" href="css/share-button.css">
-		<link rel="stylesheet" href="css/navbar.css">
 		<script src="js/share-button.js"></script>
-        <style>
-			.error-user-container {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				height: 91vh;
-				background-color: var(--dark-bg);
-				text-align: center;
-				padding: 20px;
-				box-sizing: border-box;
-			}
-			.error-user-heading {
-				font-size: 48px;
-				font-weight: bold;
-				color: var(--primary-color);
-				margin-bottom: 16px;
-			}
-			
-			.error-user-text {
-				font-size: 20px;
-				color: var(--gray-text);
-				margin-bottom: 32px;
-			}
-			
-			.error-user-button {
-				display: inline-block;
-				text-decoration: none;
-				padding: 12px 24px;
-				font-size: 18px;
-				font-weight: 600;
-				color: var(--light-text);
-				background-color: var(--primary-color);
-				border-radius: var(--border-radius);
-				box-shadow: var(--shadow-sm);
-				transition: var(--transition);
-			}
-			
-			.error-user-button:hover {
-				background-color: var(--primary-hover);
-				box-shadow: var(--shadow-md);
-			}
-			
-			.follow-button {
-				position: absolute;
-				top: 22%;
-				right: 400px;
-				padding: 10px 20px;
-				font-size: 16px;
-				font-weight: bold;
-				color: #fff;
-				background-color: #007bff;
-				border: none;
-				border-radius: 5px;
-				cursor: pointer;
-				transition: background-color 0.3s;
-			}
-			
-			.follow-button:hover {
-				background-color: #0056b3;
-			}
-			
-			.unfollow-button {
-				background-color: #dc3545;
-			}
-			
-			.unfollow-button:hover {
-				background-color: #a71d2a;
-			}
-        </style>
-		
 		<?php outputChristmasThemeCSS(); ?>
     </head>
     <body>
@@ -438,89 +360,19 @@ if (!$artistData) {
 	<!-- links -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-	<link rel="stylesheet" href="css/player-style.css">
+
 	<link rel="stylesheet" href="css/style.css">
-	<link rel="stylesheet" href="css/player-style.css">
-	<link rel="stylesheet" href="css/index-artistsection.css">
 	<link rel="stylesheet" href="css/share-button.css">
-	<link rel="stylesheet" href="css/navbar.css">
-	<link rel="stylesheet" href="css/artist.css">
+	<link rel="stylesheet" href="css/artist/albumSection.css">
+	<link rel="stylesheet" href="css/artist/badges.css">
+	<link rel="stylesheet" href="css/artist/basic.css">
+	<link rel="stylesheet" href="css/artist/followButton.css">
+	<link rel="stylesheet" href="css/artist/popularSongs.css">
+	<link rel="stylesheet" href="css/artist/profileStats.css">
+	<link rel="stylesheet" href="css/artist/songCard.css">
+	<link rel="stylesheet" href="css/artist/userError.css">
+
 	<script src="js/share-button.js"></script>
-	<style>
-			
-	.developer-badge, .helper-badge, .donator-badge, .designer-badge, .verified-badge {
-		width: 20px;
-		height: 20px;
-		
-		vertical-align: middle;
-	}		
-			
-	.follow-button {
-		position: relative;
-		padding: 10px 20px;
-		font-size: 16px;
-		font-weight: bold;
-		color: #fff;
-		background-color: #007bff;
-		border: none;
-		border-radius: 8px;
-		cursor: pointer;
-		overflow: hidden;
-		transition: all 0.3s ease;
-		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-		transform-style: preserve-3d;
-	}
-
-	.follow-button:before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: -100%;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
-		transition: all 0.6s ease;
-	}
-
-	.follow-button:hover:before {
-		left: 100%;
-	}
-
-	.follow-button:hover {
-		transform: scale(1.05) perspective(1px);
-		box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-	}
-
-	.follow-button.unfollow-button {
-		background-color: #dc3545;
-	}
-
-	.follow-button.following {
-		background-color: #28a745;
-	}
-
-	.follow-button .follow-text {
-		position: relative;
-		z-index: 1;
-	}
-
-	.follow-button .follow-icon {
-		margin-right: 8px;
-		position: relative;
-		z-index: 1;
-	}
-
-	.profile-stats span {
-		margin-right: 20px;
-		color: var(--gray-text);
-		font-size: 0.9em;
-	}
-
-	.profile-stats span:last-child {
-		margin-right: 0;
-	}
-	</style>
 	<?php outputChristmasThemeCSS(); ?>
 </head>
 <body>

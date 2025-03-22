@@ -1,6 +1,6 @@
 <?php
 require_once 'config/config.php';
-require 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
@@ -262,8 +262,8 @@ function uploadSong($title, $artist, $album, $genre, $file, $cover_art = null) {
         error_log("Storing song information in database");
         
         try {
-            $stmt = $pdo->prepare("INSERT INTO songs (title, artist, album, genre, file_path, cover_art, uploaded_by) 
-                     VALUES (:title, :artist, :album, :genre, :file_path, :cover_path, :uploaded_by)");
+            $stmt = $pdo->prepare("INSERT INTO songs (title, artist, album, genre, file_path, cover_art, uploaded_by, play_count) 
+                     VALUES (:title, :artist, :album, :genre, :file_path, :cover_path, :uploaded_by, 0)");
                      
             $stmt->execute([
                 ':title' => $title,
@@ -417,6 +417,107 @@ function getPopularSongs($limit = 10) {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         error_log("Database error in getPopularSongs(): " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Get most played songs
+ * 
+ * @param int $limit Maximum number of songs to return
+ * @param string $period Time period for plays: 'day', 'week', 'month', 'year', 'all'
+ * @return array Array of songs ordered by play count
+ */
+function getMostPlayedSongs($limit = 10, $period = 'all') {
+    global $pdo;
+    
+    if (!$pdo) {
+        error_log("Database connection not established in getMostPlayedSongs()");
+        return [];
+    }
+    
+    try {
+        $whereClause = '';
+        
+        // Add date filtering based on period
+        if ($period !== 'all') {
+            $dateRange = '';
+            switch ($period) {
+                case 'day':
+                    $dateRange = "DATE(play_date) = CURDATE()";
+                    break;
+                case 'week':
+                    $dateRange = "play_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+                    break;
+                case 'month':
+                    $dateRange = "play_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+                    break;
+                case 'year':
+                    $dateRange = "play_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
+                    break;
+            }
+            
+            if ($dateRange) {
+                $stmt = $pdo->prepare("
+                    SELECT s.*, COUNT(sp.play_id) as recent_play_count
+                    FROM songs s
+                    LEFT JOIN song_plays sp ON s.song_id = sp.song_id
+                    WHERE $dateRange
+                    GROUP BY s.song_id
+                    ORDER BY recent_play_count DESC, play_count DESC
+                    LIMIT :limit
+                ");
+            }
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT * FROM songs
+                ORDER BY play_count DESC
+                LIMIT :limit
+            ");
+        }
+        
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database error in getMostPlayedSongs(): " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Get play history for a specific user
+ * 
+ * @param int $userId User ID to get history for
+ * @param int $limit Maximum number of songs to return
+ * @return array Array of recently played songs
+ */
+function getUserPlayHistory($userId, $limit = 10) {
+    global $pdo;
+    
+    if (!$pdo) {
+        error_log("Database connection not established in getUserPlayHistory()");
+        return [];
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            SELECT s.*, sp.play_date
+            FROM songs s
+            JOIN song_plays sp ON s.song_id = sp.song_id
+            WHERE sp.user_id = :user_id
+            ORDER BY sp.play_date DESC
+            LIMIT :limit
+        ");
+        
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Database error in getUserPlayHistory(): " . $e->getMessage());
         return [];
     }
 }

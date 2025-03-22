@@ -1,358 +1,572 @@
 <?php
-session_start();
-require_once 'config/config.php';
-
-function isAdmin($userId) {
-    global $pdo;
-    $stmt = $pdo->prepare("SELECT is_admin FROM users WHERE user_id = :user_id");
-    $stmt->execute(['user_id' => $userId]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $user && $user['is_admin'] == 1;
-}
-
-if (!isset($_SESSION['user_id']) || !isAdmin($_SESSION['user_id'])) {
-    header('Location: /login.php');
-    exit();
-}
-
-class BadgeManager {
-    private $pdo;
-    
-    public function __construct($pdo) {
-        $this->pdo = $pdo;
-    }
-    
-    public function getAllBadges() {
-        $stmt = $this->pdo->query("SELECT * FROM badges ORDER BY badge_name");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    
-    public function getUsersWithBadges() {
-        $query = "SELECT u.user_id, u.username, GROUP_CONCAT(b.badge_name) as badges
-                 FROM users u
-                 LEFT JOIN user_badges ub ON u.user_id = ub.user_id
-                 LEFT JOIN badges b ON ub.badge_id = b.badge_id
-                 GROUP BY u.user_id, u.username
-                 ORDER BY u.username";
-        
-        $stmt = $this->pdo->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    
-    public function assignBadge($userId, $badgeId, $adminId) {
-        try {
-            $stmt = $this->pdo->prepare(
-                "INSERT INTO user_badges (user_id, badge_id, assigned_by) 
-                 VALUES (:user_id, :badge_id, :assigned_by)"
-            );
-            return $stmt->execute([
-                'user_id' => $userId,
-                'badge_id' => $badgeId,
-                'assigned_by' => $adminId
-            ]);
-        } catch (PDOException $e) {
-            if ($e->getCode() == 23000) {
-                return false;
-            }
-            throw $e;
-        }
-    }
-
-    public function removeBadge($userId, $badgeId) {
-        $stmt = $this->pdo->prepare(
-            "DELETE FROM user_badges 
-             WHERE user_id = :user_id AND badge_id = :badge_id"
-        );
-        return $stmt->execute([
-            'user_id' => $userId,
-            'badge_id' => $badgeId
-        ]);
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax'])) {
-    $badgeManager = new BadgeManager($pdo);
-    $response = ['success' => false];
-    
-    try {
-        if (isset($_POST['assign_badge'])) {
-            $success = $badgeManager->assignBadge(
-                $_POST['user_id'],
-                $_POST['badge_id'],
-                $_SESSION['user_id']
-            );
-        } elseif (isset($_POST['remove_badge'])) {
-            $success = $badgeManager->removeBadge(
-                $_POST['user_id'],
-                $_POST['badge_id']
-            );
-        }
-        
-        if ($success) {
-            $stmt = $pdo->prepare(
-                "SELECT GROUP_CONCAT(b.badge_name) as badges
-                 FROM users u
-                 LEFT JOIN user_badges ub ON u.user_id = ub.user_id
-                 LEFT JOIN badges b ON ub.badge_id = b.badge_id
-                 WHERE u.user_id = :user_id
-                 GROUP BY u.user_id"
-            );
-            $stmt->execute(['user_id' => $_POST['user_id']]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            $response = [
-                'success' => true,
-                'badges' => $result['badges'] ?? ''
-            ];
-        }
-    } catch (Exception $e) {
-        $response['error'] = 'Operation failed';
-    }
-    
-    header('Content-Type: application/json');
-    echo json_encode($response);
-    exit;
-}
-
-$badgeManager = new BadgeManager($pdo);
-$allBadges = $badgeManager->getAllBadges();
-$users = $badgeManager->getUsersWithBadges();
+require 'handlers/admin.php'
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Badge Management</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #2D7FF9;
-            --primary-hover: #1E6AD4;
-            --primary-light: rgba(45, 127, 249, 0.1);
-            --accent-color: #18BFFF;
-            --dark-bg: #0A1220;
-            --darker-bg: #060912;
-            --card-bg: #111827;
-            --card-hover: #1F2937;
-            --nav-bg: rgba(17, 24, 39, 0.95);
-            --light-text: #FFFFFF;
-            --gray-text: #94A3B8;
-            --border-color: #1F2937;
-            --border-radius: 12px;
-            --border-radius-lg: 16px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--dark-bg);
-            color: var(--light-text);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .badge-management {
-            max-width: 1200px;
-            margin: 10vh auto 0;
-            padding: 20px;
-            background: var(--darker-bg);
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-md);
-        }
-
-        .user-item {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            margin: 1rem 0;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-            border: 1px solid var(--border-color);
-        }
-
-        .user-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            background: var(--card-hover);
-        }
-
-        .badge-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .badge-form {
-            display: flex;
-            gap: 0.5rem;
-            flex: 1;
-            min-width: 250px;
-        }
-
-        select {
-            flex: 1;
-            padding: 0.75rem;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
-            background: var(--dark-bg);
-            color: var(--light-text);
-            font-size: 0.9rem;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px var(--primary-light);
-        }
-
-        button {
-            padding: 0.75rem 1.25rem;
-            border: none;
-            border-radius: var(--border-radius);
-            background: var(--primary-color);
-            color: white;
-            cursor: pointer;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-
-        button:hover {
-            background: var(--primary-hover);
-        }
-
-        button[name="remove_badge"] {
-            background: transparent;
-            border: 1px solid var(--border-color);
-        }
-
-        button[name="remove_badge"]:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .badge-list {
-            margin: 0.75rem 0;
-            color: var(--gray-text);
-        }
-
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        @media (max-width: 768px) {
-            .badge-actions {
-                flex-direction: column;
-            }
-
-            .badge-form {
-                min-width: 100%;
-            }
-
-            button {
-                width: 100%;
-            }
-        }
-
-        .badge-update-animation {
-            animation: updateFlash 1s ease;
-        }
-
-        @keyframes updateFlash {
-            0% { background-color: var(--primary-light); }
-            100% { background-color: transparent; }
-        }
-    </style>
+    <title>Admin Panel - matSFX</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
 </head>
-<body>
-    <?php require_once 'includes/header.php'; ?>
-
-    <div class="badge-management">
-        <h2>Badge Management</h2>
-        
-        <div class="user-list">
-            <?php foreach ($users as $user): ?>
-            <div class="user-item" data-user-id="<?php echo $user['user_id']; ?>">
-                <h4><?php echo htmlspecialchars($user['username']); ?></h4>
-                <div class="badge-list" id="badge-list-<?php echo $user['user_id']; ?>">
-                    Current badges: <?php echo htmlspecialchars($user['badges'] ?? 'None'); ?>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="app-logo">
+                    <img src="/app_logos/matsfx_logo.png" alt="matSFX Logo">
+                    <span>matSFX</span>
                 </div>
-                
-                <div class="badge-actions">
-                    <form class="badge-form">
-                        <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
-                        <select name="badge_id">
-                            <?php foreach ($allBadges as $badge): ?>
-                            <option value="<?php echo $badge['badge_id']; ?>">
-                                <?php echo htmlspecialchars($badge['badge_name']); ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="submit" name="assign_badge">Assign</button>
-                    </form>
-                    
-                    <form class="badge-form">
-                        <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
-                        <select name="badge_id">
-                            <?php foreach ($allBadges as $badge): ?>
-                            <option value="<?php echo $badge['badge_id']; ?>">
-                                <?php echo htmlspecialchars($badge['badge_name']); ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="submit" name="remove_badge">Remove</button>
-                    </form>
+                <div class="admin-label">Logged in as Admin</div>
+                <div class="admin-info">
+                    <img src="<?php echo isset($_SESSION['profile_picture']) ? htmlspecialchars($_SESSION['profile_picture']) : '/defaults/default-profile.jpg'; ?>" alt="Admin" class="admin-avatar">
+                    <div class="admin-name"><?php echo htmlspecialchars($_SESSION['username'] ?? 'Admin'); ?></div>
                 </div>
             </div>
-            <?php endforeach; ?>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="?view=dashboard" class="nav-link <?php echo $view === 'dashboard' ? 'active' : ''; ?>">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="?view=users" class="nav-link <?php echo $view === 'users' || $view === 'user-detail' ? 'active' : ''; ?>">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="?view=badges" class="nav-link <?php echo $view === 'badges' ? 'active' : ''; ?>">
+                        <i class="fas fa-award"></i>
+                        <span>Badge Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Back to Site</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/logout.php" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <?php if ($view === 'dashboard'): ?>
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <div class="page-actions">
+                        <a href="?view=users" class="btn btn-primary">
+                            <i class="fas fa-users"></i>
+                            <span>Manage Users</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-value"><?php echo number_format($siteStats['user_count']); ?></div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-green">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="stat-value"><?php echo number_format($siteStats['song_count']); ?></div>
+                        <div class="stat-label">Total Songs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-yellow">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="stat-value"><?php echo number_format($siteStats['play_count']); ?></div>
+                        <div class="stat-label">Total Plays</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Recent Users</div>
+                    <div class="card-body">
+                        <?php if (empty($siteStats['recent_users'])): ?>
+                            <div style="text-align: center; padding: 20px;">
+                                <p>No recent users found.</p>
+                            </div>
+                        <?php else: ?>
+                            <div class="recent-users">
+                                <?php foreach ($siteStats['recent_users'] as $user): ?>
+                                    <div class="user-card">
+                                        <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" 
+                                            alt="User" class="user-avatar" 
+                                            onerror="this.src='/defaults/default-profile.jpg'">
+                                        <div class="user-name"><?php echo htmlspecialchars($user['username']); ?></div>
+                                        <div class="user-joined">Joined <?php echo date('M j, Y', strtotime($user['created_at'])); ?></div>
+                                        <a href="?view=user-detail&user_id=<?php echo $user['user_id']; ?>" class="btn btn-outline" style="margin-top: 1rem;">View Profile</a>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Recent Admin Actions</div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Admin</th>
+                                        <th>Action</th>
+                                        <th>Details</th>
+                                        <th>Date & Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($siteStats['recent_logs'])): ?>
+                                        <tr>
+                                            <td colspan="4" style="text-align: center;">No admin actions logged yet.</td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($siteStats['recent_logs'] as $log): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($log['admin_name']); ?></td>
+                                                <td>
+                                                    <?php 
+                                                        $actionLabel = str_replace('_', ' ', $log['action']);
+                                                        echo ucwords($actionLabel);
+                                                    ?>
+                                                </td>
+                                                <td><?php echo htmlspecialchars($log['details']); ?></td>
+                                                <td><?php echo date('M j, Y g:i A', strtotime($log['action_time'])); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            <?php elseif ($view === 'users'): ?>
+                <div class="page-header">
+                    <h1 class="page-title">User Management</h1>
+                    <form action="" method="GET" class="search-form">
+                        <input type="hidden" name="view" value="users">
+                        <input type="text" name="search" placeholder="Search users..." class="search-input" value="<?php echo htmlspecialchars($search ?? ''); ?>">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        All Users
+                        <?php if ($search): ?>
+                            <span>(Search results for "<?php echo htmlspecialchars($search); ?>")</span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Joined</th>
+                                        <th>Songs</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($userList['users'])): ?>
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 2rem;">
+                                                No users found.
+                                            </td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($userList['users'] as $user): ?>
+                                            <tr>
+                                                <td>
+                                                    <div class="user-cell">
+                                                        <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User">
+                                                        <div class="user-cell-info">
+                                                            <div class="cell-main"><?php echo htmlspecialchars($user['username']); ?></div>
+                                                            <div class="cell-secondary"><?php echo htmlspecialchars($user['email']); ?></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td><?php echo date('M j, Y', strtotime($user['created_at'])); ?></td>
+                                                <td><?php echo $user['song_count']; ?></td>
+                                                <td>
+                                                    <?php if (isset($user['is_active']) && !$user['is_active']): ?>
+                                                        <span class="status-badge status-inactive">
+                                                            <i class="fas fa-ban"></i> Terminated
+                                                        </span>
+                                                    <?php else: ?>
+                                                        <span class="status-badge status-active">
+                                                            <i class="fas fa-check-circle"></i> Active
+                                                        </span>
+                                                    <?php endif; ?>
+                                                    
+                                                    <?php if ($user['is_admin']): ?>
+                                                        <span class="status-badge status-admin">
+                                                            <i class="fas fa-shield-alt"></i> Admin
+                                                        </span>
+                                                    <?php endif; ?>
+                                                    
+                                                    <?php if ($user['is_verified']): ?>
+                                                        <span class="status-badge status-verified">
+                                                            <i class="fas fa-check"></i> Verified
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <div class="action-cell">
+                                                        <a href="?view=user-detail&user_id=<?php echo $user['user_id']; ?>" class="action-btn view" title="View User">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <?php if (!isset($user['is_active']) || $user['is_active']): ?>
+                                                            <button class="action-btn delete terminate-btn" data-user-id="<?php echo $user['user_id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>" title="Terminate Account">
+                                                                <i class="fas fa-ban"></i>
+                                                            </button>
+                                                        <?php else: ?>
+                                                            <button class="action-btn edit restore-btn" data-user-id="<?php echo $user['user_id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>" title="Restore Account">
+                                                                <i class="fas fa-undo"></i>
+                                                            </button>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <?php if ($userList['total_pages'] > 1): ?>
+                            <div class="pagination">
+                                <?php if ($page > 1): ?>
+                                    <a href="?view=users&page=<?php echo $page - 1; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="btn btn-outline">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                <?php endif; ?>
+                                
+                                <?php for($i = max(1, $page - 2); $i <= min($userList['total_pages'], $page + 2); $i++): ?>
+                                    <a href="?view=users&page=<?php echo $i; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="btn btn-outline <?php echo $i == $page ? 'current' : ''; ?>">
+                                        <?php echo $i; ?>
+                                    </a>
+                                <?php endfor; ?>
+                                
+                                <?php if ($page < $userList['total_pages']): ?>
+                                    <a href="?view=users&page=<?php echo $page + 1; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="btn btn-outline">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php elseif ($view === 'user-detail' && $userDetail && !isset($userDetail['error'])): ?>
+                <?php $user = $userDetail['user']; ?>
+                <div class="page-header">
+                    <h1 class="page-title">User Profile: <?php echo htmlspecialchars($user['username']); ?></h1>
+                    <div class="page-actions">
+                        <a href="?view=users" class="btn btn-outline">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back to Users</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="user-profile">
+                    <div class="profile-sidebar">
+                        <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User" class="profile-avatar">
+                        <h2 class="profile-name"><?php echo htmlspecialchars($user['username']); ?></h2>
+                        <div class="profile-email"><?php echo htmlspecialchars($user['email']); ?></div>
+                        
+                        <div class="profile-badge-list">
+                            <?php foreach ($userDetail['badges'] as $badge): ?>
+                                <span class="profile-badge">
+                                    <?php echo htmlspecialchars($badge['badge_name']); ?>
+                                </span>
+                            <?php endforeach; ?>
+                        </div>
+                        
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <div class="profile-stat-value"><?php echo $user['song_count']; ?></div>
+                                <div class="profile-stat-label">Songs</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value"><?php echo $user['likes_given']; ?></div>
+                                <div class="profile-stat-label">Likes Given</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value"><?php echo $user['followers']; ?></div>
+                                <div class="profile-stat-label">Followers</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value"><?php echo $user['following']; ?></div>
+                                <div class="profile-stat-label">Following</div>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-actions">
+                            <?php if (!isset($user['is_active']) || $user['is_active']): ?>
+                                <button class="btn btn-danger terminate-btn" data-user-id="<?php echo $user['user_id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>">
+                                    <i class="fas fa-ban"></i> Terminate Account
+                                </button>
+                            <?php else: ?>
+                                <button class="btn btn-success restore-btn" data-user-id="<?php echo $user['user_id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>">
+                                    <i class="fas fa-undo"></i> Restore Account
+                                </button>
+                            <?php endif; ?>
+                            
+                            <button class="btn <?php echo $user['is_admin'] ? 'btn-warning' : 'btn-primary'; ?> toggle-admin-btn" data-user-id="<?php echo $user['user_id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>" data-is-admin="<?php echo $user['is_admin'] ? '1' : '0'; ?>">
+                                <i class="fas <?php echo $user['is_admin'] ? 'fa-user-minus' : 'fa-user-shield'; ?>"></i> 
+                                <?php echo $user['is_admin'] ? 'Remove Admin' : 'Make Admin'; ?>
+                            </button>
+                            
+                            <button class="btn <?php echo $user['is_verified'] ? 'btn-warning' : 'btn-primary'; ?> toggle-verify-btn" data-user-id="<?php echo $user['user_id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>" data-is-verified="<?php echo $user['is_verified'] ? '1' : '0'; ?>">
+                                <i class="fas <?php echo $user['is_verified'] ? 'fa-times' : 'fa-check'; ?>"></i> 
+                                <?php echo $user['is_verified'] ? 'Remove Verification' : 'Verify User'; ?>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-content">
+                        <?php if (isset($user['is_active']) && !$user['is_active']): ?>
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <div>
+                                    <strong>Account Terminated</strong>
+                                    <div>Reason: <?php echo htmlspecialchars($user['termination_reason'] ?? 'No reason provided'); ?></div>
+                                    <div>Terminated on: <?php echo date('M j, Y g:i A', strtotime($user['terminated_at'])); ?></div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="card">
+                            <div class="card-header">User Information</div>
+                            <div class="card-body">
+                                <div class="user-info-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                                    <div>
+                                        <div style="color: var(--gray-text); margin-bottom: 0.25rem;">User ID</div>
+                                        <div style="font-weight: 500;"><?php echo $user['user_id']; ?></div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--gray-text); margin-bottom: 0.25rem;">Joined</div>
+                                        <div style="font-weight: 500;"><?php echo date('F j, Y', strtotime($user['created_at'])); ?></div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--gray-text); margin-bottom: 0.25rem;">Email Verified</div>
+                                        <div style="font-weight: 500;">
+                                            <?php if ($user['email_verified']): ?>
+                                                <span style="color: var(--success-color);"><i class="fas fa-check-circle"></i> Yes</span>
+                                            <?php else: ?>
+                                                <span style="color: var(--danger-color);"><i class="fas fa-times-circle"></i> No</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <?php if (!empty($user['bio'])): ?>
+                                    <div style="margin-top: 1.5rem;">
+                                        <div style="color: var(--gray-text); margin-bottom: 0.5rem;">Bio</div>
+                                        <div style="background-color: var(--darker-bg); padding: 1rem; border-radius: var(--border-radius); white-space: pre-line;">
+                                            <?php echo htmlspecialchars($user['bio']); ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">Uploaded Songs</div>
+                            <div class="card-body">
+                                <?php if (empty($userDetail['songs'])): ?>
+                                    <div style="text-align: center; padding: 2rem; color: var(--gray-text);">
+                                        <i class="fas fa-music" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                                        <p>This user hasn't uploaded any songs yet.</p>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="table-container">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Album</th>
+                                                    <th>Uploaded</th>
+                                                    <th>Plays</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($userDetail['songs'] as $song): ?>
+                                                    <tr>
+                                                        <td><?php echo htmlspecialchars($song['title']); ?></td>
+                                                        <td><?php echo htmlspecialchars($song['album'] ?? 'N/A'); ?></td>
+                                                        <td><?php echo date('M j, Y', strtotime($song['upload_date'])); ?></td>
+                                                        <td><?php echo $song['play_count']; ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php elseif ($view === 'badges'): ?>
+                <div class="page-header">
+                    <h1 class="page-title">Badge Management</h1>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">All Badges</div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Badge</th>
+                                        <th>ID</th>
+                                        <th>Image Path</th>
+                                        <th>CSS Class</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($allBadges as $badge): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($badge['badge_name']); ?></td>
+                                            <td><?php echo $badge['badge_id']; ?></td>
+                                            <td><?php echo htmlspecialchars($badge['image_path']); ?></td>
+                                            <td><?php echo htmlspecialchars($badge['css_class']); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Assign Badges to Users</div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Current Badges</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($usersWithBadges as $user): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                            <td id="badge-list-<?php echo $user['user_id']; ?>">
+                                                <?php echo htmlspecialchars($user['badges'] ?? 'None'); ?>
+                                            </td>
+                                            <td>
+                                                <div class="badge-actions" style="display: flex; gap: 0.5rem;">
+                                                    <form class="badge-form" style="display: flex; gap: 0.5rem;">
+                                                        <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                                        <select name="badge_id" style="padding: 0.5rem; border-radius: var(--border-radius); background: var(--darker-bg); color: var(--light-text); border: 1px solid var(--border-color);">
+                                                            <?php foreach ($allBadges as $badge): ?>
+                                                                <option value="<?php echo $badge['badge_id']; ?>">
+                                                                    <?php echo htmlspecialchars($badge['badge_name']); ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        <button type="submit" name="assign_badge" class="btn btn-primary btn-sm">Assign</button>
+                                                    </form>
+                                                    
+                                                    <form class="badge-form" style="display: flex; gap: 0.5rem;">
+                                                        <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                                        <select name="badge_id" style="padding: 0.5rem; border-radius: var(--border-radius); background: var(--darker-bg); color: var(--light-text); border: 1px solid var(--border-color);">
+                                                            <?php foreach ($allBadges as $badge): ?>
+                                                                <option value="<?php echo $badge['badge_id']; ?>">
+                                                                    <?php echo htmlspecialchars($badge['badge_name']); ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        <button type="submit" name="remove_badge" class="btn btn-danger btn-sm">Remove</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>The requested page could not be found. <a href="?view=dashboard">Return to Dashboard</a></span>
+                </div>
+            <?php endif; ?>
+        </main>
+    </div>
+
+    <!-- Termination Modal -->
+    <div class="modal-backdrop" id="terminateModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Terminate Account</h3>
+                <button type="button" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to terminate the account for <strong id="terminateUsername"></strong>?</p>
+                <p>This will prevent the user from logging in and hide their content from the site.</p>
+                
+                <div class="form-group">
+                    <label for="terminationReason" class="form-label">Reason for termination:</label>
+                    <textarea id="terminationReason" class="form-input" placeholder="Provide a reason for this termination..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-danger confirm-terminate-btn">Terminate Account</button>
+            </div>
         </div>
     </div>
 
-    <script>
-    document.querySelectorAll('.badge-form').forEach(form => {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const userId = form.querySelector('[name="user_id"]').value;
-            const badgeId = form.querySelector('[name="badge_id"]').value;
-            const action = form.querySelector('[name="assign_badge"]') ? 'assign_badge' : 'remove_badge';
-            const badgeList = document.getElementById(`badge-list-${userId}`);
+    <!-- Restore Modal -->
+    <div class="modal-backdrop" id="restoreModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Restore Account</h3>
+                <button type="button" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to restore the account for <strong id="restoreUsername"></strong>?</p>
+                <p>This will allow the user to log in again and make their content visible on the site.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-success confirm-restore-btn">Restore Account</button>
+            </div>
+        </div>
+    </div>
 
-            // Add loading state
-            form.classList.add('loading');
-
-            try {
-                const formData = new FormData();
-                formData.append('ajax', '1');
-                formData.append('user_id', userId);
-                formData.append('badge_id', badgeId);
-                formData.append(action, '1');
-
-                const response = await fetch(window.location.href, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    badgeList.textContent = `Current badges: ${result.badges || 'None'}`;
-                    badgeList.classList.add('badge-update-animation');
-                    setTimeout(() => {
-                        badgeList.classList.remove('badge-update-animation');
-                    }, 1000);
-                } else {
-                    throw new Error(result.error || 'Operation failed');
-                }
-            } catch (error) {
-                alert(error.message);
-            } finally {
-                form.classList.remove('loading');
-            }
-        });
-    });
-    </script>
+    <script src="js/admin.js"></script>
 </body>
 </html>

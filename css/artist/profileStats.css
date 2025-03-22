@@ -1,0 +1,9 @@
+.profile-stats span {
+    margin-right: 20px;
+    color: var(--gray-text);
+    font-size: 0.9em;
+}
+
+.profile-stats span:last-child {
+    margin-right: 0;
+}
