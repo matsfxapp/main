@@ -119,7 +119,8 @@ $popularSongs = getMostPlayedSongs(5);
     ?>
     <div class="header-spacer"></div>
     <div class="container">
-        <!-- recently played -->
+        <!-- recently played (will only be shown if user is logged in and has history-->
+        <?php if (isLoggedIn() && !empty($recentlyPlayed)): ?>
         <div class="section-container">
             <div class="section-header">
                 <h2 class="section-title">Recently Played</h2>
@@ -151,6 +152,7 @@ $popularSongs = getMostPlayedSongs(5);
                 <?php endforeach; ?>
             </div>
         </div>
+        <?php endif; ?>
         <!-- popular songs section -->
         <div class="section-container">
             <div class="section-header">
