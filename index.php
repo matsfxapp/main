@@ -119,7 +119,7 @@ $popularSongs = getMostPlayedSongs(5);
     ?>
     <div class="header-spacer"></div>
     <div class="container">
-        <!-- recently played (will only be shown if user is logged in and has history-->
+        <!-- recently played (will only be shown if user is logged in and has history)-->
         <?php if (isLoggedIn() && !empty($recentlyPlayed)): ?>
         <div class="section-container">
             <div class="section-header">

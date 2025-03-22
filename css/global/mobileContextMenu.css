@@ -1,0 +1,185 @@
+/* Bottom Sheet Menu - Mobile Only */
+.song-bottom-sheet {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    right: 0;
+    background-color: var(--card-bg);
+    border-radius: 12px 12px 0 0;
+    z-index: 9999;
+    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.song-bottom-sheet.active {
+    bottom: 0;
+}
+
+.sheet-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.sheet-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sheet-handle {
+    width: 40px;
+    height: 5px;
+    background-color: var(--border-color);
+    border-radius: 3px;
+    margin: 10px auto;
+}
+
+.sheet-song-info {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sheet-song-cover {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    margin-right: 15px;
+    object-fit: cover;
+}
+
+.sheet-song-title {
+    font-weight: 600;
+    color: var(--light-text);
+    margin-bottom: 5px;
+}
+
+.sheet-song-artist {
+    font-size: 0.85em;
+    color: var(--gray-text);
+}
+
+.sheet-actions {
+    padding: 10px 0;
+}
+
+.sheet-action {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    color: var(--light-text);
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.sheet-action:active {
+    background-color: var(--card-hover);
+}
+
+.sheet-action-icon {
+    margin-right: 20px;
+    width: 24px;
+    display: flex;
+    justify-content: center;
+    color: var(--light-text);
+}
+
+.sheet-action-text {
+    flex: 1;
+}
+
+.sheet-action.active .sheet-action-icon {
+    color: var(--primary-color);
+}
+
+.sheet-cancel {
+    padding: 18px;
+    margin: 10px 20px;
+    text-align: center;
+    border-radius: 8px;
+    background-color: var(--card-hover);
+    color: var(--light-text);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Toast notification */
+.toast-message {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: var(--card-bg);
+    color: var(--light-text);
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    opacity: 0;
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+.toast-message.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* Only show these on mobile */
+@media (min-width: 769px) {
+    .song-bottom-sheet,
+    .sheet-backdrop,
+    .toast-message {
+        display: none !important;
+    }
+}
+
+/* Hide song action buttons on mobile */
+@media (max-width: 768px) {
+    /* Hide like buttons and containers */
+    .like-button-container,
+    .song-card .like-button,
+    .song-row .like-button {
+        display: none !important;
+    }
+    
+    /* Hide share buttons */
+    .share-btn,
+    .song-actions,
+    .song-action-buttons {
+        display: none !important;
+    }
+    
+    /* Hide queue buttons if they exist */
+    .queue-add-btn {
+        display: none !important;
+    }
+    
+    /* Hide any other action buttons that might be in the song cards */
+    .song-card-actions {
+        display: none !important;
+    }
+    
+    /* Make sure we don't leave empty spaces where buttons were */
+    .song-card, .song-row {
+        position: relative;
+    }
+    
+    /* Make touch feedback more apparent on mobile */
+    .song-card:active, .song-row:active {
+        background-color: var(--card-hover);
+        opacity: 0.8;
+    }
+}

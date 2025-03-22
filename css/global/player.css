@@ -116,7 +116,7 @@ body {
 
 .control-buttons {
 	position: absolute;
-	top: 40%;
+	top: 35%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 	display: flex;
@@ -168,11 +168,13 @@ body {
 
 input[type="range"] {
 	-webkit-appearance: none;
-	width: 100%;
+	appearance: none;
+	width: 235%;
 	height: 6px;
 	background: #535353;
 	outline: none;
 	border-radius: 3px;
+	margin-left: 2px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -194,24 +196,69 @@ input[type="range"]::-moz-range-thumb {
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.volume-control {
-	display: flex;
-	align-items: center;
-	position: absolute;
-	right: 600px;
-	top: 68%;
-	min-width: 150px;
-	justify-content: flex-end;
+/* Volume Control Styles */
+.volume-control-container {
+	position: relative;
 }
 
-.volume-icon {
-	color: var(--gray-text);
-	font-size: 16px;
-	margin-right: 8px;
+.volume-popup {
+	position: absolute;
+	bottom: 40px;
+	left: 50%;
+	transform: translateX(-50%) translateY(10px);
+	width: 40px;
+	height: 120px;
+	background-color: var(--card-bg);
+	border-radius: 12px;
+	padding: 10px 0;
+	box-shadow: var(--shadow-md);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.3s ease;
+	z-index: 100;
+	border: 1px solid var(--border-color);
+}
+
+.volume-popup.active {
+	opacity: 1;
+	visibility: visible;
+	transform: translateX(-50%) translateY(0);
 }
 
 .volume-slider {
 	width: 100px;
+	height: 4px;
+	-webkit-appearance: none;
+	appearance: none;
+	background: var(--border-color);
+	outline: none;
+	border-radius: 2px;
+	transform: rotate(-90deg);
+	transform-origin: center;
+	margin: 20px 0;
+	border-radius: 100px;
+}
+
+.volume-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: var(--primary-color);
+	cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: var(--primary-color);
+	cursor: pointer;
+	border: none;
 }
 
 #loopBtn svg {
@@ -329,7 +376,7 @@ input[type="range"]::-moz-range-thumb {
 			transform: translateX(0%);
 		}
 		45%, 55% {
-			transform: translateX(calc(-100% + 90px));
+			transform: translateX(calc(-100% + 80px));
 		}
 		85%, 100% {
 			transform: translateX(0%);
@@ -367,7 +414,7 @@ input[type="range"]::-moz-range-thumb {
 		justify-content: center;
 		align-items: center;
 		gap: 10px;
-		margin-left: 90px;
+		margin-left: 80px;
 		margin-top: -10px;
 	}
 
@@ -468,6 +515,11 @@ input[type="range"]::-moz-range-thumb {
 		border-radius: 8px;
 		text-align: center;
 		margin: 10px;
+	}
+
+	/* Hide queue button on mobile */
+	#queueToggle {
+		display: none;
 	}
 }
 
