@@ -703,7 +703,7 @@ body {
 }
 
 .header-spacer {
-    height: 25px;
+    height: 55px;
 	width: 100%;
 	display: block;
 }
@@ -713,6 +713,6 @@ body {
 		height: 50px;
 	}
     .header-spacer {
-        height: 50px;
+        height: 75px;
     }
 }

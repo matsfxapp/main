@@ -1,0 +1,109 @@
+.genre-section {
+    margin-bottom: 2.5rem;
+}
+
+.genre-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.genre-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.genre-badge {
+    background-color: var(--card-hover);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    color: var(--light-text);
+    margin-bottom: 15px;
+}
+
+.genre-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.category-pills {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    margin-bottom: 1.5rem;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    position: relative;
+    padding: 8px 16px;
+    margin: 0 -16px 1.5rem -16px;
+}
+
+/* Modern scrollbar styling */
+.category-pills::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+}
+
+.category-pills::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+}
+
+.category-pills::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    transition: background-color 0.2s;
+}
+
+.category-pills::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox scrollbar */
+.category-pills {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
+/* Pill items styling */
+.category-pill {
+    flex: 0 0 auto;
+    padding: 0.5rem 1.25rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    color: var(--gray-text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.category-pill:hover {
+    background-color: var(--card-hover);
+    transform: translateY(-1px);
+}
+
+.category-pill.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.3);
+}
+
+.category-pills::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 32px;
+    background: linear-gradient(to right, transparent, var(--background-color));
+    pointer-events: none;
+}

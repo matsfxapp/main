@@ -11,7 +11,7 @@ if (!in_array($period, $validPeriods)) {
     $period = 'all';
 }
 
-$songs = getMostPlayedSongs(5, $period);
+$songs = getMostPlayedSongs(6, $period);
 
 foreach ($songs as &$song) {
     if (!empty($song['file_path']) && strpos($song['file_path'], 'http') !== 0) {

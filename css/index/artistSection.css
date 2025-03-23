@@ -44,6 +44,8 @@
 	cursor: pointer;
 	border-radius: var(--border-radius);
 	transition: var(--transition);
+	color: #fff;
+	font-weight: bold;
 }
 
 .navigation-button:hover {

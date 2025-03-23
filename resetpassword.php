@@ -17,9 +17,9 @@ function sendEmail($to, $subject, $body, $reset_link = '') {
         $mail->Port = getenv('SMTP_PORT');
 
         // Recipients
-        $mail->setFrom = getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME2');
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME2'));
         $mail->addAddress($to);
-        $mail->addReplyTo = getenv('SMTP_FROM_EMAIL'], getenv('SMTP_FROM_NAME2');
+        $mail->addReplyTo(getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME2'));
 
         // Content
         $mail->isHTML(true);

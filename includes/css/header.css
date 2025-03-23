@@ -395,7 +395,7 @@
 /* Dropdown Menu Styles */
 .profile-dropdown {
 	position: absolute;
-	top: calc(100% + 26px);
+	top: calc(100% + 14px);
 	right: 0;
 	background-color: var(--dropdown-bg);
 	backdrop-filter: blur(20px) saturate(180%);

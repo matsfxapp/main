@@ -1,0 +1,18 @@
+.for-you-section {
+    margin-bottom: 2.5rem;
+}
+
+.section-see-all {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.section-see-all:hover {
+    color: var(--accent-color);
+}

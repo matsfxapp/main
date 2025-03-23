@@ -1,0 +1,183 @@
+/* Featured Artist Banner Styles */
+.featured-artist-banner {
+    background: linear-gradient(135deg, var(--card-bg), var(--darker-bg));
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin: 1rem 0 2.5rem 0;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    display: flex;
+    position: relative;
+    height: 280px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.featured-artist-banner:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+}
+
+.featured-artist-content {
+    padding: 2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+.featured-artist-label {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.featured-artist-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.featured-artist-desc {
+    color: var(--gray-text);
+    margin-bottom: 1.5rem;
+    max-width: 80%;
+    line-height: 1.6;
+}
+
+.featured-artist-cta {
+    display: flex;
+    gap: 1rem;
+}
+
+.featured-artist-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.featured-artist-button.primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    border: none;
+}
+
+.featured-artist-button.secondary {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.featured-artist-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.featured-artist-image {
+    flex: 0 0 40%;
+    position: relative;
+    overflow: hidden;
+}
+
+.featured-artist-image img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.featured-artist-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, var(--card-bg) 0%, transparent 100%);
+    z-index: 1;
+}
+
+.featured-artist-banner:hover .featured-artist-image img {
+    transform: scale(1.05);
+}
+
+/* Visual elements */
+.featured-bg-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
+    z-index: 0;
+}
+
+/* Animation */
+@keyframes pulsate {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+.pulse-icon {
+    animation: pulsate 2s infinite ease-in-out;
+    display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .featured-artist-banner {
+        flex-direction: column-reverse;
+        height: auto;
+    }
+    
+    .featured-artist-image {
+        height: 180px;
+    }
+    
+    .featured-artist-image::after {
+        background: linear-gradient(0deg, var(--card-bg) 0%, transparent 100%);
+    }
+    
+    .featured-artist-content {
+        padding: 1.5rem;
+    }
+    
+    .featured-artist-name {
+        font-size: 1.8rem;
+    }
+    
+    .featured-artist-desc {
+        max-width: 100%;
+    }
+}

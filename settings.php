@@ -37,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userSongs = getUserSongs($user_id);
         }
     }
-    
     if (isset($_POST['update_song'])) {
         $details = [
             'title' => $_POST['title'],

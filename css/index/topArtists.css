@@ -1,0 +1,141 @@
+/* Top Artists Section Styles */
+.top-artists-section {
+    margin: 3rem 0;
+    position: relative;
+}
+
+.top-artists-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.top-artist-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    width: 150px;
+    transition: transform 0.3s ease;
+}
+
+.top-artist-card:hover {
+    transform: translateY(-8px);
+}
+
+.top-artist-image-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, var(--card-bg), var(--card-hover));
+}
+
+.top-artist-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.top-artist-card:hover .top-artist-image {
+    transform: scale(1.1);
+}
+
+.top-artist-rank {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.top-artist-plays {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.top-artist-plays i {
+    color: var(--primary-color);
+}
+
+.top-artist-info {
+    text-align: center;
+    width: 100%;
+}
+
+.top-artist-name {
+    font-weight: 600;
+    color: var(--light-text);
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.top-artist-label {
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.fire-animation {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 24px;
+    animation: flicker 2s infinite alternate;
+}
+
+@keyframes flicker {
+    0%, 100% {
+        opacity: 1;
+        transform: rotate(-10deg) scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: rotate(10deg) scale(0.9);
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .top-artists-container {
+        gap: 1rem;
+    }
+    
+    .top-artist-card {
+        width: 120px;
+    }
+    
+    .top-artist-image-container {
+        width: 120px;
+        height: 120px;
+    }
+}

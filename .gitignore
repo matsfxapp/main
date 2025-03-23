@@ -1,9 +1,6 @@
 .env
 /.idea
 add_songs.php
-create_playlist.php
 get_songs.php
-fork_playlist.php
-playlist.php
 search_songs.php
 /.vscode

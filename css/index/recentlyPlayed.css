@@ -1,14 +1,84 @@
-.recently-played-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 2rem;
+/* Spotify-Style Recently Played Section */
+.recently-played-container {
+    margin-bottom: 2rem;
 }
 
-.recent-play .play-time {
-    color: var(--gray-text);
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
+.recently-played-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.recently-played-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    background-color: rgba(31, 41, 55, 0.4);
+    border-radius: 8px;
+    padding: 0.5rem;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.recently-played-item:hover {
+    background-color: rgba(31, 41, 55, 0.8);
+    transform: scale(1.01);
+}
+
+.recently-played-cover {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-right: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.recently-played-info {
+    flex: 1;
+    min-width: 0; /* Enables text truncation */
+}
+
+.recently-played-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--light-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.2rem;
+}
+
+.recently-played-artist {
+    color: var(--gray-text);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recently-played-time {
+    color: var(--gray-text);
+    font-size: 0.7rem;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.recently-played-item:hover .recently-played-play {
+    opacity: 1;
+}
+
+/* Media queries for responsive layout */
+@media (min-width: 768px) {
+    .recently-played-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .recently-played-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
