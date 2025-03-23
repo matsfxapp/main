@@ -109,21 +109,21 @@
 }
 
 .player-spacer {
-        height: 75px;
-        width: 100%;
-        display: block;
+    height: 75px;
+    width: 100%;
+    display: block;
 }
 
 .header-spacer {
     height: 25px;
-        width: 100%;
-        display: block;
+    width: 100%;
+    display: block;
 }
 
 @media (max-width: 768px) {
-        .player-spacer {
-                height: 50px;
-        }
+    .player-spacer {
+        height: 50px;
+     }
     .header-spacer {
         height: 50px;
     }
