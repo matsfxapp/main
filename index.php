@@ -353,6 +353,19 @@ try {
         'total_plays' => array_sum(array_column($songs, 'play_count'))
     ];
 }
+
+/**
+ * Function to add version parameter to asset URLs
+ * @param string $path Path to the asset file
+ * @return string Path with version parameter
+ */
+function asset_url($path) {
+    if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $path)) {
+        $version = filemtime($_SERVER['DOCUMENT_ROOT'] . '/' . $path);
+        return $path . '?v=' . $version;
+    }
+    return $path;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -380,22 +393,22 @@ try {
     <!-- links -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/navbar.css">
-    <link rel="stylesheet" href="css/share-button.css">
+    <link rel="stylesheet" href="<?php echo asset_url('css/style.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/navbar.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/share-button.css'); ?>">
 
-    <link rel="stylesheet" href="css/index/artistSection.css">
-    <link rel="stylesheet" href="css/index/newArtists.css">
-    <link rel="stylesheet" href="css/index/popularSongs.css">
-    <link rel="stylesheet" href="css/index/recentlyPlayed.css">
-    <link rel="stylesheet" href="css/index/topArtists.css">
-    <link rel="stylesheet" href="css/index/featuredArtist.css">
-    <link rel="stylesheet" href="css/index/forYou.css">
-    <link rel="stylesheet" href="css/index/genreSection.css">
-    <link rel="stylesheet" href="css/index/newReleases.css">
-    <link rel="stylesheet" href="css/index/siteStats.css">
-    <link rel="stylesheet" href="css/index/topArtists.css">
-    <link rel="stylesheet" href="css/index/welcomeBanner.css">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/artistSection.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/newArtists.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/popularSongs.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/recentlyPlayed.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/topArtists.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/featuredArtist.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/forYou.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/genreSection.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/newReleases.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/siteStats.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/topArtists.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset_url('css/index/welcomeBanner.css'); ?>">
 
     <script src="js/share-button.js"></script>
     <?php outputChristmasThemeCSS(); ?>
@@ -826,7 +839,8 @@ try {
     <div class="player-spacer"></div>
     <?php require_once 'includes/player.php'?>
 
-    <script src="js/index.js"></script>
-    <script src="js/search.js"></script>
+    <script src="<?php echo asset_url('js/index.js'); ?>"></script>
+    <script src="<?php echo asset_url('js/search.js'); ?>"></script>
+    <script src="<?php echo asset_url('js/genreSection.js'); ?>"></script>
 </body>
 </html>
