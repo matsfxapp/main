@@ -376,7 +376,7 @@ input[type="range"]::-moz-range-thumb {
 			transform: translateX(0%);
 		}
 		45%, 55% {
-			transform: translateX(calc(-100% + 80px));
+			transform: translateX(calc(-100% + 40px));
 		}
 		85%, 100% {
 			transform: translateX(0%);
@@ -456,7 +456,7 @@ input[type="range"]::-moz-range-thumb {
 	}
 
 	input[type="range"] {
-		width: 100%;
+		width: 235%;
 		height: 6px;
 		background: #535353;
 		appearance: none;
