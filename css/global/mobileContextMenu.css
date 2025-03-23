@@ -148,12 +148,12 @@
 
 /* Hide song action buttons on mobile */
 @media (max-width: 768px) {
-    /* Hide like buttons and containers 
+    /* Hide like buttons and containers */
     .like-button-container,
     .song-card .like-button,
     .song-row .like-button {
         display: none !important;
-    } */
+    }
     
     /* Hide share buttons */
     .share-btn,
@@ -167,10 +167,10 @@
         display: none !important;
     }
     
-    /* Hide any other action buttons that might be in the song cards 
+    /* Hide any other action buttons that might be in the song cards */
     .song-card-actions {
         display: none !important;
-    } */
+    }
     
     /* Make sure we don't leave empty spaces where buttons were */
     .song-card, .song-row {
