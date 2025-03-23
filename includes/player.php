@@ -9,7 +9,7 @@
     <div class="player-container">
         <div class="song-info">
             <img id="player-album-art" 
-                 src="" 
+                 src="defaults/default-cover.jpg" 
                  alt="Album Art" 
                  class="album-art" 
                  onerror="this.src='defaults/default-cover.jpg'">
