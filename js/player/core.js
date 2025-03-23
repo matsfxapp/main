@@ -63,7 +63,15 @@ function loadLastSongInfo(songData) {
     const songTitle = document.getElementById('songTitle');
     const artistName = document.getElementById('artistName');
     
-    if (albumArt) albumArt.src = songData.coverArt || 'defaults/default-cover.jpg';
+    // Make sure we set a valid cover art path
+    if (albumArt) {
+        if (songData.coverArt && songData.coverArt !== '') {
+            albumArt.src = songData.coverArt;
+        } else {
+            albumArt.src = 'defaults/default-cover.jpg';
+        }
+    }
+    
     if (songTitle) songTitle.textContent = songData.title || 'Unknown Title';
     if (artistName) artistName.textContent = songData.artist || 'Unknown Artist';
     
@@ -136,14 +144,14 @@ function continuePlaySong(element) {
         songId = songId || element.getAttribute('data-song-id');
         
         const albumSection = element.closest('.album-section');
-        coverArt = albumSection ? albumSection.querySelector('.album-cover')?.src : 'defaults/default-cover.jpg';
+        coverArt = albumSection ? albumSection.querySelector('.album-cover')?.src : null;
         
         // Update UI to show current playing song
         document.querySelectorAll('.song-row').forEach(row => row.classList.remove('playing'));
         element.classList.add('playing');
     } else if (element.classList.contains('song-card')) {
         // Handle song cards (from discover/search view)
-        coverArt = element.querySelector('.song-card-image, .cover-art')?.src || 'defaults/default-cover.jpg';
+        coverArt = element.querySelector('.song-card-image, .cover-art')?.src || null;
         songTitle = element.querySelector('.song-card-title, .song-title')?.textContent || 'Unknown Title';
         artistName = element.querySelector('.song-card-artist, .artist-link')?.textContent || 'Unknown Artist';
         songId = songId || element.getAttribute('data-song-id');
@@ -155,12 +163,20 @@ function continuePlaySong(element) {
         // Handle other element types or direct invocation
         songTitle = element.getAttribute('data-song-title') || 'Unknown Title';
         artistName = element.getAttribute('data-song-artist') || 'Unknown Artist';
-        coverArt = element.getAttribute('data-cover-art') || 'defaults/default-cover.jpg';
+        coverArt = element.getAttribute('data-cover-art') || null;
         songId = songId || element.getAttribute('data-song-id');
     }
 
-    // Update player UI
-    document.getElementById('player-album-art').src = coverArt;
+    // Update player UI - ensure cover art fallback if none is found
+    const albumArtElement = document.getElementById('player-album-art');
+    if (albumArtElement) {
+        if (coverArt && coverArt !== '') {
+            albumArtElement.src = coverArt;
+        } else {
+            albumArtElement.src = 'defaults/default-cover.jpg';
+        }
+    }
+    
     document.getElementById('songTitle').textContent = songTitle;
     document.getElementById('artistName').textContent = artistName;
     
@@ -173,7 +189,7 @@ function continuePlaySong(element) {
         artist: artistName,
         songId: songId,
         filePath: audioPlayer.src,
-        coverArt: coverArt
+        coverArt: coverArt || 'defaults/default-cover.jpg'
     });
 
     // Track song play if we have a song ID
