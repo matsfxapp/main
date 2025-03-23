@@ -148,12 +148,12 @@
 
 /* Hide song action buttons on mobile */
 @media (max-width: 768px) {
-    /* Hide like buttons and containers */
+    /* Hide like buttons and containers 
     .like-button-container,
     .song-card .like-button,
     .song-row .like-button {
         display: none !important;
-    }
+    } */
     
     /* Hide share buttons */
     .share-btn,
