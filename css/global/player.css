@@ -457,7 +457,7 @@ input[type="range"]::-moz-range-thumb {
 
 	input[type="range"] {
 		width: 235%;
-		height: 6px;
+		height: 2px;
 		background: #535353;
 		appearance: none;
 		border-radius: 3px;
