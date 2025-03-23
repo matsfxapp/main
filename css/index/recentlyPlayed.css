@@ -1,4 +1,4 @@
-/* Spotify-Style Recently Played Section */
+/* Recently Played Section */
 .recently-played-container {
     margin-bottom: 2rem;
 }
@@ -68,7 +68,6 @@
     opacity: 1;
 }
 
-/* Media queries for responsive layout */
 @media (min-width: 768px) {
     .recently-played-list {
         display: grid;
