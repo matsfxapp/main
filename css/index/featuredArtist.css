@@ -33,6 +33,7 @@
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
+    max-width: 155px;
     font-weight: bold;
     display: inline-block;
     margin-bottom: 1rem;
