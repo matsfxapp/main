@@ -1,6 +1,6 @@
 <?php
-require_once 'config/config.php';
-require_once 'music_handlers.php';
+require_once '../config/config.php';
+require_once '../music_handlers.php';
 
 header('Content-Type: application/json');
 
