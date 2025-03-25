@@ -1,0 +1,977 @@
+:root {
+    --primary-color: #2D7FF9;
+    --primary-hover: #1E6AD4;
+    --primary-light: rgba(45, 127, 249, 0.1);
+    --accent-color: #18BFFF;
+    --dark-bg: #0A1220;
+    --darker-bg: #060912;
+    --card-bg: #111827;
+    --card-hover: #1F2937;
+    --nav-bg: rgba(17, 24, 39, 0.95);
+    --light-text: #FFFFFF;
+    --gray-text: #94A3B8;
+    --border-color: #1F2937;
+    --border-radius: 12px;
+    --border-radius-lg: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --error-color: #FF4B4B;
+    --success-color: #10B981;
+}
+
+.upload-page {
+    min-height: 100vh;
+    background: radial-gradient(circle at top right, var(--darker-bg) 0%, var(--dark-bg) 100%);
+    color: var(--light-text);
+    padding: 2rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.upload-container {
+    width: 100%;
+    max-width: 700px;
+    margin: 4rem auto;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.upload-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+.upload-header {
+    padding: 2rem 2rem 1.5rem;
+    text-align: center;
+    position: relative;
+}
+
+.upload-logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+    margin: 0 auto 1rem;
+    transition: transform 0.3s ease;
+}
+
+.upload-logo:hover {
+    transform: scale(1.05);
+}
+
+.upload-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--light-text), var(--primary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.upload-subtitle {
+    color: var(--gray-text);
+    font-size: 0.925rem;
+    margin-bottom: 0;
+}
+
+.upload-body {
+    padding: 1.5rem 2rem 2rem;
+}
+
+/* Form Elements */
+.upload-form {
+    margin-top: -1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--light-text);
+    font-weight: 500;
+    font-size: 0.925rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    border: 2px solid var(--border-color);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--light-text);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+.form-input.error {
+    border-color: var(--error-color);
+    background-color: rgba(255, 75, 75, 0.05);
+}
+
+.form-error {
+    color: var(--error-color);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.form-help {
+    color: var(--gray-text);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.upload-form {
+    background-color: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: var(--border-radius-lg);
+    max-width: 600px;
+    margin: 8rem auto;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    animation: slideUp 0.6s ease-out;
+}
+
+.form-group {
+    margin-bottom: 1.75rem;
+	width: 85%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: var(--light-text);
+    font-weight: 500;
+    font-size: 0.925rem;
+}
+
+.form-group input {
+    width: 118%;
+    padding: 0.875rem 1.25rem;
+    border: 2px solid var(--border-color);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--light-text);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+.btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: var(--light-text);
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 500px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(45, 127, 249, 0.4);
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2));
+    transform: translateY(100%);
+    transition: var(--transition);
+}
+
+.btn:hover::after {
+    transform: translateY(0);
+}
+
+/* Buttons */
+.upload-btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: var(--light-text);
+    border: none;
+    border-radius: var(--border-radius-lg);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(45, 127, 249, 0.4);
+}
+
+.upload-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2));
+    transform: translateY(100%);
+    transition: var(--transition);
+}
+
+.upload-btn:hover::after {
+    transform: translateY(0);
+}
+
+.upload-btn-secondary {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background-color: var(--card-hover);
+    color: var(--light-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 1.5rem;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.upload-btn-secondary:hover {
+    background-color: var(--border-color);
+    transform: translateY(-2px);
+}
+
+/* Alert Messages */
+.upload-alert {
+    padding: 1rem 1.25rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+.upload-alert-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.upload-alert-content {
+    flex: 1;
+}
+
+.upload-alert-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.upload-alert-message {
+    font-size: 0.925rem;
+    margin: 0;
+}
+
+.upload-alert.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.upload-alert.success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Multi-step Form */
+.form-step {
+    display: none;
+}
+
+.form-step.active {
+    display: block;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.upload-progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.upload-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.upload-step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--card-bg);
+    border: 2px solid var(--border-color);
+    color: var(--gray-text);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.upload-step.active .upload-step-number {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--light-text);
+}
+
+.upload-step.completed .upload-step-number {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    color: var(--light-text);
+}
+
+.upload-step-label {
+    font-size: 0.8rem;
+    color: var(--gray-text);
+}
+
+.upload-step.active .upload-step-label {
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-actions .upload-btn,
+.form-actions .upload-btn-secondary {
+    margin-bottom: 0;
+}
+
+/* Album Selection */
+.album-options {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.option-card {
+    flex: 1;
+    min-width: 520px;
+    position: relative;
+}
+
+.option-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.option-card label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background-color: var(--card-hover);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    height: 100%;
+}
+
+.option-card input[type="radio"]:checked + label {
+    border-color: var(--primary-color);
+    background-color: var(--primary-light);
+}
+
+.option-card label i {
+    font-size: 2rem;
+    color: var(--gray-text);
+    transition: var(--transition);
+}
+
+.option-card input[type="radio"]:checked + label i {
+    color: var(--primary-color);
+}
+
+.option-card label span {
+    font-weight: 500;
+}
+
+.album-form {
+    margin-bottom: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Cover Art Upload */
+.cover-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1rem;
+    margin-left: 5rem;
+}
+
+.cover-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 2px solid var(--border-color);
+    background-color: var(--card-hover);
+    transition: var(--transition);
+}
+
+.cover-upload:hover .cover-preview {
+    border-color: var(--primary-color);
+    transform: scale(1.02);
+}
+
+.cover-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--card-hover);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.cover-upload-label:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+}
+
+.cover-upload-input {
+    display: none;
+}
+
+.cover-upload-info {
+    font-size: 0.8rem;
+    color: var(--gray-text);
+    margin-top: 0.5rem;
+}
+
+/* Song Upload */
+.song-upload {
+    margin-bottom: 1rem;
+}
+
+.song-upload-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--card-hover);
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 1rem;
+    width: 520px;
+}
+
+.song-upload-dropzone:hover,
+.song-upload-dropzone.highlight {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+}
+
+.song-upload-dropzone i {
+    font-size: 2.5rem;
+    color: var(--gray-text);
+}
+
+.song-upload-dropzone.file-selected {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+    border-style: solid;
+}
+
+.song-upload-dropzone.file-selected i {
+    color: var(--primary-color);
+}
+
+.song-upload-input {
+    display: none;
+}
+
+.song-file-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--light-text);
+    background-color: var(--card-hover);
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+    width: 520px;
+}
+
+.file-info {
+    font-size: 0.8rem;
+    color: var(--gray-text);
+}
+
+/* Upload Progress */
+.upload-progress-container {
+    margin-bottom: 1.5rem;
+}
+
+.upload-progress-bar-container {
+    height: 8px;
+    background-color: var(--card-hover);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.upload-progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.upload-progress-text {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--gray-text);
+}
+
+/* Upload Summary */
+.upload-summary {
+    background-color: var(--card-hover);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.upload-summary h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: var(--light-text);
+}
+
+.summary-item {
+    margin-bottom: 0.75rem;
+}
+
+.summary-item strong {
+    display: inline-block;
+    min-width: 80px;
+    color: var(--gray-text);
+}
+
+/* Upload Success Page */
+.success-card {
+    text-align: center;
+}
+
+.success-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: var(--success-color);
+    margin-bottom: 1rem;
+    animation: bounceIn 0.8s ease;
+}
+
+.song-details {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 500px;
+    background-color: var(--card-hover);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: left;
+}
+
+.song-preview {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.song-preview-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.song-preview-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.song-preview:hover .song-preview-play {
+    opacity: 1;
+}
+
+.song-info {
+    flex: 1;
+}
+
+.song-title {
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.song-artist, .song-album, .song-genre {
+    margin: 0.25rem 0;
+    color: var(--gray-text);
+}
+
+.success-message {
+    font-size: 1.1rem;
+    max-width: 600px;
+}
+
+.share-section {
+    width: 100%;
+    max-width: 600px;
+    background-color: var(--card-hover);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+}
+
+.share-section h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.share-link-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.share-link-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--light-text);
+    font-size: 0.9rem;
+}
+
+.share-copy-btn {
+    padding: 0.75rem 1rem;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.share-copy-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.share-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.share-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--light-text);
+    font-size: 1.2rem;
+    transition: var(--transition);
+}
+
+.share-icon.twitter {
+    background-color: #1DA1F2;
+}
+
+.share-icon.facebook {
+    background-color: #4267B2;
+}
+
+.share-icon.whatsapp {
+    background-color: #25D366;
+}
+
+.share-icon:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.success-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.success-actions .upload-btn,
+.success-actions .upload-btn-secondary {
+    margin-bottom: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 768px) {
+    .upload-container {
+        padding: 0;
+        margin: 1rem auto;
+        width: 100%;
+    }
+    
+    .upload-card {
+        border-radius: var(--border-radius);
+        width: 100%;
+    }
+    
+    .upload-header {
+        padding: 1.5rem 1.5rem 1rem;
+    }
+    
+    .upload-body {
+        padding: 1rem 1.5rem 1.5rem;
+    }
+    
+    .upload-logo {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .upload-title {
+        font-size: 1.5rem;
+    }
+    
+    .upload-form {
+        padding: 1.5rem;
+        max-width: 100%;
+        margin: 2rem auto;
+    }
+    
+    .form-group {
+        width: 100%;
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+    }
+    
+    .album-options {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .option-card {
+        min-width: 100%;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .song-upload-dropzone {
+        width: 100%;
+        padding: 1.5rem 1rem;
+    }
+    
+    .song-file-info {
+        width: 100%;
+    }
+
+    .cover-upload {
+        margin-left: 0;
+        width: 100%;
+        align-items: center;
+    }
+    
+    .song-details {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .song-preview-image {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .share-link-container {
+        flex-direction: column;
+    }
+    
+    .share-copy-btn {
+        width: 100%;
+    }
+    
+    .share-icons {
+        gap: 1rem;
+    }
+    
+    .success-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .upload-progress-steps {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .upload-step {
+        margin: 0 0.5rem;
+    }
+
+    .upload-alert {
+        padding: 0.75rem 1rem;
+    }
+
+    .upload-summary {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .upload-page {
+        padding: 1rem;
+    }
+    
+    .upload-title {
+        font-size: 1.25rem;
+    }
+    
+    .upload-subtitle {
+        font-size: 0.875rem;
+    }
+    
+    .btn, .upload-btn, .upload-btn-secondary {
+        padding: 0.75rem 1.25rem;
+    }
+    
+    .song-preview-image {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .song-title {
+        font-size: 1.1rem;
+    }
+}

@@ -32,25 +32,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
+    // login check
     if ($user && password_verify($password, $user['password'])) {
-        if ($user['email_verified'] == 1) {
-            // Set session variables
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['username'] = $user['username'];
-            
-            // Handle remember me
-            if ($remember) {
-                createRememberMeToken($user['user_id']);
-            }
-            
-            // Redirect to stored return url default home
-            $return_url = $_SESSION['return_url'] ?? '/';
-            unset($_SESSION['return_url']);
-            header("Location: $return_url");
-            exit();
-        } else {
-            $error = "Please verify your email address before logging in.";
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['email_verified'] = $user['email_verified']; // Store verification status in session
+        
+        // Handle remember me
+        if ($remember) {
+            createRememberMeToken($user['user_id']);
         }
+        
+        // Redirect to stored return url or default home
+        $return_url = isset($_SESSION['return_url']) ? $_SESSION['return_url'] : '/';
+        unset($_SESSION['return_url']);
+        header("Location: $return_url");
+        exit();
     } else {
         $error = "Invalid email or password.";
     }
@@ -72,77 +69,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <title>Login - matSFX</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/auth.css">
     
-    <?php outputChristmasThemeCSS(); ?>
-    
-    <style>
-        a {
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        a:hover {
-            color: var(--accent-color);
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            gap: 0.5rem;
-        }
-
-        .remember-me input[type="checkbox"] {
-            width: 1.125rem;
-            height: 1.125rem;
-            border: 2px solid var(--border-color);
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .remember-me label {
-            margin-bottom: 0;
-            color: var(--gray-text);
-            cursor: pointer;
-        }
-    </style>
+    <?php if (function_exists('outputChristmasThemeCSS')) outputChristmasThemeCSS(); ?>
 </head>
-<body>
-    <div class="container">
-        <div class="upload-form">
-            <h2>Login</h2>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <a href="/">
+                    <img src="/app_logos/matsfx_logo.png" alt="matSFX Logo" class="auth-logo">
+                </a>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Login to continue to matSFX</p>
+            </div>
+            
+            <div class="auth-body">
+                <?php if (isset($error)): ?>
+                    <div class="auth-alert error">
+                        <div class="auth-alert-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="auth-alert-content">
+                            <div class="auth-alert-title">Login Failed</div>
+                            <p class="auth-alert-message"><?php echo $error; ?></p>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
-            <?php if (isset($error)): ?>
-                <div class="alert error"><?php echo $error; ?></div>
-            <?php endif; ?>
+                <form method="POST" class="auth-form">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="email" class="form-input" required 
+                               value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
+                               placeholder="Enter your email">
+                    </div>
 
-            <form method="POST">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required 
-                           value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
-                </div>
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" name="password" class="form-input" required
+                               placeholder="Enter your password">
+                    </div>
+                    
+                    <div class="form-group forgot-password">
+                        <a href="resetpassword">Forgot password?</a>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-container">
+                            Remember me
+                            <input type="checkbox" name="remember" id="remember"
+                                <?php echo isset($_POST['remember']) ? 'checked' : ''; ?>>
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                
-                <div class="remember-me">
-                    <input type="checkbox" name="remember" id="remember"
-                           <?php echo isset($_POST['remember']) ? 'checked' : ''; ?>>
-                    <label for="remember">Remember Me</label>
-                </div>
-
-                <button type="submit" class="btn">Login</button>
-            </form>
+                    <button type="submit" class="auth-btn">Login</button>
+                    
+                    <div class="social-auth">
+                        <div class="social-auth-divider">
+                            <div class="divider-line"></div>
+                            <div class="divider-text">or continue with</div>
+                            <div class="divider-line"></div>
+                        </div>
+                        
+                        <div class="coming-soon-badge">Coming in Full Release</div>
+                        
+                        <div class="social-buttons">
+                            <button type="button" class="social-btn" disabled>
+                                <i class="fab fa-google"></i>
+                            </button>
+                            <button type="button" class="social-btn" disabled>
+                                <i class="fab fa-github"></i>
+                            </button>
+                            <button type="button" class="social-btn" disabled>
+                                <i class="fab fa-discord"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
   
-            <p>Don't have an account? <a href="register">Sign up</a></p>
-            <p>Forgot Password? <a href="resetpassword">Reset Password</a></p>
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="register" class="auth-link">Sign up</a></p>
+                </div>
+            </div>
         </div>
     </div>
+    
     <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
     <script>
         kofiWidgetOverlay.draw('matsfx', {

@@ -24,10 +24,14 @@ services:
       DB_USER: ${MYSQL_USER}
       DB_PASS: ${MYSQL_PASSWORD}
       DB_HOST: matsfx-mariadb
+      MINIO_HOST: minio:9000
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: ZyCJyO9P1De546MAdLJO3shKQ93govZTKlX3f
     ports:
       - "${PORT}:80"
     depends_on:
       - mariadb
+      - minio
     volumes:
       - .:/var/www/html
     pull_policy: build
@@ -52,8 +56,8 @@ services:
     container_name: matsfx-minio
     restart: always
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: ZyCJyO9P1De546MAdLJO3shKQ93govZTKlX3f
     command: server /data --console-address ":9001"
     ports:
       - "${MINIO_PORT}:9000"

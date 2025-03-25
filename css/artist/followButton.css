@@ -1,17 +1,19 @@
 .follow-button {
-    position: relative;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    background-color: #007bff;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: var(--light-text);
     border: none;
-    border-radius: 8px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    overflow: hidden;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transform-style: preserve-3d;
+    position: relative;
+    overflow: hidden;
 }
 
 .follow-button:before {
@@ -30,25 +32,88 @@
 }
 
 .follow-button:hover {
-    transform: scale(1.05) perspective(1px);
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
-.follow-button.unfollow-button {
-    background-color: #dc3545;
-}
-
 .follow-button.following {
-    background-color: #28a745;
+    background-color: var(--card-hover);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
 }
 
-.follow-button .follow-text {
+.follow-button.following:hover {
+    background-color: rgba(255, 75, 75, 0.1);
+    color: #FF4B4B;
+    border-color: #FF4B4B;
+}
+
+.follow-button.following:hover .follow-text:after {
+    content: 'Unfollow';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.follow-button.following:hover .follow-text span {
+    opacity: 0;
+}
+
+.follow-text {
     position: relative;
     z-index: 1;
 }
 
-.follow-button .follow-icon {
-    margin-right: 8px;
-    position: relative;
-    z-index: 1;
+.follow-button i {
+    font-size: 1rem;
+}
+
+.edit-profile-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.edit-profile-button:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.login-prompt {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.login-button, .signup-button {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.login-button:hover, .signup-button:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .follow-button, .edit-profile-button {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+    }
 }

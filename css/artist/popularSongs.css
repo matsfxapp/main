@@ -4,15 +4,17 @@
     margin-left: auto;
     margin-right: auto;
     background-color: var(--card-bg);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-lg);
     padding: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid var(--border-color);
+    animation: fadeIn 0.5s ease-out;
 }
 
 .popular-container:hover {
     transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
 }
 
 .popular-songs {
@@ -29,11 +31,30 @@
     margin-bottom: 8px;
     background-color: rgba(31, 41, 55, 0.5);
     position: relative;
+    border: 1px solid transparent;
 }
 
 .popular-song-row:hover {
     background-color: var(--card-hover);
     transform: translateX(5px);
+    border-color: var(--border-color);
+}
+
+.popular-container, .albums-container, .singles-container {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.popular-container:hover, .albums-container:hover, .singles-container:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
 }
 
 .song-image {
@@ -44,8 +65,15 @@
 .popular-song-image {
     width: 40px;
     height: 40px;
-    border-radius: 4px;
+    border-radius: 6px;
     object-fit: cover;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.popular-song-row:hover .popular-song-image {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
 }
 
 .song-row-metrics {
@@ -57,6 +85,11 @@
 }
 
 .popular-song-row .song-number {
+    width: 25px;
+    color: var(--gray-text);
+    font-size: 0.9em;
+    text-align: right;
+    padding-right: 15px;
     transition: all 0.2s ease;
 }
 
@@ -74,9 +107,21 @@
     color: var(--primary-color);
 }
 
+.song-action-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.popular-song-row:hover .song-action-buttons {
+    opacity: 1;
+}
+
 @media (max-width: 768px) {
     .popular-container {
-        max-width: 90%;
+        max-width: 100%;
     }
     
     .popular-song-image {

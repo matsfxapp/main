@@ -1,9 +1,30 @@
-.profile-stats span {
-    margin-right: 20px;
+.profile-stats {
+    display: flex;
+    gap: 2rem;
     color: var(--gray-text);
-    font-size: 0.9em;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-stats span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 0;
+}
+
+.profile-stats span i {
+    color: var(--primary-color);
 }
 
 .profile-stats span:last-child {
     margin-right: 0;
+}
+
+@media (max-width: 768px) {
+    .profile-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
 }

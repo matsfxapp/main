@@ -9,7 +9,6 @@ function getMinioClient() {
     global $minioConfig;
     
     try {
-        // Log connection attempt
         error_log("Attempting to connect to MinIO at: " . $minioConfig['endpoint']);
         
         $client = new S3Client([
@@ -21,14 +20,12 @@ function getMinioClient() {
                 'key' => $minioConfig['credentials']['key'],
                 'secret' => $minioConfig['credentials']['secret'],
             ],
-            // Increased timeouts for reliability
             'http' => [
                 'connect_timeout' => 10,
                 'timeout' => 15
             ]
         ]);
-        
-        // Test the connection
+
         $client->listBuckets();
         error_log("MinIO connection successful");
         return $client;
@@ -42,23 +39,22 @@ function getMinIOObjectUrl($bucket, $key) {
     if (empty($key)) {
         return '/defaults/default-cover.jpg';
     }
-    
-    // Map bucket names to their specific URL prefixes
+
     $bucketUrls = [
         'music-songs' => 'http://cdn.matsfx.com/music-songs/',
         'songs' => 'http://cdn.matsfx.com/music-songs/',
         'music-covers' => 'http://cdn.matsfx.com/music-covers/',
         'covers' => 'http://cdn.matsfx.com/music-covers/',
         'user-profiles' => 'http://cdn.matsfx.com/user-profiles/',
-        'profiles' => 'http://cdn.matsfx.com/user-profiles/'
+        'profiles' => 'http://cdn.matsfx.com/user-profiles/',
+        'user-banners' => 'http://cdn.matsfx.com/user-banners/',
+        'banners' => 'http://cdn.matsfx.com/user-banners/'
     ];
     
-    // Check if we have a specific URL for this bucket
     if (isset($bucketUrls[$bucket])) {
         return $bucketUrls[$bucket] . $key;
     }
     
-    // Fallback to the original implementation if bucket not in our map
     global $minioConfig;
     $endpoint = rtrim($minioConfig['endpoint'], '/');
     return "$endpoint/$bucket/$key";
@@ -70,15 +66,14 @@ function ensureMinIOBuckets() {
     try {
         $s3 = getMinioClient();
         
-        // Get bucket names from config
         $buckets = [
             $minioConfig['buckets']['songs'] ?? 'music-songs',
             $minioConfig['buckets']['covers'] ?? 'music-covers',
-            $minioConfig['buckets']['profiles'] ?? 'music-profiles'
+            $minioConfig['buckets']['profiles'] ?? 'user-profiles',
+            $minioConfig['buckets']['banners'] ?? 'user-banners'
         ];
         
         foreach ($buckets as $bucket) {
-            // Check if bucket exists
             try {
                 $bucketExists = $s3->doesBucketExist($bucket);
                 error_log("Bucket $bucket exists: " . ($bucketExists ? "yes" : "no"));
@@ -87,8 +82,7 @@ function ensureMinIOBuckets() {
                 error_log("Error checking if bucket exists: " . $e->getMessage());
                 throw new Exception("Failed to check if bucket '$bucket' exists: " . $e->getMessage());
             }
-            
-            // Create bucket if it doesn't exist
+
             if (!$bucketExists) {
                 error_log("Creating bucket: $bucket");
                 
@@ -97,7 +91,6 @@ function ensureMinIOBuckets() {
                         'Bucket' => $bucket
                     ]);
                     
-                    // Set more permissive access policy on the bucket
                     $s3->putBucketPolicy([
                         'Bucket' => $bucket,
                         'Policy' => json_encode([
@@ -164,7 +157,19 @@ function ensureMinIOBuckets() {
     }
 }
 
-function uploadSong($title, $artist, $album, $genre, $file, $cover_art = null) {
+/**
+ * Upload a song to MinIO and add it to the database
+ * 
+ * @param string $title Song title
+ * @param string $artist Artist name
+ * @param string $album Album name (optional)
+ * @param string $genre Genre (optional)
+ * @param array $file Song file array ($_FILES['song_file'])
+ * @param array|null $cover_art Cover art file array (optional)
+ * @param string|null $existing_cover Path to existing cover art (optional)
+ * @return array Result with success status, message, and song_id on success
+ */
+function uploadSong($title, $artist, $album, $genre, $file, $cover_art = null, $existing_cover = null) {
     global $pdo, $minioConfig;
     
     // Debug log
@@ -173,7 +178,8 @@ function uploadSong($title, $artist, $album, $genre, $file, $cover_art = null) {
     // Initialize result array
     $result = [
         'success' => false,
-        'message' => 'Unknown error occurred'
+        'message' => 'Unknown error occurred',
+        'song_id' => null
     ];
     
     // Check file error
@@ -256,6 +262,10 @@ function uploadSong($title, $artist, $album, $genre, $file, $cover_art = null) {
                 error_log("Warning: Failed to upload cover art to MinIO: " . $e->getMessage());
                 $cover_filename = null;
             }
+        } elseif ($existing_cover) {
+            // Use existing cover art
+            $cover_filename = $existing_cover;
+            error_log("Using existing album cover: $cover_filename");
         }
         
         // Store in database
@@ -275,9 +285,12 @@ function uploadSong($title, $artist, $album, $genre, $file, $cover_art = null) {
                 ':uploaded_by' => $_SESSION['user_id'] ?? 0
             ]);
             
-            error_log("Song database entry created successfully: $title by $artist");
+            $songId = $pdo->lastInsertId();
+            
+            error_log("Song database entry created successfully: $title by $artist (ID: $songId)");
             $result['success'] = true;
             $result['message'] = "Song uploaded successfully!";
+            $result['song_id'] = $songId;
             return $result;
         } catch (PDOException $e) {
             $errorMsg = "Database error while storing song: " . $e->getMessage();

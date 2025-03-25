@@ -17,25 +17,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($step === 1) {
         $username = sanitizeInput($_POST['username']);
         $email = sanitizeInput($_POST['email']);
+        $password = $_POST['password'];
+        
+        // Validation
+        $validation_errors = [];
+        
+        // Check username
+        if (strlen($username) < 3) {
+            $validation_errors['username'] = "Username must be at least 3 characters long";
+        }
+        
+        // Check email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $validation_errors['email'] = "Please enter a valid email address";
+        }
+        
+        // Check password
+        if (strlen($password) < 6) {
+            $validation_errors['password'] = "Password must be at least 6 characters long";
+        }
         
         // Check if username already exists
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
-        $stmt->execute([$username]);
-        if ($stmt->fetchColumn() > 0) {
-            $error = "Username already taken. Please choose another one.";
-        } else {
-            $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+        if (empty($validation_errors)) {
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+            $stmt->execute([$username]);
+            if ($stmt->fetchColumn() > 0) {
+                $validation_errors['username'] = "Username already taken. Please choose another one.";
+            }
+            
+            // Check if email already exists
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            if ($stmt->fetchColumn() > 0) {
+                $validation_errors['email'] = "Email already registered. Please use a different email or login instead.";
+            }
+        }
+        
+        if (empty($validation_errors)) {
+            $password = password_hash($password, PASSWORD_BCRYPT);
             $verification_code = bin2hex(random_bytes(16));
             
             $_SESSION['registration_data'] = [
-            'username' => $username,
-            'email' => $email,
-            'password' => $password,
+                'username' => $username,
+                'email' => $email,
+                'password' => $password,
                 'verification_code' => $verification_code
             ];
             
             header("Location: register?step=2");
             exit();
+        } else {
+            $error = true;
         }
     } else if ($step === 2) {
         $registration_data = $_SESSION['registration_data'] ?? null;
@@ -64,8 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-        
-        $stmt = $pdo->prepare("INSERT INTO users (username, email, password, email_verified, verification_code, profile_picture) VALUES (?, ?, ?, 0, ?, ?)");
+
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, password, email_verified, verification_code, profile_picture) 
+                              VALUES (?, ?, ?, 0, ?, ?)");
         if ($stmt->execute([
             $registration_data['username'],
             $registration_data['email'],
@@ -74,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $profile_picture
         ])) {
             if (sendVerificationEmail($registration_data['email'], $registration_data['verification_code'])) {
-                $success = "Registration successful! Check your inbox and spam folders, for the verification link.";
+                $success = "Registration successful! Check your inbox and spam folders for the verification link.";
                 unset($_SESSION['registration_data']);
             } else {
                 $error = "Registration successful, but failed to send verification email.";
@@ -218,192 +251,172 @@ function sendVerificationEmail($email, $code) {
     <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <title>Register - matSFX</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/auth.css">
     
     <?php if (function_exists('outputChristmasThemeCSS')) outputChristmasThemeCSS(); ?>
-    
-    <style>
-        a {
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        a:hover {
-            color: var(--accent-color);
-        }
-
-        .profile-picture-upload {
-            text-align: center;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .profile-image-label {
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .profile-picture-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary-color);
-            transition: transform 0.2s;
-        }
-        
-        .profile-image-label:hover .profile-picture-preview {
-            transform: scale(1.05);
-        }
-        
-        .profile-preview-text {
-            color: var(--primary-color);
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-        
-        .hidden-file-input {
-            display: none;
-        }
-        
-        .skip-step {
-            color: var(--gray-text);
-            text-decoration: none;
-            font-size: 0.9em;
-            transition: color 0.2s;
-        }
-        
-        .skip-step:hover {
-            color: var(--light-text);
-        }
-        
-        .complete-registration {
-            width: 100%;
-            max-width: 300px;
-            padding: 12px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .steps-indicator {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            position: relative;
-        }
-        
-        .steps-indicator::before {
-            content: '';
-            position: absolute;
-            width: 30px;
-            height: 2px;
-            background: var(--primary-color);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        .step {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: var(--card-bg);
-            border: 2px solid var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--light-text);
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .step.active {
-            background: var(--primary-color);
-        }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="upload-form">
-            <h2>Register</h2>
-            
-            <div class="steps-indicator">
-                <div class="step <?php echo $step === 1 ? 'active' : ''; ?>">1</div>
-                <div class="step <?php echo $step === 2 ? 'active' : ''; ?>">2</div>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <a href="/">
+                    <img src="/app_logos/matsfx_logo.png" alt="matSFX Logo" class="auth-logo">
+                </a>
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join matSFX to discover and share music</p>
             </div>
-
-            <?php if (isset($success)): ?>
-                <div class="alert success"><?php echo $success; ?></div>
-            <?php endif; ?>
-
-            <?php if (isset($error)): ?>
-                <div class="alert error"><?php echo $error; ?></div>
-            <?php endif; ?>
-
-            <?php if ($step === 1): ?>
-                <form method="POST">
-                    <div class="form-group">
-                        <label for="username">Username *</label>
-                        <input type="text" id="username" name="username" required>
+            
+            <div class="auth-body">
+                <?php if (isset($success)): ?>
+                    <div class="auth-alert success">
+                        <div class="auth-alert-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="auth-alert-content">
+                            <div class="auth-alert-title">Registration Complete</div>
+                            <p class="auth-alert-message"><?php echo $success; ?></p>
+                        </div>
                     </div>
+                <?php endif; ?>
 
-                    <div class="form-group">
-                        <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" required>
+                <?php if (isset($error) && $error === true && isset($validation_errors)): ?>
+                    <div class="auth-alert error">
+                        <div class="auth-alert-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="auth-alert-content">
+                            <div class="auth-alert-title">Registration Failed</div>
+                            <p class="auth-alert-message">Please correct the errors below.</p>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="password">Password *</label>
-                        <input type="password" id="password" name="password" required>
+                <?php elseif (isset($error) && is_string($error)): ?>
+                    <div class="auth-alert error">
+                        <div class="auth-alert-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="auth-alert-content">
+                            <div class="auth-alert-title">Registration Failed</div>
+                            <p class="auth-alert-message"><?php echo $error; ?></p>
+                        </div>
                     </div>
+                <?php endif; ?>
 
-                    <button type="submit" class="btn">Continue</button>
-                </form>
-            <?php else: ?>
-                <form method="POST" enctype="multipart/form-data">
-                    <div class="profile-picture-upload">
-                        <label for="profile_picture" class="profile-image-label">
-                            <img src="defaults/default-profile.jpg" alt="Profile Preview" class="profile-picture-preview" id="preview">
-                            <div class="profile-preview-text">Profile Preview</div>
-                        </label>
-                        <input type="file" id="profile_picture" name="profile_picture" accept="image/*" onchange="previewImage(this)" class="hidden-file-input">
+                <div class="registration-steps">
+                    <div class="step-indicator <?php echo $step === 1 ? 'active' : ($step > 1 ? 'completed' : ''); ?>">
+                        <?php echo $step > 1 ? '<i class="fas fa-check"></i>' : '1'; ?>
+                    </div>
+                    <div class="step-indicator <?php echo $step === 2 ? 'active' : ($step > 2 ? 'completed' : ''); ?>">
+                        2
+                    </div>
+                </div>
+
+                <?php if ($step === 1): ?>
+                    <form method="POST" class="auth-form">
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" id="username" name="username" class="form-input <?php echo isset($validation_errors['username']) ? 'error' : ''; ?>" 
+                                   value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>" 
+                                   placeholder="Choose a username" required>
+                            <?php if (isset($validation_errors['username'])): ?>
+                                <span class="form-error"><?php echo $validation_errors['username']; ?></span>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-input <?php echo isset($validation_errors['email']) ? 'error' : ''; ?>" 
+                                   value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" 
+                                   placeholder="Enter your email" required>
+                            <?php if (isset($validation_errors['email'])): ?>
+                                <span class="form-error"><?php echo $validation_errors['email']; ?></span>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" id="password" name="password" class="form-input <?php echo isset($validation_errors['password']) ? 'error' : ''; ?>" 
+                                   placeholder="Create a password" required>
+                            <?php if (isset($validation_errors['password'])): ?>
+                                <span class="form-error"><?php echo $validation_errors['password']; ?></span>
+                            <?php endif; ?>
+                        </div>
+
+                        <button type="submit" class="auth-btn">Continue</button>
                         
-                        <a href="#" class="skip-step">Skip this step</a>
-                        <button type="submit" class="btn complete-registration">COMPLETE REGISTRATION</button>
-                    </div>
-                </form>
+                        <div class="social-auth">
+                            <div class="social-auth-divider">
+                                <div class="divider-line"></div>
+                                <div class="divider-text">or sign up with</div>
+                                <div class="divider-line"></div>
+                            </div>
+                            
+                            <div class="coming-soon-badge">Coming in Full Release</div>
+                            
+                            <div class="social-buttons">
+                                <button type="button" class="social-btn" disabled>
+                                    <i class="fab fa-google"></i>
+                                </button>
+                                <button type="button" class="social-btn" disabled>
+                                    <i class="fab fa-github"></i>
+                                </button>
+                                <button type="button" class="social-btn" disabled>
+                                    <i class="fab fa-discord"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                <?php else: ?>
+                    <form method="POST" class="auth-form" enctype="multipart/form-data">
+                        <div class="profile-upload">
+                            <img src="defaults/default-profile.jpg" alt="Profile Preview" class="profile-preview" id="preview">
+                            <label for="profile_picture" class="profile-upload-label">
+                                <i class="fas fa-camera"></i> Choose Profile Picture
+                            </label>
+                            <input type="file" id="profile_picture" name="profile_picture" class="profile-upload-input" accept="image/*">
+                            <button type="submit" class="skip-upload">Skip this step</button>
+                        </div>
 
-                <script>
-                function previewImage(input) {
-                    if (input.files && input.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            document.getElementById('preview').src = e.target.result;
-                        }
-                        reader.readAsDataURL(input.files[0]);
-                    }
-                }
+                        <button type="submit" class="auth-btn">Complete Registration</button>
+                    </form>
+                <?php endif; ?>
 
-                document.querySelector('.skip-step').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.querySelector('form').submit();
-                });
-                </script>
-            <?php endif; ?>
-
-            <p>Already have an account? <a class="register-footer-link" href="login">Log in</a></p>
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="login" class="auth-link">Log in</a></p>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const profileInput = document.getElementById('profile_picture');
+        if (profileInput) {
+            profileInput.addEventListener('change', function() {
+                previewImage(this);
+            });
+        }
+    });
+    </script>
+    
+    <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+    <script>
+        kofiWidgetOverlay.draw('matsfx', {
+            'type': 'floating-chat',
+            'floating-chat.donateButton.text': 'Support Us',
+            'floating-chat.donateButton.background-color': '#ffffff',
+            'floating-chat.donateButton.text-color': '#323842'
+        });
+    </script>
 </body>
 </html>

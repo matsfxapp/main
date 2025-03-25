@@ -11,15 +11,18 @@ function getUserData($user_id) {
     }
     
     try {
-        $query = "SELECT user_id, username, email, profile_picture, bio, is_admin FROM users WHERE user_id = :user_id";
+        $query = "SELECT user_id, username, email, profile_picture, profile_banner, bio, is_admin FROM users WHERE user_id = :user_id";
         $stmt = $pdo->prepare($query);
         $stmt->execute([':user_id' => $user_id]);
         $userData = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($userData) {
-            // Check if profile picture is empty or doesn't contain a URL
             if (empty($userData['profile_picture']) || strpos($userData['profile_picture'], 'http') !== 0) {
                 $userData['profile_picture'] = '/defaults/default-profile.jpg';
+            }
+
+            if (empty($userData['profile_banner']) || strpos($userData['profile_banner'], 'http') !== 0) {
+                $userData['profile_banner'] = '/defaults/default-banner.jpg';
             }
         }
         
@@ -82,11 +85,11 @@ function getUserSongs($user_id) {
         return $songs;
     } catch (PDOException $e) {
         error_log("Database query failed in getUserSongs(): " . $e->getMessage());
-        return false;
+        return [];
     }
 }
 
-function updateProfile($user_id, $data, $profile_picture = null) {
+function updateProfile($user_id, $data, $profile_picture = null, $profile_banner = null) {
     global $pdo;
     
     if (!$pdo) {
@@ -112,11 +115,10 @@ function updateProfile($user_id, $data, $profile_picture = null) {
         if ($check_stmt->rowCount() > 0) {
             return ['success' => false, 'error' => 'Username or email already exists'];
         }
-        
-        // Handle profile picture upload to MinIO
+
         $profile_picture_url = null;
         if ($profile_picture && $profile_picture['error'] == 0) {
-            ensureMinIOBuckets(); // Ensure buckets exist
+            ensureMinIOBuckets();
             $profileUpload = uploadToMinIO('user-profiles', $profile_picture);
             
             if (!$profileUpload['success']) {
@@ -125,6 +127,19 @@ function updateProfile($user_id, $data, $profile_picture = null) {
             
             // Store the full URL directly
             $profile_picture_url = $profileUpload['path'];
+        }
+        
+        $profile_banner_url = null;
+        if ($profile_banner && $profile_banner['error'] == 0) {
+            ensureMinIOBuckets(); // Ensure buckets exist
+            $bannerUpload = uploadToMinIO('user-banners', $profile_banner);
+            
+            if (!$bannerUpload['success']) {
+                return ['success' => false, 'error' => 'Failed to upload profile banner to MinIO'];
+            }
+            
+            // Store the full URL directly
+            $profile_banner_url = $bannerUpload['path'];
         }
         
         // Update user data
@@ -142,6 +157,12 @@ function updateProfile($user_id, $data, $profile_picture = null) {
             $params[':profile_picture'] = $profile_picture_url;
         }
         
+        if ($profile_banner_url) {
+            // Store the full URL directly in profile_banner
+            $query .= ", profile_banner = :profile_banner";
+            $params[':profile_banner'] = $profile_banner_url;
+        }
+        
         $query .= " WHERE user_id = :user_id";
         
         $stmt = $pdo->prepare($query);
@@ -150,7 +171,7 @@ function updateProfile($user_id, $data, $profile_picture = null) {
         return ['success' => true];
     } catch (PDOException $e) {
         error_log("Database query failed in updateProfile(): " . $e->getMessage());
-        return ['success' => false, 'error' => 'Database query failed'];
+        return ['success' => false, 'error' => 'Database query failed: ' . $e->getMessage()];
     }
 }
 
@@ -290,7 +311,7 @@ function updateSongDetails($user_id, $song_id, $details) {
     
     if (isset($_FILES['song_cover']) && $_FILES['song_cover']['error'] == 0) {
         ensureMinIOBuckets();
-        $coverUpload = uploadToMinIO('music-covers', $_FILES['song_cover']);
+        $coverUpload = uploadToMinIO('covers', $_FILES['song_cover']);
         
         if ($coverUpload && $coverUpload['success']) {
             $updateFields[] = 'cover_art = :cover_art';

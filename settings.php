@@ -8,16 +8,34 @@ if (!isLoggedIn()) {
     exit();
 }
 
+// Add user-banners bucket to MinIO configuration
+if (!isset($minioConfig['buckets']['banners'])) {
+    $minioConfig['buckets']['banners'] = 'user-banners';
+}
+
+// Ensure the new bucket exists
+try {
+    ensureMinIOBuckets();
+} catch (Exception $e) {
+    error_log("MinIO bucket initialization error: " . $e->getMessage());
+}
+
 $user_id = $_SESSION['user_id'];
 $user = getUserData($user_id);
 $userSongs = getUserSongs($user_id);
+$email_verified = isset($_SESSION['email_verified']) ? $_SESSION['email_verified'] : false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = '';
     
     if (isset($_POST['update_profile'])) {
-        $result = updateProfile($user_id, $_POST, $_FILES['profile_picture'] ?? null);
+        $result = updateProfile($user_id, $_POST, $_FILES['profile_picture'] ?? null, $_FILES['profile_banner'] ?? null);
         $message = $result['success'] ? "Profile updated successfully!" : "Error: " . $result['error'];
+        
+        // Reload user data after update
+        if ($result['success']) {
+            $user = getUserData($user_id);
+        }
     }
     
     if (isset($_POST['update_password'])) {
@@ -31,166 +49,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (isset($_POST['delete_song'])) {
-        $result = deleteSong($user_id, $_POST['song_id']);
-        $message = $result['success'] ? "Song deleted successfully!" : "Error: " . $result['error'];
-        if ($result['success']) {
-            $userSongs = getUserSongs($user_id);
+        // Verify that user has verified email before allowing song deletion
+        if (!$email_verified) {
+            $message = "Error: You need to verify your email address before managing songs. Please check your email for the verification link.";
+        } else {
+            $result = deleteSong($user_id, $_POST['song_id']);
+            $message = $result['success'] ? "Song deleted successfully!" : "Error: " . $result['error'];
+            if ($result['success']) {
+                $userSongs = getUserSongs($user_id);
+            }
         }
     }
+    
     if (isset($_POST['update_song'])) {
-        $details = [
-            'title' => $_POST['title'],
-            'album' => $_POST['album'],
-            'genre' => $_POST['genre'],
-        ];
-        
-        $result = updateSongDetails($user_id, $_POST['song_id'], $details);
-        $message = $result['success'] ? "Song details updated successfully!" : "Error: " . $result['error'];
-        if ($result['success']) {
-            $userSongs = getUserSongs($user_id);
+        // Verify that user has verified email before allowing song updates
+        if (!$email_verified) {
+            $message = "Error: You need to verify your email address before managing songs. Please check your email for the verification link.";
+        } else {
+            $details = [
+                'title' => $_POST['title'],
+                'album' => $_POST['album'],
+                'genre' => $_POST['genre'],
+            ];
+            
+            $result = updateSongDetails($user_id, $_POST['song_id'], $details);
+            $message = $result['success'] ? "Song details updated successfully!" : "Error: " . $result['error'];
+            if ($result['success']) {
+                $userSongs = getUserSongs($user_id);
+            }
         }
+    }
+    
+    if (isset($_POST['resend_verification'])) {
+        // Call function to resend verification email
+        require_once 'config/auth.php';
+        $result = resendVerificationEmail($user_id);
+        $message = $result['success'] ? "Verification email has been sent to " . $result['email'] : "Error: " . $result['error'];
     }
 }
+
+// Default banner if not set
+$userBanner = $user['profile_banner'] ?? 'defaults/default-banner.jpg';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
-	<meta property="og:title" content="matSFX - Listen with Joy!" />
-	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://matsfx.com/" />
-	<link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
+    <meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
+    <meta property="og:title" content="matSFX - Listen with Joy!" />
+    <meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
+    <meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://matsfx.com/" />
+    <link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <title>User Settings - matSFX</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-	<style>
-		:root {
-			--primary-color: #2D7FF9;
-			--primary-hover: #1E6AD4;
-			--primary-light: rgba(45, 127, 249, 0.1);
-			--accent-color: #18BFFF;
-			--dark-bg: #0A1220;
-			--darker-bg: #060912;
-			--card-bg: #111827;
-			--card-hover: #1F2937;
-			--nav-bg: rgba(17, 24, 39, 0.95);
-			--light-text: #FFFFFF;
-			--gray-text: #94A3B8;
-			--border-color: #1F2937;
-			--border-radius: 12px;
-			--border-radius-lg: 16px;
-			--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-			--shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-			--shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
-			--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
-		}
-		
-		.form-group textarea {
-			width: 98%;
-			padding: 0.875rem 1.25rem;
-			border: 2px solid var(--border-color);
-			background-color: rgba(255, 255, 255, 0.05);
-			color: var(--light-text);
-			border-radius: var(--border-radius);
-			font-size: 1rem;
-			transition: var(--transition);
-			min-height: 150px;
-			height: 150px;
-			resize: vertical;
-			font-family: inherit;
-		}
-
-		.form-group textarea:focus {
-			outline: none;
-			border-color: var(--primary-color);
-			background-color: rgba(255, 255, 255, 0.08);
-			box-shadow: 0 0 0 4px var(--primary-light);
-		}
-		
-		.christmas-toggle-btn {
-			position: relative;
-			padding: 12px 24px;
-			font-size: 16px;
-			font-weight: 600;
-			color: #fff;
-			background: linear-gradient(45deg, #D42426, #2E7D32);
-			border: none;
-			border-radius: 30px;
-			cursor: pointer;
-			overflow: hidden;
-			transition: all 0.3s ease;
-			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-		}
-
-		.christmas-toggle-btn::before {
-			content: '';
-			position: absolute;
-			top: 0;
-			left: -100%;
-			width: 100%;
-			height: 100%;
-			background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-			transition: 0.5s;
-		}
-
-		.christmas-toggle-btn:hover::before {
-			left: 100%;
-		}
-
-		.christmas-toggle-btn:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-		}
-
-		/* Toggle Button Container */
-		.theme-toggle {
-			position: relative;
-			display: inline-block;
-		}
-
-		.theme-toggle::after {
-			content: '🎄';
-			position: absolute;
-			right: -30px;
-			top: 50%;
-			transform: translateY(-50%);
-			font-size: 24px;
-			animation: bounce 2s infinite;
-		}
-
-		@keyframes bounce {
-			0%, 100% { transform: translateY(-50%); }
-			50% { transform: translateY(-70%); }
-		}
-	</style>
-	
-	<?php outputChristmasThemeCSS(); ?>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
 
-	<?php
+    <?php
     require_once 'includes/header.php';
     ?>
 
     <div class="settings-container">
         <?php if (isset($message)): ?>
             <div class="message <?php echo strpos($message, 'Error') === false ? 'success' : 'error'; ?>">
-                <?php echo htmlspecialchars($message); ?>
+                <i class="fas fa-<?php echo strpos($message, 'Error') === false ? 'check-circle' : 'exclamation-circle'; ?>"></i>
+                <span><?php echo htmlspecialchars($message); ?></span>
             </div>
+        <?php endif; ?>
+
+        <?php if (!$email_verified): ?>
+        <div class="verification-banner">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <p>Your email address is not verified. You need to verify your email to upload and manage songs.</p>
+                <div class="verification-actions">
+                    <form method="POST">
+                        <button type="submit" name="resend_verification" class="verification-button">Resend Verification Email</button>
+                    </form>
+                </div>
+            </div>
+        </div>
         <?php endif; ?>
 
         <div class="settings-section">
             <h2>Profile Settings</h2>
-            <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
-                 alt="Profile Picture" class="settings-profile-picture">
+            
+            <div class="profile-banner-container">
+                <img src="<?php echo htmlspecialchars($userBanner); ?>" alt="Profile Banner" class="profile-banner">
+                <div class="profile-banner-overlay"></div>
+                <label for="profile_banner" class="profile-banner-edit">
+                    <i class="fas fa-camera"></i>
+                </label>
+                
+                <div class="profile-picture-container">
+                    <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
+                         alt="Profile Picture" class="settings-profile-picture">
+                    <label for="profile_picture" class="profile-picture-edit">
+                        Change Photo
+                    </label>
+                </div>
+            </div>
             
             <form method="POST" enctype="multipart/form-data">
+                <input type="file" id="profile_picture" name="profile_picture" accept="image/*" class="hidden-file-input">
+                <input type="file" id="profile_banner" name="profile_banner" accept="image/*" class="hidden-file-input">
+                
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" 
@@ -204,34 +175,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <div class="form-group">
-                    <label for="profile_picture">Profile Picture</label>
-                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
-                </div>
-
-				<div class="form-group">
-					<label for="bio">Bio</label>
+                    <label for="bio">Bio</label>
                     <textarea id="bio" name="bio" maxlength="300" rows="4"><?php 
                         echo htmlspecialchars($user['bio'] ?? '');
                     ?></textarea>
-				</div>
+                    <div class="upload-hint">Tell others about yourself (max 300 characters)</div>
+                </div>
+
+                <div class="profile-upload-container">
+                    <div>
+                        <label for="profile_picture" class="upload-label">
+                            <i class="fas fa-user"></i> Change Profile Picture
+                        </label>
+                        <div class="upload-hint">Recommended size: 200x200px (Square image works best)</div>
+                    </div>
+                    
+                    <div>
+                        <label for="profile_banner" class="upload-label">
+                            <i class="fas fa-image"></i> Change Banner Image
+                        </label>
+                        <div class="upload-hint">Recommended size: 1200x300px (Will be cropped to fit)</div>
+                    </div>
+                </div>
 
                 <button type="submit" name="update_profile" class="button">Update Profile</button>
-                <p>Try double clicking the button if its says their was an error updating your account</p>
             </form>
         </div>
-		
-		<div class="settings-section">
-			<h2>Change Theme</h2>
-			<?php outputChristmasThemeCSS(); ?>
-			<form method="POST" class="theme-toggle">
-				<button type="submit" name="toggle_christmas_theme" class="christmas-toggle-btn">
-					<?php echo isChristmasThemeEnabled() ? '🎄 Disable Christmas Theme' : '🎄 Enable Christmas Theme'; ?>
-				</button>
-			</form>
-		</div>
-		
+        
+        <!--
         <div class="settings-section">
-            <h2>Change Password</h2>
+            <h2>Theme Settings</h2>
+            <form method="POST" class="theme-toggle">
+                <button type="submit" name="toggle_christmas_theme" class="christmas-toggle-btn">
+                    <?php echo isChristmasThemeEnabled() ? '🎄 Disable Christmas Theme' : '🎄 Enable Christmas Theme'; ?>
+                </button>
+            </form>
+        </div>
+        -->
+        
+        <div class="settings-section">
+            <h2>Security Settings</h2>
             <form method="POST">
                 <div class="form-group">
                     <label for="current_password">Current Password</label>
@@ -254,6 +237,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="settings-section">
             <h2>My Uploaded Songs</h2>
+            
+            <?php if (!$email_verified): ?>
+            <div class="verification-banner">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <p>You need to verify your email address to manage your songs.</p>
+                </div>
+            </div>
+            <?php endif; ?>
+            
             <ul class="songs-list">
                 <?php foreach ($userSongs as $song): ?>
                     <li class="song-item">
@@ -262,18 +255,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <strong><?php echo htmlspecialchars($song['title']); ?></strong> - 
                                 <?php echo htmlspecialchars($song['artist']); ?>
                             </div>
-                            <button class="button" 
-                                    onclick="toggleEditForm('<?php echo $song['song_id']; ?>')"
-                                    style="margin-right: 1rem;">
-                                Edit
-                            </button>
-                            <form method="POST" style="display: inline;">
-                                <input type="hidden" name="song_id" value="<?php echo $song['song_id']; ?>">
-                                <button type="submit" name="delete_song" class="button button-delete"
-                                        onclick="return confirm('Are you sure you want to delete this song?')">
-                                    Delete
+                            <div class="song-actions">
+                                <button class="button button-secondary" 
+                                        onclick="toggleEditForm('<?php echo $song['song_id']; ?>')"
+                                        <?php echo !$email_verified ? 'disabled' : ''; ?>>
+                                    <i class="fas fa-edit"></i> Edit
                                 </button>
-                            </form>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="song_id" value="<?php echo $song['song_id']; ?>">
+                                    <button type="submit" name="delete_song" class="button button-delete"
+                                            onclick="return confirm('Are you sure you want to delete this song?')"
+                                            <?php echo !$email_verified ? 'disabled' : ''; ?>>
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                         
                         <div id="edit-form-<?php echo $song['song_id']; ?>" class="edit-form" style="display: none;">
@@ -309,11 +305,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </div>
                                 </div>
                                 
-                                <button type="submit" name="update_song" class="button">Save Changes</button>
+                                <div class="form-actions">
+                                    <button type="submit" name="update_song" class="button">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                    <button type="button" class="button button-secondary" onclick="toggleEditForm('<?php echo $song['song_id']; ?>')">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </li>
                 <?php endforeach; ?>
+                
+                <?php if (empty($userSongs)): ?>
+                    <div class="empty-songs-message">
+                        <p>You haven't uploaded any songs yet.</p>
+                        <a href="upload" class="button">
+                            <i class="fas fa-upload"></i> Upload Your First Song
+                        </a>
+                    </div>
+                <?php endif; ?>
             </ul>
         </div>
     </div>
@@ -329,35 +341,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             form.style.display = 'none';
         }
     }
+    
+    // Handle file previews
+    document.getElementById('profile_picture').addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelector('.settings-profile-picture').src = e.target.result;
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+    
+    document.getElementById('profile_banner').addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelector('.profile-banner').src = e.target.result;
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
     </script>
-	
-<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
-	<script>
-	function adjustKoFiWidgetMobile() {
-		if (window.innerWidth <= 768) {
-			const style = document.createElement('style');
-			style.innerHTML = `
-				.kofi-widget-overlay {
-					z-index: -1 !important; /* Place behind other elements */
-					position: fixed !important;
-					bottom: 20px !important;
-					right: 20px !important;
-				}
-			`;
-			document.head.appendChild(style);
-		}
-	}
+    
+    <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+    <script>
+    function adjustKoFiWidgetMobile() {
+        if (window.innerWidth <= 768) {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .kofi-widget-overlay {
+                    z-index: -1 !important; /* Place behind other elements */
+                    position: fixed !important;
+                    bottom: 20px !important;
+                    right: 20px !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
 
-	adjustKoFiWidgetMobile();
+    adjustKoFiWidgetMobile();
 
-	window.addEventListener('resize', adjustKoFiWidgetMobile);
+    window.addEventListener('resize', adjustKoFiWidgetMobile);
 
-	kofiWidgetOverlay.draw('matsfx', {
-		'type': 'floating-chat',
-		'floating-chat.donateButton.text': 'Support Us',
-		'floating-chat.donateButton.background-color': '#ffffff',
-		'floating-chat.donateButton.text-color': '#323842'
-	});
-	</script>
+    kofiWidgetOverlay.draw('matsfx', {
+        'type': 'floating-chat',
+        'floating-chat.donateButton.text': 'Support Us',
+        'floating-chat.donateButton.background-color': '#ffffff',
+        'floating-chat.donateButton.text-color': '#323842'
+    });
+    </script>
 </body>
 </html>

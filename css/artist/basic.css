@@ -3,18 +3,131 @@
     max-width: 1400px;
     max-height: 3000px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 0;
     animation: fadeIn 0.5s ease-out;
+    position: relative;
+}
+
+.profile-banner-wrapper {
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin: 6rem 1rem 0;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    max-width: 1150px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-banner-wrapper:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-banner {
+    position: relative;
+    height: 160px;
+    background-position: center;
+    background-size: cover;
 }
 
 .profile-header {
     background-color: var(--card-bg);
     border-radius: var(--border-radius-lg);
     padding: 2rem;
-	margin-top: 6rem;
-    margin-bottom: 2rem;
+    margin: -80px auto 2rem;
+    max-width: 1150px;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    position: relative;
+    z-index: 2;
+}
+
+.profile-header:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--card-bg);
+    box-shadow: var(--shadow-md);
+    margin-top: -95px;
+}
+
+.profile-name {
+    font-size: 2.25rem;
+    margin-top: 0.5rem;
+    background: linear-gradient(135deg, var(--light-text), var(--primary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.profile-bio {
+    margin: 1rem 0;
+    color: var(--gray-text);
+    line-height: 1.6;
+}
+
+/* Banner Styles */
+.profile-banner-wrapper {
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 60px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    max-width: 1150px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: var(--transition);
+}
+
+.profile-banner-wrapper:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-banner {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.banner-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, rgba(10, 18, 32, 0), var(--dark-bg));
+}
+
+.profile-header {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+    margin: -80px auto 2rem;
+    max-width: 1150px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    z-index: 2;
+    transition: var(--transition);
+}
+
+.profile-header:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
 }
 
 .profile-content {
@@ -24,18 +137,19 @@
 }
 
 .profile-image {
-    width: 180px;
-    height: 180px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid var(--primary-color);
+    border: 4px solid var(--card-bg);
     box-shadow: var(--shadow-lg);
+    margin-top: -95px;
     transition: var(--transition);
 }
 
 .profile-image:hover {
     transform: scale(1.05);
-    border-color: var(--accent-color);
+    border-color: var(--primary-color);
 }
 
 .profile-info {
@@ -43,7 +157,7 @@
 }
 
 .profile-name {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
     font-weight: 700;
     margin-bottom: 1rem;
     background: linear-gradient(135deg, var(--light-text), var(--primary-color));
@@ -52,29 +166,82 @@
     color: transparent;
 }
 
-.profile-stats {
-    display: flex;
-    gap: 2rem;
+.profile-bio {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
     color: var(--gray-text);
-    font-size: 1.125rem;
+    max-width: 800px;
 }
 
-.songs-header {
+/* Section Headers */
+.section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--light-text);
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    color: var(--primary-color);
+}
+
+/* No Songs Message */
+.no-songs-message {
+    text-align: center;
+    padding: 3rem;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
     margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.no-songs-icon {
+    font-size: 3rem;
+    color: var(--gray-text);
+    margin-bottom: 1rem;
+}
+
+.upload-button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.upload-button:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+/* Content wrapper for all sections below profile header */
+.artist-content-wrapper {
+    max-width: 1150px;
+    margin: 0 auto 2rem;
     padding: 0 1rem;
 }
 
-.songs-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--light-text);
+/* Error states */
+.error-user-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 91vh;
+    background-color: var(--dark-bg);
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
-/* Artist Error */
-/* Main Heading */
 .error-user-heading {
     font-size: 48px;
     font-weight: bold;
@@ -82,14 +249,12 @@
     margin-bottom: 16px;
 }
 
-/* Error Message */
 .error-user-text {
     font-size: 20px;
     color: var(--gray-text);
     margin-bottom: 32px;
 }
 
-/* Back to Home Button */
 .error-user-button {
     display: inline-block;
     text-decoration: none;
@@ -120,11 +285,128 @@
     display: block;
 }
 
+.section-title {
+    color: var(--light-text);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    color: var(--primary-color);
+}
+
+.no-songs-message {
+    text-align: center;
+    padding: 3rem;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.no-songs-icon {
+    font-size: 3rem;
+    color: var(--gray-text);
+    margin-bottom: 1rem;
+}
+
+.upload-button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.upload-button:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+    .profile-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-image {
+        margin: -95px auto 0;
+    }
+    
+    .profile-stats {
+        justify-content: center;
+    }
+    
+    .profile-banner-wrapper {
+        height: 200px;
+    }
+}
+
 @media (max-width: 768px) {
     .player-spacer {
         height: 50px;
-     }
+    }
     .header-spacer {
         height: 50px;
+    }
+    
+    .profile-banner-wrapper {
+        margin-top: 50px;
+        height: 180px;
+    }
+    
+    .profile-header {
+        margin-top: -60px;
+        padding: 1.5rem;
+    }
+    
+    .profile-image {
+        width: 120px;
+        height: 120px;
+        margin: -80px auto 1rem;
+    }
+    
+    .profile-name {
+        font-size: 1.8rem;
+    }
+}
+
+.player-spacer {
+	height: 100px;
+	width: 100%;
+	display: block;
+}
+
+.header-spacer {
+    height: 65px;
+	width: 100%;
+	display: block;
+}
+
+@media (max-width: 768px) {
+	.player-spacer {
+		height: 60px;
+	}
+    .header-spacer {
+        height: 75px;
     }
 }

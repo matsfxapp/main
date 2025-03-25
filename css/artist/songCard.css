@@ -4,6 +4,19 @@
     max-width: 1150px;
     margin-left: auto;
     margin-right: auto;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.singles-container:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
 }
 
 .singles-heading {
@@ -22,7 +35,7 @@
 }
 
 .song-card {
-    background-color: var(--card-bg);
+    background-color: rgba(31, 41, 55, 0.5);
     border-radius: var(--border-radius-lg);
     padding: 1.5rem;
     transition: all 0.3s ease;
@@ -30,14 +43,13 @@
     overflow: hidden;
     border: 1px solid var(--border-color);
     min-width: 220px;
-    width: 0%;
     height: 100%;
     margin-bottom: 1.5rem; 
 }
 
 .song-card:hover {
     background-color: var(--card-hover);
-    transform: translateY(-4px);
+    transform: translateY(-8px);
     box-shadow: var(--shadow-lg);
     border-color: var(--primary-color);
 }
@@ -53,7 +65,7 @@
 }
 
 .song-card:hover .song-card-image {
-    transform: scale(1.02);
+    transform: scale(1.05);
     box-shadow: var(--shadow-lg);
 }
 
@@ -76,42 +88,47 @@
     text-overflow: ellipsis;
 }
 
-.content-wrapper {
-    max-width: 1150px;
-    margin: 0 auto;
-    width: 100%;
+.song-card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
 }
 
-.artist-profile {
-    max-width: 1150px;
-    margin: 0 auto;
-    padding: 20px;
-    height: 115%;
+.song-card:hover .song-card-actions {
+    opacity: 1;
+}
+
+.song-card.active-song {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+}
+
+.song-card.active-song .song-card-title,
+.song-card.active-song .song-card-artist {
+    color: var(--primary-color);
 }
 
 @media (max-width: 768px) {
-    .albums-container, .singles-container {
+    .singles-container {
         max-width: 90%;
     }
 
     .song-cards {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 1rem;
-        justify-content: center;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .song-card {
         padding: 1rem;
-        margin: 0 auto;
     }
     
-    .album-cover {
-        width: 70px;
-        height: 70px;
+    .song-card-title {
+        font-size: 0.95rem;
     }
     
-    .album-title {
-        font-size: 1.2em;
-    }
-    
-    .song-row {
-        padding: 10px;
+    .song-card-artist {
+        font-size: 0.85rem;
     }
 }

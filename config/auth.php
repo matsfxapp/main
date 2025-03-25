@@ -45,7 +45,7 @@ function registerUser($username, $email, $password, $profile_picture) {
     }
 }
 
-// Login user
+// Login user - Modified to allow login without email verification
 function loginUser($email, $password, $remember = false) {
     global $pdo;
     
@@ -65,9 +65,7 @@ function loginUser($email, $password, $remember = false) {
     }
 
     if ($user && password_verify($password, $user['password'])) {
-        if ($user['email_verified'] == 0) {
-            return ['error' => 'Please verify your email before logging in.'];
-        }
+        // No longer checking for email verification as a login requirement
         
         // Reset login attempts on successful login
         resetLoginAttempts($user['user_id']);
@@ -83,6 +81,7 @@ function loginUser($email, $password, $remember = false) {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['is_admin'] = $user['is_admin'];
+        $_SESSION['email_verified'] = $user['email_verified']; // Store verification status
         $_SESSION['is_guest'] = false;
         $_SESSION['last_activity'] = time();
         
@@ -206,6 +205,47 @@ function verifyEmail($verification_code) {
     $stmt->execute([':code' => $verification_code]);
     
     return $stmt->rowCount() > 0;
+}
+
+// Function to check if user has verified email
+function isEmailVerified($user_id) {
+    global $pdo;
+    
+    $query = "SELECT email_verified FROM users WHERE user_id = :user_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([':user_id' => $user_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return $result && $result['email_verified'] == 1;
+}
+
+// Function to resend verification email
+function resendVerificationEmail($user_id) {
+    global $pdo;
+    
+    // Generate new verification code
+    $verification_code = bin2hex(random_bytes(16));
+    
+    // Update the user's verification code
+    $updateStmt = $pdo->prepare("UPDATE users SET verification_code = :code WHERE user_id = :user_id");
+    if (!$updateStmt->execute([':code' => $verification_code, ':user_id' => $user_id])) {
+        return ['error' => 'Failed to update verification code'];
+    }
+    
+    // Get user email
+    $stmt = $pdo->prepare("SELECT email FROM users WHERE user_id = :user_id");
+    $stmt->execute([':user_id' => $user_id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$user) {
+        return ['error' => 'User not found'];
+    }
+    
+    // Send the verification email
+    // This would call the sendVerificationEmail function from register.php
+    // or implement it here
+    
+    return ['success' => true, 'email' => $user['email']];
 }
 
 // Update user profile
