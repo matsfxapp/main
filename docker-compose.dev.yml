@@ -24,9 +24,6 @@ services:
       DB_USER: ${MYSQL_USER}
       DB_PASS: ${MYSQL_PASSWORD}
       DB_HOST: matsfx-mariadb
-      MINIO_HOST: minio:9000
-      MINIO_ROOT_USER: root
-      MINIO_ROOT_PASSWORD: ZyCJyO9P1De546MAdLJO3shKQ93govZTKlX3f
     ports:
       - "${PORT}:80"
     depends_on:
