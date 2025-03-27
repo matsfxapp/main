@@ -838,9 +838,9 @@ function asset_url($path) {
 
     <div class="player-spacer"></div>
     <?php require_once 'includes/player.php'?>
-
+    <script src="<?php echo asset_url('js/global/loading.js'); ?>"></script>
     <script src="<?php echo asset_url('js/index.js'); ?>"></script>
     <script src="<?php echo asset_url('js/search.js'); ?>"></script>
-    <script src="<?php echo asset_url('js/genreSection.js'); ?>"></script>
+    <script src="js/genreSection.js"></script>
 </body>
 </html>
