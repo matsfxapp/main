@@ -841,6 +841,6 @@ function asset_url($path) {
     <script src="<?php echo asset_url('js/global/loading.js'); ?>"></script>
     <script src="<?php echo asset_url('js/index.js'); ?>"></script>
     <script src="<?php echo asset_url('js/search.js'); ?>"></script>
-    <script src="js/genreSection.js"></script>
+    <script src="<?php echo asset_url('js/genreSection.js'); ?>"></script>
 </body>
 </html>
