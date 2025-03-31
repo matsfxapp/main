@@ -183,7 +183,10 @@ require_once '../config/config.php';
     </style>
 </head>
 <body>
-
+    <?php require_once '../includes/header.php'; ?>
+    
+    <div class="header-spacer"></div>
+    
     <div class="container">
         <h1>matSFX License – as of 30th March 2025</h1>
         
