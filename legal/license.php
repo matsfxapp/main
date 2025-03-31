@@ -1,5 +1,5 @@
 <?php
-require_once '../config/config.php';
+require_once 'config/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -7,17 +7,14 @@ require_once '../config/config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
-    <meta property="og:title" content="matSFX - Listen with Joy!" />
-    <meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-    <meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://matsfx.com/" />
+	<meta property="og:title" content="matSFX - Listen with Joy!" />
+	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
+	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://matsfx.com/" />
     <title>matSFX License</title>
     <link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <?php if (function_exists('outputChristmasThemeCSS')) outputChristmasThemeCSS(); ?>
     <style>
         :root {
             --primary-color: #2D7FF9;
@@ -31,15 +28,24 @@ require_once '../config/config.php';
             --border-color: #1F2937;
         }
 
-        .license-container {
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+
+        .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 2rem 1.25rem 6rem;
+            padding: 8rem 1.25rem 4rem;
         }
 
         @media (min-width: 768px) {
-            .license-container {
-                padding: 2rem 2rem 6rem;
+            .container {
+                padding: 8rem 2rem 4rem;
             }
         }
 
@@ -174,20 +180,11 @@ require_once '../config/config.php';
             padding: 1.5rem;
             margin: 2rem 0;
         }
-        
-        .header-spacer {
-            height: 65px;
-            width: 100%;
-            display: block;
-        }
     </style>
 </head>
 <body>
-    <?php require_once '../includes/header.php'; ?>
-    
-    <div class="header-spacer"></div>
 
-    <div class="license-container">
+    <div class="container">
         <h1>matSFX License – as of 30th March 2025</h1>
         
         <div class="copyright-notice">Copyright (c) 2024-2025 matSFX</div>
@@ -288,15 +285,12 @@ require_once '../config/config.php';
         </div>
         
         <div class="section-divider"></div>
-
+        
         <div class="footer">
             By using, modifying, or redistributing this Software, you agree to the terms of this license.
         </div>
     </div>
 
-    <div class="player-spacer"></div>
-    <?php require_once '../includes/player.php'; ?>
-    
-    <script src="js/search.js"></script>
+    <script src="../js/search.js"></script>
 </body>
 </html>
