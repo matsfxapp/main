@@ -11,6 +11,7 @@ require 'handlers/admin.php'
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/admin.css">
 </head>
+<body>
     <div class="admin-layout">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -43,6 +44,12 @@ require 'handlers/admin.php'
                     <a href="?view=badges" class="nav-link <?php echo $view === 'badges' ? 'active' : ''; ?>">
                         <i class="fas fa-award"></i>
                         <span>Badge Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="?view=marked-for-deletion" class="nav-link <?php echo $view === 'marked-for-deletion' ? 'active' : ''; ?>">
+                        <i class="fas fa-trash-restore"></i>
+                        <span>Deletion Queue</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -280,6 +287,7 @@ require 'handlers/admin.php'
                         <?php endif; ?>
                     </div>
                 </div>
+            
             <?php elseif ($view === 'user-detail' && $userDetail && !isset($userDetail['error'])): ?>
                 <?php $user = $userDetail['user']; ?>
                 <div class="page-header">
@@ -515,6 +523,65 @@ require 'handlers/admin.php'
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+            <?php elseif ($view === 'marked-for-deletion'): ?>
+                <div class="page-header">
+                    <h1 class="page-title">Accounts Marked for Deletion</h1>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Users Pending Deletion</div>
+                    <div class="card-body">
+                        <?php 
+                        $markedUsers = getMarkedForDeletionUsers();
+                        if (empty($markedUsers)): 
+                        ?>
+                            <div class="no-users-message">
+                                <p>No accounts are currently marked for deletion.</p>
+                            </div>
+                        <?php else: ?>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Created At</th>
+                                            <th>Marked for Deletion</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($markedUsers as $user): ?>
+                                            <tr>
+                                                <td>
+                                                    <div class="user-cell">
+                                                        <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User">
+                                                        <div class="user-cell-info">
+                                                            <div class="cell-main"><?php echo htmlspecialchars($user['username']); ?></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                                <td><?php echo date('M j, Y', strtotime($user['created_at'])); ?></td>
+                                                <td><?php echo date('M j, Y H:i', strtotime($user['deletion_requested_at'])); ?></td>
+                                                <td>
+                                                    <div class="action-cell">
+                                                    <button class="action-btn restore-deletion-btn" 
+                                                                data-user-id="<?php echo $user['user_id']; ?>" 
+                                                                data-username="<?php echo htmlspecialchars($user['username']); ?>"
+                                                                title="Cancel Deletion">
+                                                            <i class="fas fa-undo"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php else: ?>

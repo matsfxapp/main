@@ -28,6 +28,24 @@ $email_verified = isset($_SESSION['email_verified']) ? $_SESSION['email_verified
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = '';
     
+    // Handle account deletion cancellation
+    if (isset($_POST['cancel_deletion'])) {
+        $cancelStmt = $pdo->prepare("
+            UPDATE users 
+            SET 
+                marked_for_deletion = 0,
+                deletion_requested_at = NULL
+            WHERE user_id = ?
+        ");
+        $cancelResult = $cancelStmt->execute([$user_id]);
+        
+        if ($cancelResult) {
+            $message = "Account deletion cancelled successfully! Your account and all your data will remain intact.";
+        } else {
+            $message = "Error: Unable to cancel account deletion. Please contact support if this problem persists.";
+        }
+    }
+    
     if (isset($_POST['update_profile'])) {
         $result = updateProfile($user_id, $_POST, $_FILES['profile_picture'] ?? null, $_FILES['profile_banner'] ?? null);
         $message = $result['success'] ? "Profile updated successfully!" : "Error: " . $result['error'];
@@ -90,6 +108,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Default banner if not set
 $userBanner = $user['profile_banner'] ?? 'defaults/default-banner.jpg';
+
+// Check if account is marked for deletion
+$deletionCheck = $pdo->prepare("SELECT marked_for_deletion, deletion_requested_at FROM users WHERE user_id = ?");
+$deletionCheck->execute([$user_id]);
+$deletionStatus = $deletionCheck->fetch(PDO::FETCH_ASSOC);
+$accountMarkedForDeletion = ($deletionStatus && isset($deletionStatus['marked_for_deletion']) && $deletionStatus['marked_for_deletion'] == 1);
+$daysRemaining = 0;
+
+if ($accountMarkedForDeletion && isset($deletionStatus['deletion_requested_at'])) {
+    // Calculate days remaining
+    $requestedDate = new DateTime($deletionStatus['deletion_requested_at']);
+    $deleteDate = clone $requestedDate;
+    $deleteDate->add(new DateInterval('P7D')); // 7 days later
+    $now = new DateTime();
+    $daysRemaining = $now->diff($deleteDate)->days;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -109,6 +143,8 @@ $userBanner = $user['profile_banner'] ?? 'defaults/default-banner.jpg';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/global/imageLoading.css">
+    <link rel="stylesheet" href="css/global/customModal.css">
     <?php outputChristmasThemeCSS(); ?>
 </head>
 <body>
@@ -123,6 +159,16 @@ $userBanner = $user['profile_banner'] ?? 'defaults/default-banner.jpg';
                 <i class="fas fa-<?php echo strpos($message, 'Error') === false ? 'check-circle' : 'exclamation-circle'; ?>"></i>
                 <span><?php echo htmlspecialchars($message); ?></span>
             </div>
+        <?php endif; ?>
+
+        <?php if ($accountMarkedForDeletion): ?>
+        <div class="deletion-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Your account is scheduled for deletion in <?php echo $daysRemaining; ?> days. After this period, your account will be permanently deleted.</p>
+            <form method="POST">
+                <button type="submit" name="cancel_deletion">Cancel Account Deletion</button>
+            </form>
+        </div>
         <?php endif; ?>
 
         <?php if (!$email_verified): ?>
@@ -234,6 +280,106 @@ $userBanner = $user['profile_banner'] ?? 'defaults/default-banner.jpg';
                 <button type="submit" name="update_password" class="button">Update Password</button>
             </form>
         </div>
+
+        <div class="settings-section">
+            <h2>Privacy & Data</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Your Rights</label>
+                <div class="privacy-rights-list">
+                    <div class="privacy-right-item">
+                        <i class="fas fa-download"></i>
+                        <div>
+                            <h4>Access and Download</h4>
+                            <p>You can access and download a copy of all personal data we hold about you.</p>
+                            <button type="button" class="button button-secondary" id="download-data-btn">
+                                Download My Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="privacy-right-item">
+                        <i class="fas fa-trash-alt"></i>
+                        <div>
+                            <h4>Deletion</h4>
+                            <p>You can request the deletion of your account and associated personal data.</p>
+                            <button type="button" class="button button-delete" id="delete-account-btn">
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="privacy-right-item">
+                        <i class="fas fa-file-export"></i>
+                        <div>
+                            <h4>Data Portability</h4>
+                            <p>You can request your data in a structured, commonly used format.</p>
+                            <div class="export-options">
+                                <button type="button" class="button button-secondary" id="export-json-btn">
+                                    Export as JSON
+                                </button>
+                                <button type="button" class="button button-secondary" id="export-csv-btn">
+                                    Export as CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="privacy-right-item">
+                        <div>
+                            <h4>Opt-Out</h4>
+                            <p>You can opt out of non-essential communications and data collection.</p>
+                            <div class="form-check">
+                                <input type="checkbox" id="opt_out_analytics" name="opt_out_analytics" class="form-check-input">
+                                <label for="opt_out_analytics" class="form-check-label">Opt out of analytics collection</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="privacy-right-item">
+                        <div>
+                            <h4>Objection</h4>
+                            <p>You have the right to object to processing of your personal data.</p>
+                            <p class="small-text">Contact us at privacy@matsfx.com to exercise this right.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Cookies and Tracking</label>
+                <div class="cookie-info">
+                    <div class="cookie-item">
+                        <h4><i class="fas fa-cookie"></i> Session Cookies</h4>
+                        <p>matSFX only uses essential session cookies to maintain your login state and basic preferences. We do not use tracking or advertising cookies.</p>
+                    </div>
+                    
+                    <div class="cookie-status">
+                        <div class="status-item">
+                            <span class="status-label">Session Cookies:</span>
+                            <span class="status-value enabled">Enabled (Required)</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Analytics Cookies:</span>
+                            <span class="status-value disabled">Not Used</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Advertising Cookies:</span>
+                            <span class="status-value disabled">Not Used</span>
+                        </div>
+                    </div>
+                    
+                    <p class="cookie-note">You can clear your browser cookies at any time through your browser settings, but this will sign you out of matSFX.</p>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" name="update_privacy" class="button">
+                    <i class="fas fa-save"></i> Save Privacy Preferences
+                </button>
+            </div>
+        </div>
+
 
         <div class="settings-section">
             <h2>My Uploaded Songs</h2>
@@ -392,5 +538,6 @@ $userBanner = $user['profile_banner'] ?? 'defaults/default-banner.jpg';
         'floating-chat.donateButton.text-color': '#323842'
     });
     </script>
+    <script src="js/settings.js"></script>
 </body>
 </html>

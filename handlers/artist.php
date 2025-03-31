@@ -107,6 +107,18 @@ function followOrUnfollow($currentUserId, $profileUserId, $action) {
             $updateCount->bindValue(':count', $followerCount, PDO::PARAM_INT);
             $updateCount->bindValue(':user_id', $profileUserId, PDO::PARAM_INT);
             $updateCount->execute();
+            
+            // Add notification for new follow
+            require_once __DIR__ . '/../notifications.php';
+            
+            // Get follower username
+            $usernameStmt = $pdo->prepare("SELECT username FROM users WHERE user_id = :user_id");
+            $usernameStmt->execute([':user_id' => $currentUserId]);
+            $username = $usernameStmt->fetchColumn();
+            
+            $message = $username . " started following you";
+            createNotification($profileUserId, NOTIFICATION_FOLLOW, $message, $currentUserId);
+            
         } else {
             // Remove follow relationship
             $stmt = $pdo->prepare("DELETE FROM followers WHERE follower_id = :follower_id AND followed_id = :followed_id");

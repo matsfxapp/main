@@ -30,6 +30,61 @@ function logAdminAction($adminId, $action, $targetId = null, $details = null) {
         return false;
     }
 }
+// This will get all Account which Marked for Deletion = 1
+function getMarkedForDeletionUsers() {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                user_id, 
+                username, 
+                email, 
+                profile_picture, 
+                created_at, 
+                deletion_requested_at
+            FROM users 
+            WHERE marked_for_deletion = 1
+            ORDER BY deletion_requested_at DESC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error fetching marked users: " . $e->getMessage());
+        return [];
+    }
+}
+
+// Handle restoring an account from deletion queue
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'restore_from_deletion') {
+    $user_id = $_POST['user_id'] ?? null;
+    
+    if ($user_id) {
+        try {
+            $stmt = $pdo->prepare("
+                UPDATE users 
+                SET 
+                    marked_for_deletion = 0, 
+                    deletion_requested_at = NULL,
+                    is_active = 1
+            WHERE user_id = :user_id");
+            $stmt->execute([':user_id' => $user_id]);
+            
+            // Log the action
+            logAdminAction(
+                $_SESSION['user_id'], 
+                'restore_from_deletion', 
+                $user_id, 
+                "Restored account from deletion queue"
+            );
+            
+            echo json_encode(['success' => true, 'message' => 'Account restored successfully']);
+        } catch (PDOException $e) {
+            error_log("Error restoring account: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Failed to restore account']);
+        }
+        exit;
+    }
+}
 
 class AdminPanel {
     private $pdo;
@@ -1028,7 +1083,7 @@ $usersWithBadges = $badgeManager->getUsersWithBadges();
 
 // Determine which view to show
 $view = isset($_GET['view']) ? $_GET['view'] : 'dashboard';
-$validViews = ['dashboard', 'users', 'badges', 'user-detail'];
+$validViews = ['dashboard', 'users', 'badges', 'user-detail', 'marked-for-deletion'];
 if (!in_array($view, $validViews)) {
     $view = 'dashboard';
 }

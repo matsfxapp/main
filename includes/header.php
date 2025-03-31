@@ -98,11 +98,10 @@ if (isset($_SESSION['user_id'])) {
 						</div>
 						<div class="footer-links">
 							<div class="links">
-								<a href="/what-are-these-badges">What are these Badges?</a>
-								<a href="/legal/terms">Terms of Service</a>
-								<a href="/legal/privacy">Privacy Policies</a>
-								<a href="/legal/license">Open Source License</a>
-								<a href="/legal/contact">Contact</a>
+								<a href="https://legal.matsfx.com/terms-of-service">Terms of Service</a>
+								<a href="https://legal.matsfx.com/privacy-policy">Privacy Policies</a>
+								<a href="https://legal.matsfx.com/license">Open Source License</a>
+								<a href="https://legal.matsfx.com/contact">Contact</a>
 							</div>
 						</div>
 					</div>

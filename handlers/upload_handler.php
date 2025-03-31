@@ -101,6 +101,25 @@ try {
     $uploadResult = uploadSong($title, $artist, $album, $genre, $_FILES['song_file'], $coverArt, $existingCover);
     
     if ($uploadResult['success']) {
+        // Create notification for followers about new upload
+        require_once '../notifications.php';
+        
+        // Get user's followers
+        $followerQuery = $pdo->prepare("
+            SELECT follower_id FROM followers WHERE followed_id = :user_id
+        ");
+        $followerQuery->execute([':user_id' => $currentUserId]);
+        $followers = $followerQuery->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (!empty($followers)) {
+            $message = "$currentUser uploaded a new song \"$title\"";
+            
+            // Notify each follower
+            foreach ($followers as $followerId) {
+                createNotification($followerId, NOTIFICATION_UPLOAD, $message, $currentUserId, $uploadResult['song_id']);
+            }
+        }
+        
         $response = [
             'success' => true,
             'message' => 'Song uploaded successfully!',
@@ -111,7 +130,7 @@ try {
             'success' => false,
             'message' => 'Error uploading song: ' . $uploadResult['message']
         ];
-    }
+    }    
 } catch (Exception $e) {
     $response = [
         'success' => false, 

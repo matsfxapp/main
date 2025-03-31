@@ -213,4 +213,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Handle restore from deletion queue
+    const restoreDeletionBtns = document.querySelectorAll('.restore-deletion-btn');
+    restoreDeletionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const username = this.getAttribute('data-username');
+            
+            if (confirm(`Are you sure you want to restore the account for ${username}?`)) {
+                const formData = new FormData();
+                formData.append('action', 'restore_from_deletion');
+                formData.append('user_id', userId);
+
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while restoring the account');
+                });
+            }
+        });
+    });
 });

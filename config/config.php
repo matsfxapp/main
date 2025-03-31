@@ -1,5 +1,6 @@
 <?php
 require_once 'minio.php';
+require_once __DIR__ . '/../includes/auto_cleanup.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     ini_set('session.cookie_lifetime', 2592000);
@@ -62,4 +63,9 @@ if (!function_exists('sanitizeInput')) {
         }
         return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
     }
+}
+
+// Automatically process account deletions occasionally
+if (shouldRunCleanup()) {
+    processAccountDeletions($pdo);
 }
