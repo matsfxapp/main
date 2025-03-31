@@ -1,5 +1,5 @@
 <?php
-require_once 'config/config.php';
+require_once '../config/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -183,7 +183,7 @@ require_once 'config/config.php';
     </style>
 </head>
 <body>
-    <?php require_once 'includes/header.php'; ?>
+    <?php require_once '../includes/header.php'; ?>
     
     <div class="header-spacer"></div>
 
@@ -295,7 +295,7 @@ require_once 'config/config.php';
     </div>
 
     <div class="player-spacer"></div>
-    <?php require_once 'includes/player.php'; ?>
+    <?php require_once '../includes/player.php'; ?>
     
     <script src="js/search.js"></script>
 </body>
