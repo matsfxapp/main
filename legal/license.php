@@ -1,5 +1,5 @@
 <?php
-require_once '../config/config.php';
+require_once 'config/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -7,14 +7,17 @@ require_once '../config/config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="matSFX - The new way to listen with Joy! Ad-free and Open-Source, can it be even better?" />
-	<meta property="og:title" content="matSFX - Listen with Joy!" />
-	<meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
-	<meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://matsfx.com/" />
+    <meta property="og:title" content="matSFX - Listen with Joy!" />
+    <meta property="og:description" content="Experience ad-free music, unique Songs and Artists, a new and modern look!" />
+    <meta property="og:image" content="https://alpha.matsfx.com/app_logos/matsfx_logo.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://matsfx.com/" />
     <title>matSFX License</title>
     <link rel="icon" type="image/png" href="/app_logos/matsfx_logo.png">
     <link rel="shortcut icon" type="image/png" href="/app_logos/matsfx_logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <?php if (function_exists('outputChristmasThemeCSS')) outputChristmasThemeCSS(); ?>
     <style>
         :root {
             --primary-color: #2D7FF9;
@@ -28,24 +31,15 @@ require_once '../config/config.php';
             --border-color: #1F2937;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: var(--dark-bg);
-            color: var(--light-text);
-        }
-
-        .container {
+        .license-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 8rem 1.25rem 4rem; /* Adjusted padding for mobile */
+            padding: 2rem 1.25rem 6rem;
         }
 
         @media (min-width: 768px) {
-            .container {
-                padding: 8rem 2rem 4rem;
+            .license-container {
+                padding: 2rem 2rem 6rem;
             }
         }
 
@@ -127,17 +121,103 @@ require_once '../config/config.php';
         p {
             margin: 1rem 0;
         }
+        
+        .section-divider {
+            border-top: 1px solid var(--border-color);
+            margin: 2rem 0;
+        }
+        
+        .summary-section {
+            background-color: rgba(45, 127, 249, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .summary-title {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .allowed-list, .not-allowed-list {
+            list-style-type: none;
+            padding-left: 0.5rem;
+        }
+        
+        .allowed-list li:before {
+            content: "✓ ";
+            color: #4ADE80;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .not-allowed-list li:before {
+            content: "✗ ";
+            color: #F87171;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .emphasis {
+            font-weight: bold;
+            color: var(--accent-color);
+            font-style: italic;
+            display: block;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .consequences-section {
+            background-color: rgba(248, 113, 113, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .header-spacer {
+            height: 65px;
+            width: 100%;
+            display: block;
+        }
     </style>
 </head>
 <body>
+    <?php require_once 'includes/header.php'; ?>
+    
+    <div class="header-spacer"></div>
 
-    <div class="container">
-        <h1>matSFX License - as of 11th January 2024</h1>
+    <div class="license-container">
+        <h1>matSFX License – as of 30th March 2025</h1>
         
         <div class="copyright-notice">Copyright (c) 2024-2025 matSFX</div>
+        
+        <div class="section-divider"></div>
+        
+        <div class="summary-section">
+            <div class="summary-title">Summary</div>
+            <p>This software is open source, but <strong style="display: inline; color: var(--light-text);">not public domain</strong>.</p>
+            
+            <p>You are allowed to:</p>
+            <ul class="allowed-list">
+                <li>Use, modify, and share the code</li>
+                <li>Build your own projects based on it</li>
+            </ul>
+            
+            <p>You are <strong style="display: inline; color: var(--light-text);">not allowed</strong> to:</p>
+            <ul class="not-allowed-list">
+                <li>Use the name "matSFX" or its logos</li>
+                <li>Copy the exact design or branding</li>
+                <li>Keep the original contact info</li>
+                <li>Distribute without proper attribution</li>
+            </ul>
+            
+            <p class="emphasis">Make it your own if you fork it—respect the work behind this project.</p>
+        </div>
+        
+        <div class="section-divider"></div>
 
-        <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use, modify, and distribute the Software, subject to the following conditions:</p>
-
+        <h2>License Terms</h2>
         <ol>
             <li>
                 <strong>Name and Branding Requirements</strong>
@@ -193,12 +273,30 @@ require_once '../config/config.php';
                 </div>
             </li>
         </ol>
+        
+        <div class="section-divider"></div>
+        
+        <div class="consequences-section">
+            <strong style="color: #F87171;">Violation Consequences</strong>
+            <p>Failure to follow this license may result in:</p>
+            <ul>
+                <li>DMCA takedown requests or platform-level removals</li>
+                <li>Public notice of license violations</li>
+                <li>Legal action depending on the severity</li>
+            </ul>
+            <p>Respect the license. Keep open source fair and ethical.</p>
+        </div>
+        
+        <div class="section-divider"></div>
 
         <div class="footer">
             By using, modifying, or redistributing this Software, you agree to the terms of this license.
         </div>
     </div>
 
-    <script src="../js/search.js"></script>
+    <div class="player-spacer"></div>
+    <?php require_once 'includes/player.php'; ?>
+    
+    <script src="js/search.js"></script>
 </body>
 </html>
