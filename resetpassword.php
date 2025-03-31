@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } elseif (strlen($new_password) < 6) {
         $status_message = "Password must be at least 6 characters long.";
     } else {
-        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE reset_token = :token AND reset_token_expiration > NOW()");
+        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE reset_token = :token AND token_expiration > NOW()");
         $stmt->execute([':token' => $token]);
         $user = $stmt->fetch();
 
