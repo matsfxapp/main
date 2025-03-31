@@ -157,9 +157,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $success = true;
         } else {
             $reset_token = bin2hex(random_bytes(32));
-            $reset_token_expiration = date('Y-m-d H:i:s', strtotime('+1 hour'));
+            $token_expiration = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-            $stmt = $pdo->prepare("UPDATE users SET reset_token = :token, reset_token_expiration = :expiration WHERE email = :email");
+            $stmt = $pdo->prepare("UPDATE users SET reset_token = :token, token_expiration = :expiration WHERE email = :email");
             $stmt->execute([
                 ':token' => $reset_token,
                 ':expiration' => $reset_token_expiration,
