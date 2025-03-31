@@ -157,9 +157,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $success = true;
         } else {
             $reset_token = bin2hex(random_bytes(32));
-            $token_expiration = date('Y-m-d H:i:s', strtotime('+1 hour'));
+            $reset_token_expiration = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-            $stmt = $pdo->prepare("UPDATE users SET reset_token = :token, token_expiration = :expiration WHERE email = :email");
+            $stmt = $pdo->prepare("UPDATE users SET reset_token = :token, token_expires = :expiration WHERE email = :email");
             $stmt->execute([
                 ':token' => $reset_token,
                 ':expiration' => $reset_token_expiration,
@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } elseif (strlen($new_password) < 6) {
         $status_message = "Password must be at least 6 characters long.";
     } else {
-        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE reset_token = :token AND token_expiration > NOW()");
+        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE reset_token = :token AND token_expires > NOW()");
         $stmt->execute([':token' => $token]);
         $user = $stmt->fetch();
 
@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $status_message = "Invalid or expired token. Please request a new password reset link.";
         } else {
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("UPDATE users SET password = :password, reset_token = NULL, reset_token_expiration = NULL WHERE reset_token = :token");
+            $stmt = $pdo->prepare("UPDATE users SET password = :password, reset_token = NULL, token_expires = NULL WHERE reset_token = :token");
             $stmt->execute([
                 ':password' => $hashed_password,
                 ':token' => $token
