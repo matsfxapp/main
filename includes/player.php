@@ -106,6 +106,6 @@ $isAprilFools = date('m-d') === '04-01';
 
 // Only include on April 1st
 if ($isAprilFools) {
-    echo '<script src="/js/april-fools-mode.js"></script>';
+    echo '<script src="/js/aprilFoolsMode.js"></script>';
 }
 ?>
