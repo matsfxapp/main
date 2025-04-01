@@ -102,25 +102,10 @@
 <script src="js/player/index.js"></script>
 
 <?php
-// Check if today is April 1st
 $isAprilFools = date('m-d') === '04-01';
 
-// We can also allow an override for testing via URL parameter
-$forceAprilFools = isset($_GET['aprilFools']) && $_GET['aprilFools'] === 'enable';
-
-// Only include on April 1st or when forced
-if ($isAprilFools || $forceAprilFools) {
+// Only include on April 1st
+if ($isAprilFools) {
     echo '<script src="/js/april-fools-mode.js"></script>';
-    
-    // Add admin control button (only visible to admins)
-    if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) {
-        echo '
-        <div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; opacity: 0.7;">
-            <button onclick="toggleAprilFoolsMode()" style="background: #FF6B6B; color: white; border: none; padding: 8px 12px; border-radius: 4px;">
-                Toggle April Fools Mode
-            </button>
-        </div>
-        ';
-    }
 }
 ?>
