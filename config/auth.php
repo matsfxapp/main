@@ -55,9 +55,12 @@ function loginUser($email, $password, $remember = false) {
     
     $email = sanitizeInput($email);
     
-    $query = "SELECT user_id, username, password, is_admin, email_verified, 
-              login_attempts, last_attempt_time 
-              FROM users WHERE email = :email";
+    $query = "SELECT 
+                user_id, username, password, is_admin, email_verified, 
+                login_attempts, last_attempt_time, is_active, is_terminated,
+                termination_reason, terminated_at, terminated_by
+              FROM users 
+              WHERE email = :email";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':email', $email);
     $stmt->execute();
@@ -69,8 +72,6 @@ function loginUser($email, $password, $remember = false) {
     }
 
     if ($user && password_verify($password, $user['password'])) {
-        // No longer checking for email verification as a login requirement
-        
         // Reset login attempts on successful login
         resetLoginAttempts($user['user_id']);
         
@@ -84,10 +85,21 @@ function loginUser($email, $password, $remember = false) {
         
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
-        $_SESSION['is_admin'] = $user['is_admin'];
-        $_SESSION['email_verified'] = $user['email_verified']; // Store verification status
+        $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
+        $_SESSION['email_verified'] = $user['email_verified'] ?? 0;
         $_SESSION['is_guest'] = false;
         $_SESSION['last_activity'] = time();
+
+        if ((isset($user['is_active']) && $user['is_active'] == 0) || 
+            (isset($user['is_terminated']) && $user['is_terminated'] == 1)) {
+            
+            $_SESSION['is_terminated'] = true;
+            $_SESSION['termination_reason'] = $user['termination_reason'] ?? 'No reason provided';
+            $_SESSION['terminated_at'] = $user['terminated_at'] ?? null;
+            $_SESSION['terminated_by'] = $user['terminated_by'] ?? null;
+        } else {
+            $_SESSION['is_terminated'] = false;
+        }
         
         // Set remember me token if requested
         if ($remember) {
@@ -266,105 +278,48 @@ function sendVerificationEmail($email, $code) {
         $mail->Password = getenv('SMTP_PASSWORD');
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = getenv('SMTP_PORT');
-        $mail->setFrom(getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME'));
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL'), 'matSFX');
         $mail->addAddress($email);
         $verifyLink = getenv('APP_URL') . "/verify?code=$code";
 
         $mail->isHTML(true);
-        $mail->Subject = 'Welcome to matSFX!';
-        $mail->Body = '
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                body {
-                    margin: 0;
-                    padding: 0;
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                    line-height: 1.6;
-                    background-color: #f4f4f4;
-                    color: #333333;
-                }
-                .email-wrapper {
-                    background-color: #ffffff;
-                    max-width: 600px;
-                    margin: 0 auto;
-                    padding: 0;
-                }
-                .header {
-                    background-color: #2D7FF9;
-                    padding: 30px 20px;
-                    text-align: center;
-                }
-                .header img {
-                    max-width: 150px;
-                    height: auto;
-                }
-                .content {
-                    padding: 40px 20px;
-                    background-color: #ffffff;
-                }
-                h1 {
-                    color: #2D7FF9;
-                    font-size: 24px;
-                    margin: 0 0 20px 0;
-                    text-align: center;
-                }
-                p {
-                    margin: 0 0 20px 0;
-                    font-size: 16px;
-                    color: #555555;
-                }
-                .button {
-                    display: block;
-                    width: 200px;
-                    margin: 30px auto;
-                    padding: 15px 25px;
-                    background-color: #2D7FF9;
-                    color: #ffffff !important;
-                    text-align: center;
-                    text-decoration: none;
-                    border-radius: 8px;
-                    font-weight: bold;
-                    font-size: 16px;
-                }
-                .link-text {
-                    word-break: break-all;
-                    color: #2D7FF9;
-                    font-size: 14px;
-                }
-                .footer {
-                    background-color: #f8f9fa;
-                    padding: 20px;
-                    text-align: center;
-                    font-size: 12px;
-                    color: #666666;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="email-wrapper">
-                <div class="header">
-                    <img src="alpha.matsfx.com/app_logos/matsfx_logo.png" alt="matSFX Logo">
+        $mail->Subject = 'Verify your matSFX email';
+        $mail->Body = "
+        <html>
+        <body style='font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; background-color: #fafafa; padding: 20px;'>
+            <div style='background-color: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);'>
+                <div style='text-align: center; margin-bottom: 25px;'>
+                    <h2 style='font-size: 22px; font-weight: 600; color: #222222; margin: 0;'>Verify your email address</h2>
                 </div>
-                <div class="content">
-                    <h1>Welcome to matSFX!</h1>
-                    <p>Thank you for joining matSFX! To get started, please verify your email address by clicking the button below:</p>
-                    <a href="'.$verifyLink.'" class="button">Verify Email Address</a>
-                    <p>If the button doesn\'t work, you can copy and paste this link into your browser:</p>
-                    <p class="link-text">'.$verifyLink.'</p>
-                </div>
-                <div class="footer">
-                    <p>&copy; '.date("Y").' matSFX. All rights reserved.</p>
-                    <p>This email was sent to '.$email.'</p>
+                
+                <div style='line-height: 1.6; font-size: 16px;'>
+                    <p>Hi there,</p>
+                    <p>Thanks for signing up for matSFX. Please confirm your email address by clicking the button below.</p>
+                    
+                    <div style='text-align: center; margin: 35px 0;'>
+                        <a href='{$verifyLink}' style='display: inline-block; background-color: #222222; color: white; text-decoration: none; padding: 12px 30px; border-radius: 50px; font-size: 16px; font-weight: 500; letter-spacing: 0.5px;'>Verify My Email</a>
+                    </div>
+                    
+                    <p>If the button doesn't work, you can copy this link into your browser:</p>
+                    <p style='background-color: #f7f7f7; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 14px; word-break: break-all;'>
+                        {$verifyLink}
+                    </p>
+                    
+                    <p style='margin-top: 25px;'>
+                        Best,<br>
+                        The matSFX Team
+                    </p>
                 </div>
             </div>
+                
+            <div style='text-align: center; margin-top: 20px; font-size: 13px; color: #888888;'>
+                <p>© " . date("Y") . " matSFX. All rights reserved.</p>
+                <p>This email was sent to {$email}</p>
+            </div>
         </body>
-        </html>';
+        </html>";
 
-        $mail->AltBody = "Welcome to matSFX! Please verify your email by clicking this link: $verifyLink";
+        $mail->AltBody = "Verify your email address\n\nHi there,\nThanks for signing up for matSFX. Please confirm your email address by visiting: $verifyLink";
         $mail->send();
         return true;
     } catch (Exception $e) {

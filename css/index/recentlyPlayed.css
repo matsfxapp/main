@@ -36,7 +36,8 @@
 
 .recently-played-info {
     flex: 1;
-    min-width: 0; /* Enables text truncation */
+    min-width: 0;
+    margin-left: 15px;
 }
 
 .recently-played-title {

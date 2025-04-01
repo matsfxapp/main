@@ -86,6 +86,277 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+
+/**
+ * Get all account appeals
+ * @param int $limit Maximum number of appeals to retrieve
+ * @param int $page Current page number
+ * @param string $status Filter by status (pending, approved, rejected, or null for all)
+ * @return array Array of appeals with user information
+ */
+function getAccountAppeals($limit = 10, $page = 1, $status = null) {
+    global $pdo;
+    
+    $offset = ($page - 1) * $limit;
+    $whereClause = '';
+    $params = [];
+    
+    if ($status) {
+        $whereClause = 'WHERE a.status = :status';
+        $params[':status'] = $status;
+    }
+    
+    try {
+        // Get total count
+        $countQuery = "
+            SELECT COUNT(*) FROM account_appeals a
+            $whereClause
+        ";
+        $countStmt = $pdo->prepare($countQuery);
+        if ($status) {
+            $countStmt->bindValue(':status', $status);
+        }
+        $countStmt->execute();
+        $totalAppeals = $countStmt->fetchColumn();
+        
+        // Get appeals with user data
+        $query = "
+            SELECT a.*, u.username, u.email,
+                   u.termination_reason, u.terminated_at,
+                   admin.username as admin_name
+            FROM account_appeals a
+            JOIN users u ON a.user_id = u.user_id
+            LEFT JOIN users admin ON a.reviewed_by = admin.user_id
+            $whereClause
+            ORDER BY 
+                CASE WHEN a.status = 'pending' THEN 0 ELSE 1 END,
+                a.appeal_date DESC
+            LIMIT :limit OFFSET :offset
+        ";
+        
+        $stmt = $pdo->prepare($query);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $appeals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return [
+            'appeals' => $appeals,
+            'total' => $totalAppeals,
+            'page' => $page,
+            'limit' => $limit,
+            'total_pages' => ceil($totalAppeals / $limit)
+        ];
+    } catch (PDOException $e) {
+        error_log("Error getting appeals: " . $e->getMessage());
+        return [
+            'appeals' => [],
+            'total' => 0,
+            'page' => 1,
+            'limit' => $limit,
+            'total_pages' => 0,
+            'error' => $e->getMessage()
+        ];
+    }
+}
+
+/**
+ * Process an appeal (approve or reject)
+ * @param int $appealId Appeal ID
+ * @param string $status New status (approved or rejected)
+ * @param string $response Admin response message
+ * @param int $adminId Admin user ID
+ * @return array Result with success status and message
+ */
+function processAppeal($appealId, $status, $response, $adminId) {
+    global $pdo;
+    
+    if (!in_array($status, ['approved', 'rejected'])) {
+        return ['success' => false, 'message' => 'Invalid status'];
+    }
+    
+    try {
+        $pdo->beginTransaction();
+        
+        // Get appeal data
+        $appealStmt = $pdo->prepare("
+            SELECT a.user_id, u.email, u.username 
+            FROM account_appeals a
+            JOIN users u ON a.user_id = u.user_id
+            WHERE a.appeal_id = :appeal_id
+        ");
+        $appealStmt->execute([':appeal_id' => $appealId]);
+        $appeal = $appealStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$appeal) {
+            $pdo->rollBack();
+            return ['success' => false, 'message' => 'Appeal not found'];
+        }
+        
+        // Update appeal
+        $updateStmt = $pdo->prepare("
+            UPDATE account_appeals 
+            SET status = :status, 
+                admin_response = :response, 
+                response_date = NOW(), 
+                reviewed_by = :admin_id 
+            WHERE appeal_id = :appeal_id
+        ");
+        
+        $updateStmt->execute([
+            ':status' => $status,
+            ':response' => $response,
+            ':admin_id' => $adminId,
+            ':appeal_id' => $appealId
+        ]);
+        
+        // If approved, reactivate the account
+        if ($status === 'approved') {
+            $reactivateStmt = $pdo->prepare("
+                UPDATE users 
+                SET is_active = 1,
+                    is_terminated = NULL,
+                    termination_reason = NULL,
+                    terminated_at = NULL,
+                    terminated_by = NULL
+                WHERE user_id = :user_id
+            ");
+            
+            $reactivateStmt->execute([':user_id' => $appeal['user_id']]);
+        }
+        
+        // Log admin action
+        logAdminAction(
+            $adminId,
+            $status === 'approved' ? 'approve_appeal' : 'reject_appeal',
+            $appeal['user_id'],
+            "Appeal for {$appeal['username']} was " . 
+            ($status === 'approved' ? 'approved' : 'rejected')
+        );
+        
+        // Notify user via email
+        sendAppealResponseEmail(
+            $appeal['email'],
+            $appeal['username'],
+            $status,
+            $response
+        );
+        
+        $pdo->commit();
+        
+        return [
+            'success' => true,
+            'message' => 'Appeal has been ' . ($status === 'approved' ? 'approved' : 'rejected'),
+            'status' => $status
+        ];
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        error_log("Error processing appeal: " . $e->getMessage());
+        return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+    }
+}
+
+/**
+ * Send email notification to user about appeal decision
+ * @param string $email User's email
+ * @param string $username User's username
+ * @param string $status Appeal status (approved or rejected)
+ * @param string $response Admin response
+ * @return bool Success
+ */
+function sendAppealResponseEmail($email, $username, $status, $response) {
+    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = getenv('SMTP_HOST');
+        $mail->SMTPAuth = true;
+        $mail->Username = getenv('SMTP_USERNAME');
+        $mail->Password = getenv('SMTP_PASSWORD');
+        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = getenv('SMTP_PORT');
+
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL'), 'matSFX');
+        $mail->addAddress($email, $username);
+
+        $mail->isHTML(true);
+        $mail->Subject = 'Your matSFX Account Appeal - ' . ($status === 'approved' ? 'Approved' : 'Rejected');
+        
+        $statusText = $status === 'approved' ? 'approved' : 'rejected';
+        $statusColor = $status === 'approved' ? '#22c55e' : '#ef4444';
+        $actionText = $status === 'approved' ? 
+            'Your account has been restored. You can now log in to matSFX.' : 
+            'Your account remains terminated.';
+            
+        $mail->Body = '
+        <html>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; background-color: #fafafa; padding: 20px;">
+            <div style="background-color: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <h2 style="font-size: 22px; font-weight: 600; color: #222222; margin: 0;">Account Appeal ' . ucfirst($statusText) . '</h2>
+                </div>
+                
+                <div style="line-height: 1.6; font-size: 16px;">
+                    <p>Hello ' . htmlspecialchars($username) . ',</p>
+                    <p>We have reviewed your appeal regarding your terminated matSFX account.</p>
+                    
+                    <div style="text-align: center; margin: 25px 0;">
+                        <span style="display: inline-block; background-color: ' . $statusColor . '; color: white; padding: 8px 20px; border-radius: 50px; font-weight: 500; font-size: 15px;">' . ucfirst($statusText) . '</span>
+                    </div>
+                    
+                    <p style="font-weight: 600;">' . $actionText . '</p>
+                    
+                    <div style="background-color: #f7f7f7; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                        <p style="margin-top: 0; margin-bottom: 10px; font-weight: bold;">Admin Response:</p>
+                        <div style="background-color: white; border-radius: 6px; padding: 15px; border-left: 3px solid #dddddd;">
+                            ' . nl2br(htmlspecialchars($response)) . '
+                        </div>
+                    </div>
+                    
+                    ' . ($status === 'approved' ? '
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="https://alpha.matsfx.com/login" style="display: inline-block; background-color: #222222; color: white; text-decoration: none; padding: 12px 30px; border-radius: 50px; font-size: 16px; font-weight: 500;">Log in to matSFX</a>
+                    </div>
+                    ' : '') . '
+                </div>
+            </div>
+                
+            <div style="text-align: center; margin-top: 20px; font-size: 13px; color: #888888;">
+                <p>© ' . date('Y') . ' matSFX. All rights reserved.</p>
+                <p>This email was sent to ' . $email . '</p>
+            </div>
+        </body>
+        </html>
+        ';
+
+        $mail->AltBody = "
+        Hello $username,
+        
+        We have reviewed your appeal regarding your terminated matSFX account.
+        
+        Status: " . ucfirst($statusText) . "
+        
+        $actionText
+        
+        Admin Response:
+        $response
+        
+        " . ($status === 'approved' ? "You can log in at: https://alpha.matsfx.com/login" : "") . "
+        
+        © " . date('Y') . " matSFX. All rights reserved.
+        ";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Error sending appeal response email: " . $mail->ErrorInfo);
+        return false;
+    }
+}
+
 class AdminPanel {
     private $pdo;
     private $adminId;
@@ -452,39 +723,40 @@ class AdminPanel {
             $hasTerminationCols = false;
             try {
                 $this->pdo->query("
-                    SELECT is_active, termination_reason, terminated_at, terminated_by 
-                    FROM users 
+                    SELECT is_active, is_terminated, termination_reason, terminated_at, terminated_by
+                    FROM users
                     LIMIT 1
                 ");
                 $hasTerminationCols = true;
             } catch (PDOException $e) {
                 $hasTerminationCols = false;
             }
-            
+    
             if (!$hasTerminationCols) {
                 return [
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'Database schema is missing termination columns. Please run the database updates first.'
                 ];
             }
-            
+    
             // Start transaction
             $this->pdo->beginTransaction();
-            
+    
             // First get the user data for logging
             $userStmt = $this->pdo->prepare("SELECT username, email FROM users WHERE user_id = :user_id");
             $userStmt->execute(['user_id' => $userId]);
             $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
-            
+    
             if (!$userData) {
                 $this->pdo->rollBack();
                 return ['success' => false, 'message' => 'User not found'];
             }
-            
+    
             // Update user status to inactive
             $updateStmt = $this->pdo->prepare("
-                UPDATE users 
+                UPDATE users
                 SET is_active = 0,
+                    is_terminated = 1,
                     termination_reason = :reason,
                     terminated_at = NOW(),
                     terminated_by = :admin_id
@@ -495,7 +767,7 @@ class AdminPanel {
                 'admin_id' => $this->adminId,
                 'user_id' => $userId
             ]);
-            
+    
             // Log the action
             logAdminAction(
                 $this->adminId,
@@ -503,10 +775,10 @@ class AdminPanel {
                 $userId,
                 "Terminated user {$userData['username']} ({$userData['email']}) - Reason: $reason"
             );
-            
+    
             // Commit the transaction
             $this->pdo->commit();
-            
+    
             return [
                 'success' => true,
                 'message' => "User {$userData['username']} has been terminated"
@@ -527,44 +799,45 @@ class AdminPanel {
             $hasTerminationCols = false;
             try {
                 $this->pdo->query("
-                    SELECT is_active FROM users LIMIT 1
+                    SELECT is_active, is_terminated FROM users LIMIT 1
                 ");
                 $hasTerminationCols = true;
             } catch (PDOException $e) {
                 $hasTerminationCols = false;
             }
-            
+    
             if (!$hasTerminationCols) {
                 return [
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'Database schema is missing termination columns. Please run the database updates first.'
                 ];
             }
-            
+    
             // Start transaction
             $this->pdo->beginTransaction();
-            
+    
             // First get the user data for logging
             $userStmt = $this->pdo->prepare("SELECT username, email FROM users WHERE user_id = :user_id");
             $userStmt->execute(['user_id' => $userId]);
             $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
-            
+    
             if (!$userData) {
                 $this->pdo->rollBack();
                 return ['success' => false, 'message' => 'User not found'];
             }
-            
+    
             // Update user status to active
             $updateStmt = $this->pdo->prepare("
-                UPDATE users 
+                UPDATE users
                 SET is_active = 1,
+                    is_terminated = NULL,
                     termination_reason = NULL,
                     terminated_at = NULL,
                     terminated_by = NULL
                 WHERE user_id = :user_id
             ");
             $updateStmt->execute(['user_id' => $userId]);
-            
+    
             // Log the action
             logAdminAction(
                 $this->adminId,
@@ -572,10 +845,10 @@ class AdminPanel {
                 $userId,
                 "Restored user {$userData['username']} ({$userData['email']})"
             );
-            
+    
             // Commit the transaction
             $this->pdo->commit();
-            
+    
             return [
                 'success' => true,
                 'message' => "User {$userData['username']} has been restored"
@@ -987,6 +1260,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax'])) {
                     );
                     $response = $result;
                     break;
+
+                case 'process_appeal':
+                    // Process an appeal (approve or reject)
+                    if (!isset($_POST['appeal_id'], $_POST['status'], $_POST['response'])) {
+                        $response['error'] = 'Missing required parameters';
+                        break;
+                    }
+                    
+                    $appealId = intval($_POST['appeal_id']);
+                    $status = $_POST['status'];
+                    $adminResponse = sanitizeInput($_POST['response']);
+                    
+                    $result = processAppeal($appealId, $status, $adminResponse, $_SESSION['user_id']);
+                    $response = $result;
+                    break;
                     
                 case 'restore_account':
                     $result = $adminPanel->restoreAccount($_POST['user_id']);
@@ -1083,7 +1371,7 @@ $usersWithBadges = $badgeManager->getUsersWithBadges();
 
 // Determine which view to show
 $view = isset($_GET['view']) ? $_GET['view'] : 'dashboard';
-$validViews = ['dashboard', 'users', 'badges', 'user-detail', 'marked-for-deletion'];
+$validViews = ['dashboard', 'users', 'badges', 'user-detail', 'appeals', 'marked-for-deletion'];
 if (!in_array($view, $validViews)) {
     $view = 'dashboard';
 }

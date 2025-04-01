@@ -1,5 +1,6 @@
 <?php
 require_once 'config/config.php';
+require_once 'config/terminated_account_middleware.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">

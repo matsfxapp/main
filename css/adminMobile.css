@@ -1,0 +1,445 @@
+@media (max-width: 768px) {
+    .admin-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        display: none;
+    }
+    
+    .main-content {
+        grid-column: 1;
+        padding: 1rem;
+        padding-bottom: 70px;
+    }
+    
+    .mobile-tabs {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--darker-bg);
+        height: 60px;
+        z-index: 1000;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .mobile-tab {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-text);
+        text-decoration: none;
+        font-size: 0.7rem;
+        padding: 8px 0;
+        transition: var(--transition);
+    }
+    
+    .mobile-tab i {
+        font-size: 1.25rem;
+        margin-bottom: 4px;
+    }
+    
+    .mobile-tab.active {
+        color: var(--primary-color);
+    }
+    
+    .mobile-tab:hover, .mobile-tab:active {
+        color: var(--light-text);
+    }
+    
+    .more-menu {
+        position: fixed;
+        bottom: 60px;
+        left: 0;
+        right: 0;
+        background-color: var(--card-bg);
+        box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
+        padding: 0.75rem;
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 50vh;
+        overflow-y: auto;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .more-menu-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        color: var(--gray-text);
+        text-decoration: none;
+        border-radius: 8px;
+        gap: 0.75rem;
+        transition: var(--transition);
+    }
+    
+    .more-menu-item:hover, .more-menu-item:active {
+        background-color: var(--card-hover);
+        color: var(--light-text);
+    }
+    
+    .more-menu-item.active {
+        color: var(--primary-color);
+        background-color: var(--card-hover);
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .page-title {
+        font-size: 1.25rem;
+    }
+    
+    .search-form {
+        width: 100%;
+    }
+    
+    .search-input {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .stat-icon {
+        margin-bottom: 0;
+    }
+
+    .card {
+        margin-bottom: 1.25rem;
+        border-radius: 10px;
+    }
+    
+    .card-header {
+        padding: 0.875rem 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+
+    .recent-users {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .user-card {
+        padding: 0.75rem;
+    }
+    
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 0.5rem;
+        border-width: 2px;
+    }
+    
+    .user-name {
+        font-size: 0.9rem;
+    }
+    
+    .user-joined {
+        font-size: 0.7rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        margin-bottom: 0.5rem;
+    }
+    
+    table th {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+    
+    table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .user-cell img {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .cell-main {
+        font-size: 0.85rem;
+    }
+    
+    .cell-secondary {
+        font-size: 0.7rem;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        margin-bottom: 3px;
+        display: inline-block;
+    }
+    
+    .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.3rem;
+    }
+    
+    .pagination .btn {
+        min-width: 35px;
+        height: 35px;
+        padding: 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .modal-backdrop {
+        padding: 1rem;
+        overflow-y: auto;
+    }
+    
+    .modal, .modal-appeal {
+        max-height: 85vh;
+        overflow-y: auto;
+        width: 95%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .modal-header {
+        padding: 0.875rem 1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    
+    .modal-footer {
+        padding: 0.875rem 1rem;
+    }
+
+    .appeal-section {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .appeal-section h5 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .termination-reason, .appeal-reason, .admin-response {
+        padding: 0.75rem;
+        max-height: 150px;
+        overflow-y: auto;
+    }
+
+    .user-profile {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+    
+    .profile-sidebar {
+        position: static;
+        padding: 1rem;
+    }
+    
+    .profile-avatar {
+        width: 90px;
+        height: 90px;
+        border-width: 3px;
+    }
+    
+    .profile-badge-list {
+        margin-bottom: 1rem;
+    }
+    
+    .profile-actions {
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-label {
+        margin-bottom: 0.3rem;
+        font-size: 0.85rem;
+    }
+    
+    .form-input {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    textarea.form-input {
+        min-height: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 0.75rem;
+    }
+    
+    .recent-users {
+        grid-template-columns: 1fr;
+    }
+    
+    .user-card {
+        display: flex;
+        align-items: center;
+        text-align: left;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+    
+    .user-avatar {
+        margin-bottom: 0;
+        width: 50px;
+        height: 50px;
+    }
+    
+    .user-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .user-card .btn {
+        margin-top: 0;
+        margin-left: auto;
+    }
+    
+    .action-cell {
+        display: flex;
+        gap: 0.3rem;
+    }
+    
+    .termination-reason-cell {
+        max-width: 120px;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    .appeal-section {
+        padding: 0.625rem;
+    }
+    
+    .termination-reason, .appeal-reason, .admin-response {
+        padding: 0.625rem;
+    }
+}
+
+.mobile-tab .badge {
+    position: absolute;
+    top: 4px;
+    right: 25%;
+    font-size: 0.6rem;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .profile-stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .profile-stat-label {
+        font-size: 0.7rem;
+    }
+    
+    .profile-stats {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    @media (max-width: 480px) {
+        .profile-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .badge-form {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .badge-form select {
+        width: 100%;
+    }
+    
+    .badge-form button {
+        width: 100%;
+    }
+    
+    .badge-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .stat-card:hover {
+        transform: none;
+    }
+    
+    .appeal-user {
+        margin-bottom: 1rem;
+    }
+    
+    .status-filters {
+        margin-left: 0;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin-top: 0.5rem;
+    }
+    
+    .status-filter {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.75rem;
+    }
+}

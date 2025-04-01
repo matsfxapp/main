@@ -2,6 +2,7 @@
 session_start();
 require_once 'config/config.php';
 require_once 'config/auth.php';
+require_once 'config/terminated_account_middleware.php';
 
 if (isLoggedIn()) {
     // Get return URL from session or default to home

@@ -1,5 +1,6 @@
 <?php
-require 'handlers/admin.php'
+require 'handlers/admin.php';
+require 'config/config.php'
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,6 +11,7 @@ require 'handlers/admin.php'
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/adminMobile.css">
 </head>
 <body>
     <div class="admin-layout">
@@ -44,6 +46,26 @@ require 'handlers/admin.php'
                     <a href="?view=badges" class="nav-link <?php echo $view === 'badges' ? 'active' : ''; ?>">
                         <i class="fas fa-award"></i>
                         <span>Badge Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="?view=appeals" class="nav-link <?php echo $view === 'appeals' ? 'active' : ''; ?>">
+                        <i class="fas fa-gavel"></i>
+                        <span>Appeals</span>
+                        <?php
+                        // Show count of pending appeals
+                        $pendingAppealCount = 0;
+                        try {
+                            $stmt = $pdo->query("SELECT COUNT(*) FROM account_appeals WHERE status = 'pending'");
+                            $pendingAppealCount = $stmt->fetchColumn();
+                        } catch (PDOException $e) {
+                            // Table might not exist yet
+                        }
+                        
+                        if ($pendingAppealCount > 0): 
+                        ?>
+                        <span class="badge badge-warning"><?php echo $pendingAppealCount; ?></span>
+                        <?php endif; ?>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -525,6 +547,153 @@ require 'handlers/admin.php'
                         </div>
                     </div>
                 </div>
+                <?php elseif ($view === 'appeals'): ?>
+                <div class="page-header">
+                    <h1 class="page-title">Appeals Management</h1>
+                    <div class="status-filters">
+                        <a href="?view=appeals<?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?>" 
+                        class="status-filter <?php echo !isset($_GET['status']) ? 'active' : ''; ?>">
+                            All
+                        </a>
+                        <a href="?view=appeals&status=pending<?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?>" 
+                        class="status-filter <?php echo isset($_GET['status']) && $_GET['status'] === 'pending' ? 'active' : ''; ?>">
+                            Pending
+                        </a>
+                        <a href="?view=appeals&status=approved<?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?>" 
+                        class="status-filter <?php echo isset($_GET['status']) && $_GET['status'] === 'approved' ? 'active' : ''; ?>">
+                            Approved
+                        </a>
+                        <a href="?view=appeals&status=rejected<?php echo isset($_GET['page']) ? '&page=' . $_GET['page'] : ''; ?>" 
+                        class="status-filter <?php echo isset($_GET['status']) && $_GET['status'] === 'rejected' ? 'active' : ''; ?>">
+                            Rejected
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        Account Termination Appeals
+                        <?php if (isset($_GET['status'])): ?>
+                            <span>(<?php echo ucfirst(htmlspecialchars($_GET['status'])); ?> appeals)</span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="card-body">
+                        <?php
+                        $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+                        $status = isset($_GET['status']) ? $_GET['status'] : null;
+                        $appeals = getAccountAppeals(10, $page, $status);
+                        ?>
+                        
+                        <?php if (empty($appeals['appeals'])): ?>
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-inbox"></i>
+                                </div>
+                                <p>No appeals found</p>
+                                <?php if (isset($_GET['status'])): ?>
+                                    <a href="?view=appeals" class="btn btn-outline">View all appeals</a>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Appeal Date</th>
+                                            <th>Status</th>
+                                            <th>Termination Reason</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($appeals['appeals'] as $appeal): ?>
+                                            <tr>
+                                                <td>
+                                                    <div class="user-cell">
+                                                        <img src="<?php echo htmlspecialchars($appeal['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User">
+                                                        <div class="user-cell-info">
+                                                            <div class="cell-main"><?php echo htmlspecialchars($appeal['username']); ?></div>
+                                                            <div class="cell-secondary"><?php echo htmlspecialchars($appeal['email']); ?></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td><?php echo date('M j, Y g:i A', strtotime($appeal['appeal_date'])); ?></td>
+                                                <td>
+                                                    <span class="status-badge status-<?php echo $appeal['status']; ?>">
+                                                        <?php echo ucfirst($appeal['status']); ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="termination-reason-cell">
+                                                        <?php echo htmlspecialchars(substr($appeal['termination_reason'], 0, 50)); ?>
+                                                        <?php if (strlen($appeal['termination_reason']) > 50): ?>
+                                                            <span class="reason-tooltip" title="<?php echo htmlspecialchars($appeal['termination_reason']); ?>">...</span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="action-cell">
+                                                        <button class="action-btn view view-appeal-btn" 
+                                                                data-appeal-id="<?php echo $appeal['appeal_id']; ?>"
+                                                                data-username="<?php echo htmlspecialchars($appeal['username']); ?>"
+                                                                data-appeal-date="<?php echo date('M j, Y g:i A', strtotime($appeal['appeal_date'])); ?>"
+                                                                data-appeal-reason="<?php echo htmlspecialchars($appeal['appeal_reason']); ?>"
+                                                                data-termination-reason="<?php echo htmlspecialchars($appeal['termination_reason']); ?>"
+                                                                data-terminated-at="<?php echo date('M j, Y', strtotime($appeal['terminated_at'])); ?>"
+                                                                data-status="<?php echo $appeal['status']; ?>"
+                                                                data-admin-response="<?php echo htmlspecialchars($appeal['admin_response'] ?? ''); ?>"
+                                                                title="View Appeal">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                        
+                                                        <?php if ($appeal['status'] === 'pending'): ?>
+                                                            <button class="action-btn edit approve-appeal-btn" 
+                                                                    data-appeal-id="<?php echo $appeal['appeal_id']; ?>"
+                                                                    data-username="<?php echo htmlspecialchars($appeal['username']); ?>"
+                                                                    title="Approve Appeal">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                            
+                                                            <button class="action-btn delete reject-appeal-btn" 
+                                                                    data-appeal-id="<?php echo $appeal['appeal_id']; ?>"
+                                                                    data-username="<?php echo htmlspecialchars($appeal['username']); ?>"
+                                                                    title="Reject Appeal">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <?php if ($appeals['total_pages'] > 1): ?>
+                                <div class="pagination">
+                                    <?php if ($page > 1): ?>
+                                        <a href="?view=appeals&page=<?php echo $page - 1; ?><?php echo $status ? '&status=' . urlencode($status) : ''; ?>" class="btn btn-outline">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                    
+                                    <?php for($i = max(1, $page - 2); $i <= min($appeals['total_pages'], $page + 2); $i++): ?>
+                                        <a href="?view=appeals&page=<?php echo $i; ?><?php echo $status ? '&status=' . urlencode($status) : ''; ?>" class="btn btn-outline <?php echo $i == $page ? 'current' : ''; ?>">
+                                            <?php echo $i; ?>
+                                        </a>
+                                    <?php endfor; ?>
+                                    
+                                    <?php if ($page < $appeals['total_pages']): ?>
+                                        <a href="?view=appeals&page=<?php echo $page + 1; ?><?php echo $status ? '&status=' . urlencode($status) : ''; ?>" class="btn btn-outline">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
             <?php elseif ($view === 'marked-for-deletion'): ?>
                 <div class="page-header">
                     <h1 class="page-title">Accounts Marked for Deletion</h1>
@@ -634,6 +803,91 @@ require 'handlers/admin.php'
         </div>
     </div>
 
+    <!-- View Appeal Modal -->
+    <div class="modal-backdrop" id="viewAppealModal">
+        <div class="modal-appeal">
+            <div class="modal-header">
+                <h3 class="modal-title">Appeal Details</h3>
+                <button type="button" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="appeal-user">
+                    <h4 id="appealUsername"></h4>
+                    <span id="appealDate" class="appeal-date"></span>
+                    <span id="appealStatus" class="appeal-status"></span>
+                </div>
+                
+                <div class="appeal-section">
+                    <h5>Termination Details</h5>
+                    <div class="termination-info">
+                        <div class="termination-date" id="terminationDate"></div>
+                        <div class="termination-reason" id="terminationReason"></div>
+                    </div>
+                </div>
+                
+                <div class="appeal-section">
+                    <h5>Appeal Reason</h5>
+                    <div class="appeal-text" id="appealReason"></div>
+                </div>
+                
+                <div class="appeal-section" id="adminResponseSection">
+                    <h5>Admin Response</h5>
+                    <div class="admin-response" id="adminResponse"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline cancel-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approve Appeal Modal -->
+    <div class="modal-backdrop" id="approveAppealModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Approve Appeal</h3>
+                <button type="button" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to approve the appeal for <strong id="approveUsername"></strong>?</p>
+                <p>This will restore the user's account and remove the termination status.</p>
+                
+                <div class="form-group">
+                    <label for="approveResponse" class="form-label">Response to User:</label>
+                    <textarea id="approveResponse" class="form-input" placeholder="Explain why you're approving this appeal..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-success confirm-approve-btn">Approve Appeal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Appeal Modal -->
+    <div class="modal-backdrop" id="rejectAppealModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Reject Appeal</h3>
+                <button type="button" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to reject the appeal for <strong id="rejectUsername"></strong>?</p>
+                <p>The user's account will remain terminated.</p>
+                
+                <div class="form-group">
+                    <label for="rejectResponse" class="form-label">Response to User:</label>
+                    <textarea id="rejectResponse" class="form-input" placeholder="Explain why you're rejecting this appeal..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-danger confirm-reject-btn">Reject Appeal</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/admin.js"></script>
+    <script src="js/adminMobile.js"></script>
 </body>
 </html>

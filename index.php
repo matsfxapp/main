@@ -5,6 +5,7 @@ require_once 'handlers/search_handler.php';
 require_once 'music_handlers.php';
 require_once 'user_handlers.php';
 require_once 'config/config.php';
+require_once 'config/terminated_account_middleware.php';
 
 // Get all songs and organize by artist
 $songsByArtist = [];
@@ -838,7 +839,6 @@ function asset_url($path) {
 
     <div class="player-spacer"></div>
     <?php require_once 'includes/player.php'?>
-    <script src="<?php echo asset_url('js/global/loading.js'); ?>"></script>
     <script src="<?php echo asset_url('js/index.js'); ?>"></script>
     <script src="<?php echo asset_url('js/search.js'); ?>"></script>
     <script src="<?php echo asset_url('js/genreSection.js'); ?>"></script>

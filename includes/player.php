@@ -100,12 +100,3 @@
 <script src="js/player/navigation.js"></script>
 <script src="js/player/helper.js"></script>
 <script src="js/player/index.js"></script>
-
-<?php
-$isAprilFools = date('m-d') === '04-01';
-
-// Only include on April 1st
-if ($isAprilFools) {
-    echo '<script src="/js/aprilFoolsMode.js"></script>';
-}
-?>

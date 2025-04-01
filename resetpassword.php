@@ -1,6 +1,7 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+require_once 'config/terminated_account_middleware.php';
 
 require 'vendor/autoload.php';
 require_once 'config/config.php';
@@ -17,118 +18,63 @@ function sendEmail($to, $subject, $body, $reset_link = '') {
         $mail->Port = getenv('SMTP_PORT');
 
         // Recipients
-        $mail->setFrom(getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME2'));
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL'), 'matSFX');
         $mail->addAddress($to);
-        $mail->addReplyTo(getenv('SMTP_FROM_EMAIL'), getenv('SMTP_FROM_NAME2'));
+        $mail->addReplyTo(getenv('SMTP_FROM_EMAIL'), 'matSFX');
 
         // Content
         $mail->isHTML(true);
-        $mail->Subject = $subject;
+        $mail->Subject = $subject ?: 'Reset Your matSFX Password';
         $mail->Body = $body ?: '
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                body {
-                    margin: 0;
-                    padding: 0;
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                    line-height: 1.6;
-                    background-color: #f4f4f4;
-                    color: #333333;
-                }
-                .email-wrapper {
-                    background-color: #ffffff;
-                    max-width: 600px;
-                    margin: 0 auto;
-                    padding: 0;
-                }
-                .header {
-                    background-color: #2D7FF9;
-                    padding: 30px 20px;
-                    text-align: center;
-                }
-                .header img {
-                    max-width: 150px;
-                    height: auto;
-                }
-                .content {
-                    padding: 40px 20px;
-                    background-color: #ffffff;
-                }
-                h1 {
-                    color: #2D7FF9;
-                    font-size: 24px;
-                    margin: 0 0 20px 0;
-                    text-align: center;
-                }
-                p {
-                    margin: 0 0 20px 0;
-                    font-size: 16px;
-                    color: #555555;
-                }
-                .button {
-                    display: block;
-                    width: 200px;
-                    margin: 30px auto;
-                    padding: 15px 25px;
-                    background-color: #2D7FF9;
-                    color: #ffffff !important;
-                    text-align: center;
-                    text-decoration: none;
-                    border-radius: 8px;
-                    font-weight: bold;
-                    font-size: 16px;
-                }
-                .footer {
-                    background-color: #f8f9fa;
-                    padding: 20px;
-                    text-align: center;
-                    font-size: 12px;
-                    color: #666666;
-                }
-                .security-notice {
-                    background-color: #fff3cd;
-                    border: 1px solid #ffeeba;
-                    padding: 15px;
-                    margin: 20px 0;
-                    border-radius: 4px;
-                    font-size: 14px;
-                    color: #856404;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="email-wrapper">
-                <div class="header">
-                    <img src="https://alpha.matsfx.com/app_logos/matsfx_logo.png" alt="matSFX Logo">
+        <html>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; background-color: #fafafa; padding: 20px;">
+            <div style="background-color: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <h2 style="font-size: 22px; font-weight: 600; color: #222222; margin: 0;">Reset Your Password</h2>
                 </div>
-                <div class="content">
-                    <h1>Password Reset Request</h1>
-                    <p>We received a request to reset your password for your matSFX account.</p>
-                    <a href="'.$reset_link.'" class="button">Reset Password</a>
-                    <p>If you didn\'t request this, you can safely ignore this email. Your password will not be changed.</p>
-                    <div class="security-notice">
-                        <p>For security: This link will expire in 1 hour and can only be used once.</p>
+                
+                <div style="line-height: 1.6; font-size: 16px;">
+                    <p>Hello,</p>
+                    <p>We received a request to reset your password for your matSFX account. Click the button below to set a new password:</p>
+                    
+                    <div style="text-align: center; margin: 35px 0;">
+                        <a href="'.$reset_link.'" style="display: inline-block; background-color: #222222; color: white; text-decoration: none; padding: 12px 30px; border-radius: 50px; font-size: 16px; font-weight: 500; letter-spacing: 0.5px;">Reset Password</a>
                     </div>
+                    
+                    <p>If the button doesn\'t work, you can copy this link into your browser:</p>
+                    <p style="background-color: #f7f7f7; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 14px; word-break: break-all;">
+                        '.$reset_link.'
+                    </p>
+                    
+                    <div style="background-color: #fff8e6; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin: 25px 0; font-size: 15px;">
+                        <p style="margin: 0; font-weight: 500;">Security Notice</p>
+                        <p style="margin: 8px 0 0 0;">This link will expire in 1 hour and can only be used once. If you didn\'t request this reset, please ignore this email or contact support if you\'re concerned.</p>
+                    </div>
+                    
+                    <p style="margin-top: 25px;">
+                        Regards,<br>
+                        The matSFX Team
+                    </p>
                 </div>
-                <div class="footer">
-                    <p>&copy; '.date("Y").' matSFX. All rights reserved.</p>
-                    <p>This email was sent to '.$to.'</p>
-                </div>
+            </div>
+                
+            <div style="text-align: center; margin-top: 20px; font-size: 13px; color: #888888;">
+                <p>© '.date("Y").' matSFX. All rights reserved.</p>
+                <p>This email was sent to '.$to.'</p>
             </div>
         </body>
         </html>';
 
         // Plain text alternative
-        $mail->AltBody = "Password Reset Request\n\n" .
+        $mail->AltBody = "Reset Your Password\n\n" .
+                        "Hello,\n\n" .
                         "We received a request to reset your password for your matSFX account.\n\n" .
                         "To reset your password, click or copy this link:\n" .
                         $reset_link . "\n\n" .
-                        "If you didn't request this, you can safely ignore this email.\n" .
-                        "For security: This link will expire in 1 hour and can only be used once.\n\n" .
+                        "This link will expire in 1 hour and can only be used once.\n\n" .
+                        "If you didn't request this reset, please ignore this email or contact support if you're concerned.\n\n" .
+                        "Regards,\n" .
+                        "The matSFX Team\n\n" .
                         "© " . date("Y") . " matSFX. All rights reserved.\n" .
                         "This email was sent to " . $to;
 

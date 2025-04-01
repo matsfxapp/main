@@ -111,6 +111,7 @@ if (isset($_SESSION['user_id'])) {
     </header>
 
 	<script src="../js/search.js"></script>
+	<script src="js/global/imagePreloader.js"></script>
     <script>
         function toggleDropdown() {
             const dropdown = document.getElementById('profileDropdown');

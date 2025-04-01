@@ -1,5 +1,6 @@
 <?php
 require_once 'handlers/artist.php';
+require_once 'config/terminated_account_middleware.php';
 
 /**
  * Function to add version parameter to asset URLs
