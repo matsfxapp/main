@@ -258,7 +258,7 @@ function resendVerificationEmail($user_id) {
     }
     
     // Send the verification email
-    $result = sendVerificationEmail($user['email'], $verification_code);
+    $result = sendUserVerificationEmail($user['email'], $verification_code);
     
     if (!$result) {
         return ['error' => 'Failed to send verification email'];
@@ -268,7 +268,7 @@ function resendVerificationEmail($user_id) {
 }
 
 // Send verification email function
-function sendVerificationEmail($email, $code) {
+function sendUserVerificationEmail($email, $code) {
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
