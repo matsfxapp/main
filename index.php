@@ -445,7 +445,7 @@ function asset_url($path) {
         <div class="welcome-banner">
             <div class="welcome-backdrop"></div>
             <div class="welcome-content">
-                <h2 class="welcome-title">Welcome, <h2 class="welcome-title">Welcome, <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'User'; ?>!</h2>
+                <h2 class="welcome-title">Welcome, <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'User'; ?>!</h2>
                 <p class="welcome-desc">Thanks for joining our community! Start by exploring trending songs, or upload your own music to share with the world.</p>
                 <div class="welcome-cta">
                     <a href="/upload" class="welcome-button">
