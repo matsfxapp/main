@@ -69,8 +69,7 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-      MINIO_HTTP_SIGNATURES: ${MINIO_HTTP_SIGNATURES}
-    command: server /data --console-address ":9001"
+    command: server /data --console-address ":${MINIO_ADMIN_PORT}"
     ports:
       - "${MINIO_PORT}:9000"
       - "${MINIO_ADMIN_PORT}:9001"
