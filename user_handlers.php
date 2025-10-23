@@ -334,3 +334,52 @@ function updateSongDetails($user_id, $song_id, $details) {
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }
+
+function getUserPlayHistory($user_id, $limit = 10) {
+    global $pdo;
+    
+    if (!$pdo) {
+        return [];
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            SELECT s.*, sp.play_date 
+            FROM song_plays sp
+            JOIN songs s ON sp.song_id = s.song_id
+            WHERE sp.user_id = :user_id
+            ORDER BY sp.play_date DESC
+            LIMIT :limit
+        ");
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        $songs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Convert paths to URLs
+        foreach ($songs as &$song) {
+            if (!empty($song['file_path'])) {
+                $parts = explode('/', $song['file_path'], 2);
+                if (count($parts) == 2) {
+                    $song['song_url'] = getMinIOObjectUrl($parts[0], $parts[1]);
+                } else {
+                    $song['song_url'] = getMinIOObjectUrl('music-songs', $song['file_path']);
+                }
+            }
+            
+            if (!empty($song['cover_art'])) {
+                $parts = explode('/', $song['cover_art'], 2);
+                if (count($parts) == 2) {
+                    $song['cover_url'] = getMinIOObjectUrl($parts[0], $parts[1]);
+                } else {
+                    $song['cover_url'] = getMinIOObjectUrl('music-covers', $song['cover_art']);
+                }
+            }
+        }
+        
+        return $songs;
+    } catch (PDOException $e) {
+        error_log("Error in getUserPlayHistory(): " . $e->getMessage());
+        return [];
+    }
+}

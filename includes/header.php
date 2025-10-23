@@ -1,9 +1,27 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/minio.php';
 require_once __DIR__ . '/../user_handlers.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
+}
+
+/**
+ * Helper to convert database path to MinIO URL
+ */
+function getImageUrl($path) {
+    if (empty($path) || strpos($path, 'defaults/') === 0 || strpos($path, '/defaults/') === 0) {
+        return $path;
+    }
+    if (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0) {
+        return $path;
+    }
+    $parts = explode('/', $path, 2);
+    if (count($parts) == 2) {
+        return getMinIOObjectUrl($parts[0], $parts[1]);
+    }
+    return $path;
 }
 
 $user = [];
@@ -13,9 +31,6 @@ if (isset($_SESSION['user_id'])) {
     
     if (empty($user) || !isset($user['username'])) {
         error_log("Failed to get data for user ID: " . $_SESSION['user_id']);
-        
-        // Clear the session if user data cannot be retrieved
-        // This prevents an endless loop of failed retrievals
         $_SESSION = array();
     }
 }
@@ -40,7 +55,7 @@ if (isset($_SESSION['user_id'])) {
 
             <!-- User Profile with Dropdown -->
             <div class="nav-user-profile">
-				<img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '../defaults/default-profile.jpg'); ?>" 
+				<img src="<?php echo getImageUrl($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
                  alt="User Profile" class="nav-profile-picture" onclick="toggleDropdown()">
                 
                 <!-- Dropdown Menu -->

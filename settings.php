@@ -4,6 +4,8 @@ require_once 'music_handlers.php';
 require_once 'user_handlers.php';
 require_once 'config/terminated_account_middleware.php';
 
+ 
+
 if (!isLoggedIn()) {
     header("Location: login");
     exit();
@@ -190,14 +192,14 @@ if ($accountMarkedForDeletion && isset($deletionStatus['deletion_requested_at'])
             <h2>Profile Settings</h2>
             
             <div class="profile-banner-container">
-                <img src="<?php echo htmlspecialchars($userBanner); ?>" alt="Profile Banner" class="profile-banner">
+                <img src="<?php echo getImageUrl($userBanner); ?>" alt="Profile Banner" class="profile-banner">
                 <div class="profile-banner-overlay"></div>
                 <label for="profile_banner" class="profile-banner-edit">
                     <i class="fas fa-camera"></i>
                 </label>
                 
                 <div class="profile-picture-container">
-                    <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
+                    <img src="<?php echo getImageUrl($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
                          alt="Profile Picture" class="settings-profile-picture">
                     <label for="profile_picture" class="profile-picture-edit">
                         Change Photo
@@ -347,33 +349,6 @@ if ($accountMarkedForDeletion && isset($deletionStatus['deletion_requested_at'])
                 </div>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">Cookies and Tracking</label>
-                <div class="cookie-info">
-                    <div class="cookie-item">
-                        <h4><i class="fas fa-cookie"></i> Session Cookies</h4>
-                        <p>matSFX only uses essential session cookies to maintain your login state and basic preferences. We do not use tracking or advertising cookies.</p>
-                    </div>
-                    
-                    <div class="cookie-status">
-                        <div class="status-item">
-                            <span class="status-label">Session Cookies:</span>
-                            <span class="status-value enabled">Enabled (Required)</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Analytics Cookies:</span>
-                            <span class="status-value disabled">Not Used</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Advertising Cookies:</span>
-                            <span class="status-value disabled">Not Used</span>
-                        </div>
-                    </div>
-                    
-                    <p class="cookie-note">You can clear your browser cookies at any time through your browser settings, but this will sign you out of matSFX.</p>
-                </div>
-            </div>
-            
             <div class="form-actions">
                 <button type="submit" name="update_privacy" class="button">
                     <i class="fas fa-save"></i> Save Privacy Preferences
@@ -446,7 +421,7 @@ if ($accountMarkedForDeletion && isset($deletionStatus['deletion_requested_at'])
                                     <input type="file" id="song_cover-<?php echo $song['song_id']; ?>" 
                                         name="song_cover" accept="image/*">
                                     <div class="current-cover">
-                                        <img src="<?php echo htmlspecialchars($song['cover_art'] ?? '/defaults/default-cover.jpg'); ?>" 
+                                        <img src="<?php echo getImageUrl($song['cover_art'] ?? '/defaults/default-cover.jpg'); ?>" 
                                             alt="Cover Art" style="max-width: 100px; margin-top: 10px;">
                                         <small>Current cover</small>
                                     </div>

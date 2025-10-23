@@ -1,4 +1,14 @@
 /**
+ * Convert a MinIO bucket/key path to a full URL
+ */
+function getMinIOUrl(path) {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    if (path.startsWith('defaults/') || path.startsWith('/defaults/')) return path;
+    return `http://localhost:9000/${path}`;
+}
+
+/**
  * Initialize player on document load
  */
 function initializePlayer() {
@@ -12,8 +22,8 @@ function initializePlayer() {
         audioPlayer.volume = parseFloat(savedVolume);
         volumeSlider.value = parseFloat(savedVolume) * 100;
     } else {
-        audioPlayer.volume = 0.7; // Default volume
-        volumeSlider.value = 70;
+        audioPlayer.volume = 1; // Default volume
+        volumeSlider.value = 100;
     }
     
     // Load last played song from localStorage

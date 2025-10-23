@@ -13,15 +13,25 @@ window.lastPlayedPosition = 0;
 window.trackedSongs = new Set();
 
 /**
- * Format seconds into mm:ss time format
+ * Convert a MinIO bucket/key path to a full URL
+ */
+function getMinIOUrl(path) {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    if (path.startsWith('defaults/') || path.startsWith('/defaults/')) return path;
+    return `http://localhost:9000/${path}`;
+}
+
+/**
+ * Format time in seconds to MM:SS format
  * @param {number} seconds - Time in seconds
- * @returns {string} - Formatted time string
+ * @returns {string} Formatted time string
  */
 function formatTime(seconds) {
-    if (isNaN(seconds)) return "0:00";
+    if (!seconds || isNaN(seconds)) return '0:00';
     const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
 
 /**
@@ -138,7 +148,7 @@ function playSong(filePath, element) {
         fetch('get_minio_url.php?path=' + encodeURIComponent(filePath))
             .then(response => response.text())
             .then(actualUrl => {
-                window.audioPlayer.src = actualUrl;
+                window.audioPlayer.src = getMinIOUrl(actualUrl);
                 window.continuePlaySong(element);
             })
             .catch(error => {
@@ -147,7 +157,7 @@ function playSong(filePath, element) {
                 window.isChangingTrack = false;
             });
     } else {
-        window.audioPlayer.src = filePath;
+        window.audioPlayer.src = getMinIOUrl(filePath);
         window.continuePlaySong(element);
     }
 }

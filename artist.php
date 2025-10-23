@@ -128,7 +128,7 @@ function asset_url($path) {
                         data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
                         <div class="song-number"><?php echo $index + 1; ?></div>
                         <div class="song-image">
-                            <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
+                            <img src="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
                                 alt="Song Cover" class="popular-song-image">
                         </div>
                         <div class="song-info">
@@ -239,7 +239,7 @@ function asset_url($path) {
                                     data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
                                     data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
                                     data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
-                                    <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
+                                    <img src="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
                                         alt="Song Cover" 
                                         class="song-card-image">
                                     <div class="song-card-info">

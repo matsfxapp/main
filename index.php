@@ -475,9 +475,9 @@ function asset_url($path) {
                         data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
                         data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
                         data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>"
-                        data-cover-art="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>">
+                        data-cover-art="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>">
 
-                        <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
+                        <img src="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
                             alt="Cover Art" 
                             class="recently-played-cover">
                         <div class="recently-played-info">
@@ -512,7 +512,7 @@ function asset_url($path) {
                         data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
                         data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
                         data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
-                        <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                        <img src="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                         <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                         <div class="song-artist">
                             <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
@@ -548,7 +548,7 @@ function asset_url($path) {
                     ?>
                     <a href="artist?name=<?php echo urlencode($artistName); ?>" class="top-artist-card">
                         <div class="top-artist-image-container">
-                            <img src="<?php echo htmlspecialchars($artist['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
+                            <img src="<?php echo getImageUrl($artist['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
                                  alt="<?php echo htmlspecialchars($artistName); ?>" 
                                  class="top-artist-image"
                                  onerror="this.src='defaults/default-profile.jpg'">
@@ -584,9 +584,9 @@ function asset_url($path) {
                          data-song-title="<?php echo htmlspecialchars($release['title']); ?>"
                          data-song-artist="<?php echo htmlspecialchars($release['artist']); ?>"
                          data-song-id="<?php echo htmlspecialchars($release['song_id']); ?>"
-                         data-cover-art="<?php echo htmlspecialchars($release['cover_art'] ?? 'defaults/default-cover.jpg'); ?>">
+                         data-cover-art="<?php echo getImageUrl($release['cover_art'] ?? 'defaults/default-cover.jpg'); ?>">
                         
-                        <img src="<?php echo htmlspecialchars($release['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
+                        <img src="<?php echo getImageUrl($release['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" 
                              alt="<?php echo htmlspecialchars($release['title']); ?>" 
                              class="new-release-cover">
                              
@@ -629,7 +629,7 @@ function asset_url($path) {
                         data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
                         data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
                         data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
-                        <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                        <img src="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                         <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                         <div class="song-artist">
                             <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
@@ -676,7 +676,7 @@ function asset_url($path) {
                             data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
                             data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
                             data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
-                            <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                            <img src="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                             <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                             <div class="song-artist">
                                 <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
@@ -700,7 +700,7 @@ function asset_url($path) {
             <div class="new-users-grid">
                 <?php foreach ($newUsers as $user): ?>
                     <a href="artist?name=<?php echo urlencode($user['username']); ?>" class="user-card">
-                        <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
+                        <img src="<?php echo getImageUrl($user['profile_picture'] ?? 'defaults/default-profile.jpg'); ?>" 
                             alt="Profile Picture" 
                             class="user-profile-pic">
                         <div class="user-info">
@@ -730,7 +730,7 @@ function asset_url($path) {
                         data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
                         data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
                         data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
-                        <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                        <img src="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                         <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                         <div class="song-artist">
                             <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">
@@ -791,7 +791,7 @@ function asset_url($path) {
                     data-song-title="<?php echo htmlspecialchars($song['title']); ?>"
                     data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>"
                     data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
-                    <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
+                    <img src="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="cover-art">
                     <div class="song-title"><?php echo htmlspecialchars($song['title']); ?></div>
                     <div class="song-artist">
                         <a href="artist?name=<?php echo urlencode($song['artist']); ?>" class="artist-link">

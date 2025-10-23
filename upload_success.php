@@ -3,6 +3,8 @@ require_once 'config/config.php';
 require_once 'music_handlers.php';
 require_once 'config/terminated_account_middleware.php';
 
+ 
+
 if (!isLoggedIn()) {
     header("Location: login.php");
     exit();
@@ -63,7 +65,7 @@ if ($songId) {
                     
                     <div class="song-details">
                         <div class="song-preview">
-                            <img src="<?php echo htmlspecialchars($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="song-preview-image">
+                            <img src="<?php echo getImageUrl($song['cover_art'] ?? 'defaults/default-cover.jpg'); ?>" alt="Cover Art" class="song-preview-image">
                             <div class="song-preview-play" onclick="playSong('<?php echo htmlspecialchars($song['file_path']); ?>', this)" data-song-title="<?php echo htmlspecialchars($song['title']); ?>" data-song-artist="<?php echo htmlspecialchars($song['artist']); ?>" data-song-id="<?php echo htmlspecialchars($song['song_id']); ?>">
                                 <i class="fas fa-play"></i>
                             </div>

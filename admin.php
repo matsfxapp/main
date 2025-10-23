@@ -231,7 +231,7 @@ require 'config/config.php'
                                             <tr>
                                                 <td>
                                                     <div class="user-cell">
-                                                        <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User">
+                                                        <img src="<?php echo getImageUrl($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User">
                                                         <div class="user-cell-info">
                                                             <div class="cell-main"><?php echo htmlspecialchars($user['username']); ?></div>
                                                             <div class="cell-secondary"><?php echo htmlspecialchars($user['email']); ?></div>
@@ -324,7 +324,7 @@ require 'config/config.php'
 
                 <div class="user-profile">
                     <div class="profile-sidebar">
-                        <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User" class="profile-avatar">
+                        <img src="<?php echo getImageUrl($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User" class="profile-avatar">
                         <h2 class="profile-name"><?php echo htmlspecialchars($user['username']); ?></h2>
                         <div class="profile-email"><?php echo htmlspecialchars($user['email']); ?></div>
                         
@@ -726,7 +726,7 @@ require 'config/config.php'
                                             <tr>
                                                 <td>
                                                     <div class="user-cell">
-                                                        <img src="<?php echo htmlspecialchars($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User">
+                                                        <img src="<?php echo getImageUrl($user['profile_picture'] ?? '/defaults/default-profile.jpg'); ?>" alt="User">
                                                         <div class="user-cell-info">
                                                             <div class="cell-main"><?php echo htmlspecialchars($user['username']); ?></div>
                                                         </div>

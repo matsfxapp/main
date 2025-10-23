@@ -68,7 +68,7 @@ services:
     restart: always
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_PASSWORD: '${MINIO_ROOT_PASSWORD}'
     command: server /data --console-address ":${MINIO_ADMIN_PORT}"
     ports:
       - "${MINIO_PORT}:9000"
